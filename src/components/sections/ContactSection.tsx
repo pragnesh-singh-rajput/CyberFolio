@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card"; // Added import
 import { useToast } from "@/hooks/use-toast";
 import { Linkedin, Github, Twitter, Mail } from "lucide-react";
 import Link from "next/link";
