@@ -14,14 +14,14 @@ export default function EducationSection() {
       <div className="absolute -z-10 bottom-[5%] right-[-15%] w-[30rem] h-[30rem] md:w-[45rem] md:h-[45rem] bg-primary/15 rounded-full filter blur-[100px] md:blur-[160px] opacity-50"></div>
 
       <div className="container mx-auto px-4 md:px-6">
-        <AnimatedSection delay="delay-100" className="w-full text-center mb-12">
+        <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">My Education</h2>
           <p className="mt-4 text-lg text-muted-foreground">
             My academic journey in the field of computer science and cyber security.
           </p>
         </AnimatedSection>
         <div className="flex justify-center">
-          <AnimatedSection delay="delay-200" className="w-full max-w-2xl">
+          <AnimatedSection animationType="fadeInRight" delay="delay-300" className="w-full max-w-2xl">
             <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card/80 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center gap-4 pb-4">
                 <div className="bg-accent p-3 rounded-full">

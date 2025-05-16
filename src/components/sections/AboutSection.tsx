@@ -12,10 +12,10 @@ export default function AboutSection() {
       <div className="absolute -z-10 bottom-[10%] left-[-10%] w-[22rem] h-[22rem] md:w-[32rem] md:h-[32rem] bg-primary/25 rounded-full filter blur-[90px] md:blur-[140px] opacity-50"></div>
       
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <AnimatedSection delay="delay-100" className="w-full">
+        <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-6">About Me</h2>
         </AnimatedSection>
-        <AnimatedSection delay="delay-200" className="w-full">
+        <AnimatedSection animationType="fadeInRight" delay="delay-300" className="w-full">
           <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
             As a dedicated Cyber Security enthusiast currently in my final year of B.Tech in Computer Science and Engineering,
             I am deeply invested in the ever-evolving landscape of digital security. My academic journey has equipped me with a strong foundation

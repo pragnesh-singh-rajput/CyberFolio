@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Linkedin, Github, Twitter, Mail, Phone } from "lucide-react"; // Added Phone
+import { Linkedin, Github, Twitter, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 
@@ -60,14 +60,14 @@ export default function ContactSection() {
       <div className="absolute -z-10 bottom-[10%] left-[-15%] w-[30rem] h-[30rem] md:w-[40rem] md:h-[40rem] bg-accent/30 rounded-full filter blur-[100px] md:blur-[160px] opacity-50"></div>
 
       <div className="container mx-auto px-4 md:px-6">
-        <AnimatedSection delay="delay-100" className="w-full text-center mb-12">
+        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Get In Touch</h2>
           <p className="mt-4 text-lg text-muted-foreground">
             Have a question or want to collaborate? Feel free to reach out.
           </p>
         </AnimatedSection>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          <AnimatedSection delay="delay-200" className="w-full">
+          <AnimatedSection animationType="fadeInLeft" delay="delay-300" className="w-full">
             <div className="space-y-8">
               <div>
                 <h3 className="text-xl font-semibold text-primary mb-4">Contact Information</h3>
@@ -104,7 +104,7 @@ export default function ContactSection() {
               </div>
             </div>
           </AnimatedSection>
-          <AnimatedSection delay="delay-300" className="w-full">
+          <AnimatedSection animationType="fadeInRight" delay="delay-400" className="w-full">
             <Card className="p-6 md:p-8 shadow-lg bg-card/80 backdrop-blur-sm">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

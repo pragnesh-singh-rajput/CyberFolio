@@ -50,7 +50,7 @@ export default function ExperienceSection() {
       <div className="absolute -z-10 bottom-[10%] left-[-15%] w-[24rem] h-[24rem] md:w-[38rem] md:h-[38rem] bg-accent/25 rounded-full filter blur-[100px] md:blur-[150px] opacity-45"></div>
       
       <div className="container mx-auto px-4 md:px-6">
-        <AnimatedSection delay="delay-100" className="w-full text-center mb-12">
+        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Professional Experience</h2>
           <p className="mt-4 text-lg text-muted-foreground">
             My journey and contributions in the professional cyber security landscape.
@@ -59,7 +59,11 @@ export default function ExperienceSection() {
 
         <div className="space-y-12 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/50 scrollbar-track-transparent">
           {experienceData.map((exp, index) => (
-            <AnimatedSection key={exp.id} delay={`delay-${(index + 1) * 100}` as `delay-${number}`}>
+            <AnimatedSection 
+              key={exp.id} 
+              animationType={index % 2 === 0 ? 'fadeInLeft' : 'fadeInRight'}
+              delay={`delay-${(index * 150) + 200}` as `delay-${number}`}
+            >
               <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden bg-card/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-6">
                   {exp.logoUrl && (
@@ -110,4 +114,3 @@ export default function ExperienceSection() {
     </section>
   );
 }
-

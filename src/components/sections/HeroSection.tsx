@@ -16,19 +16,19 @@ export default function HeroSection() {
 
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center gap-8">
-          <AnimatedSection delay="delay-100" className="max-w-3xl">
+          <AnimatedSection animationType="scaleIn" delay="delay-100" className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
               Hello, I&apos;m <span className="text-accent">Pragnesh Singh Rajput</span>
             </h1>
           </AnimatedSection>
-          <AnimatedSection delay="delay-200" className="max-w-3xl">
+          <AnimatedSection animationType="fadeInUp" delay="delay-300" className="max-w-3xl">
             <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl">
               A passionate 4th-year B.Tech CSE student specializing in Cyber Security.
               I am dedicated to exploring the intricacies of digital defense, threat analysis, and secure system design.
               My goal is to leverage cutting-edge technology and innovative strategies to contribute to a safer digital world.
             </p>
           </AnimatedSection>
-          <AnimatedSection delay="delay-300" className="mt-8">
+          <AnimatedSection animationType="fadeInUp" delay="delay-500" className="mt-8">
             <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
               <Link href="#contact">
                 Get In Touch
