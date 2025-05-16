@@ -104,8 +104,9 @@ export default function ExperienceSection() {
   }, []);
 
   const scrollToCard = useCallback((index: number) => {
+    if (index < 0 || index >= experienceData.length) return;
     const cardElement = cardRefs.current[index];
-    if (cardElement) {
+    if (cardElement && scrollContainerRef.current) {
       cardElement.scrollIntoView({
         behavior: 'smooth',
         inline: 'center',
@@ -113,7 +114,7 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [setActiveIndex]); // cardRefs is stable
+  }, []); // cardRefs and scrollContainerRef are stable after mount
 
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -130,13 +131,21 @@ export default function ExperienceSection() {
   useEffect(() => {
     updateScrollability();
     const container = scrollContainerRef.current;
+    let resizeObserver: ResizeObserver | null = null;
+
     if (container) {
       container.addEventListener('scroll', updateScrollability, { passive: true });
+      resizeObserver = new ResizeObserver(updateScrollability);
+      resizeObserver.observe(container);
     }
+    
     window.addEventListener('resize', updateScrollability);
     return () => {
       if (container) {
         container.removeEventListener('scroll', updateScrollability);
+        if (resizeObserver) {
+          resizeObserver.unobserve(container);
+        }
       }
       window.removeEventListener('resize', updateScrollability);
     };
@@ -168,11 +177,11 @@ export default function ExperienceSection() {
   useEffect(() => {
     const timer = setTimeout(() => {
         if (experienceData.length > 0 && cardRefs.current[activeIndex]) {
-             scrollToCard(activeIndex);
+             scrollToCard(0); // Start at the first card
         }
-    }, 150); // Increased delay slightly for layout to be super sure
+    }, 200); 
     return () => clearTimeout(timer);
-  }, [experienceData.length, scrollToCard, activeIndex]);
+  }, [experienceData.length, scrollToCard]);
 
 
   return (
@@ -199,7 +208,7 @@ export default function ExperienceSection() {
             onClick={() => scrollToCard(activeIndex - 1)}
             disabled={!canScrollLeft}
             aria-label="Scroll experience left"
-            className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
+            className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
           >
             <ChevronLeft className="h-6 w-6" />
           </Button>
@@ -207,7 +216,7 @@ export default function ExperienceSection() {
           <div 
             ref={scrollContainerRef}
             className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} 
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
           >
             {experienceData.map((exp, index) => (
               <div
@@ -215,12 +224,12 @@ export default function ExperienceSection() {
                 ref={(el) => { cardRefs.current[index] = el; }}
                 className={cn(
                   "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2",
-                  "transition-all duration-500 ease-in-out transform" // Added transform for smooth scaling
+                  "transition-all duration-500 ease-in-out transform"
                 )}
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`} // All cards animate in similarly, focus is on active state
+                  delay={`delay-${100}` as `delay-${number}`}
                 >
                   <Card className={cn(
                     "flex flex-col h-full shadow-xl transition-all duration-300 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
@@ -282,7 +291,7 @@ export default function ExperienceSection() {
             onClick={() => scrollToCard(activeIndex + 1)}
             disabled={!canScrollRight}
             aria-label="Scroll experience right"
-            className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
+            className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
           >
             <ChevronRight className="h-6 w-6" />
           </Button>
@@ -291,4 +300,3 @@ export default function ExperienceSection() {
     </section>
   );
 }
-
