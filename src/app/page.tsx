@@ -12,7 +12,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
-      <main className="flex-grow scroll-snap-type-y-mandatory overflow-y-scroll h-[100vh]">
+      <main className="flex-grow scroll-snap-type-y-proximity overflow-y-scroll h-[100vh]">
         <HeroSection />
         <AboutSection />
         <EducationSection />

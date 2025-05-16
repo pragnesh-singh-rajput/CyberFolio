@@ -66,15 +66,10 @@
   }
   html {
     @apply scroll-smooth;
-    /* Ensure scroll-snap works on html/body if main isn't filling viewport correctly */
-    /* height: 100%; 
-    overflow: hidden; */
   }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-geist-sans);
-    /* height: 100%;
-    overflow-y: auto; */
   }
   
   /* Custom scrollbar for webkit browsers */
@@ -102,8 +97,8 @@
 }
 
 @layer utilities {
-  .scroll-snap-type-y-mandatory {
-    scroll-snap-type: y mandatory;
+  .scroll-snap-type-y-proximity {
+    scroll-snap-type: y proximity;
   }
   .scroll-snap-align-start {
     scroll-snap-align: start;
