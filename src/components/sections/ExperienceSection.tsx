@@ -107,7 +107,7 @@ export default function ExperienceSection() {
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isActuallyScrollable = container.scrollWidth > container.clientWidth;
+      const isActuallyScrollable = container.scrollWidth > container.clientWidth + 1; // Add 1px buffer
       setCanScrollLeft(isActuallyScrollable && activeIndex > 0);
       setCanScrollRight(isActuallyScrollable && activeIndex < experienceData.length - 1);
     } else {
@@ -128,7 +128,7 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]);
+  }, [experienceData.length]); // Removed activeIndex from here
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -141,6 +141,10 @@ export default function ExperienceSection() {
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
 
+      // Initial scroll to activeIndex if needed, after layout calculation
+      // Removed the auto-scroll to card 0 on mount from previous iteration
+      // to fix page load scroll issue. The first card is active by default.
+
       return () => {
         container.removeEventListener('scroll', handleScrollEvent);
         if (resizeObserver) {
@@ -148,11 +152,6 @@ export default function ExperienceSection() {
         }
       };
     }
-    
-    window.addEventListener('resize', updateScrollability);
-    return () => {
-      window.removeEventListener('resize', updateScrollability);
-    };
   }, [updateScrollability, experienceData.length]); 
   
   useEffect(() => {
@@ -168,10 +167,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.022}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.012}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.016}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.1}px) translateX(-${scrollProgress * 0.04}px) rotate(${scrollProgress * 0.008}deg)`;
       }
     };
 
@@ -193,11 +192,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[10%] right-[-25%] w-[65rem] h-[95rem] md:w-[65rem] md:h-[95rem] bg-primary/40 rounded-full filter blur-[180px] md:blur-[220px] opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[5%] right-[-20%] w-[45rem] h-[60rem] md:w-[65rem] md:h-[75rem] bg-primary/50 rounded-full filter blur-[170px] md:blur-[200px] opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[80rem] h-[60rem] md:w-[80rem] md:h-[60rem] bg-accent/50 rounded-full filter blur-[170px] md:blur-[210px] opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[0%] left-[-15%] w-[50rem] h-[45rem] md:w-[70rem] md:h-[60rem] bg-accent/60 rounded-full filter blur-[160px] md:blur-[190px] opacity-60 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -242,13 +241,13 @@ export default function ExperienceSection() {
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`}
+                  delay={`delay-${100}` as `delay-${number}`} // Keep initial animation consistent
                 >
                   <Card className={cn(
                     "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
                     index === activeIndex 
                       ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                      : "opacity-60 scale-90 hover:opacity-80 hover:scale-[0.92]"
+                      : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" // Enhanced "behind" effect
                   )}>
                     <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
                       {exp.logoUrl && (
