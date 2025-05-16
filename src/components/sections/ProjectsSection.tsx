@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Github, ExternalLink } from 'lucide-react';
+import { Github, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Project } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState } from 'react';
@@ -46,23 +46,34 @@ const projectsData: Project[] = [
     repoUrl: 'https://github.com/pragnesh-singh-rajput/EthicalHackingToolkit',
     tags: ['Ethical Hacking', 'Python', 'Security Tools', 'Penetration Testing'],
   },
+  {
+    id: '5',
+    title: 'Portfolio Website (This one!)',
+    description: 'A personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations and a custom cursor.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    imageHint: 'portfolio website code',
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
+    tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React'],
+  },
 ];
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
-  const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
+  const [scrollContainerEl, setScrollContainerEl] = useState<HTMLElement | null>(null);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   useEffect(() => {
-    const mainElement = document.querySelector('.parallax-scroll-container');
-    if (mainElement instanceof HTMLElement) {
-      setScrollContainer(mainElement);
-    }
+    const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
+    setScrollContainerEl(mainElement);
   }, []);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current) return;
+    if (!scrollContainerEl || !sectionRef.current) return;
 
     const handleScroll = () => {
       if (!sectionRef.current) return;
@@ -79,11 +90,57 @@ export default function ProjectsSection() {
 
     handleScroll(); 
 
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    scrollContainerEl.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
+      scrollContainerEl.removeEventListener('scroll', handleScroll);
     };
-  }, [scrollContainer]);
+  }, [scrollContainerEl]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const checkScrollability = () => {
+      if (container) {
+        const isOverflowing = container.scrollWidth > container.clientWidth;
+        if (!isOverflowing) {
+          setCanScrollLeft(false);
+          setCanScrollRight(false);
+          return;
+        }
+        setCanScrollLeft(container.scrollLeft > 5); // Add a small threshold
+        setCanScrollRight(container.scrollLeft < (container.scrollWidth - container.clientWidth - 5)); // Add a small threshold
+      }
+    };
+
+    checkScrollability();
+    container.addEventListener('scroll', checkScrollability, { passive: true });
+    window.addEventListener('resize', checkScrollability);
+
+    // Observe changes in children that might affect scrollWidth (e.g., if images load and change size)
+    // This is more robust for dynamic content, though projectsData dependency also helps.
+    const resizeObserver = new ResizeObserver(checkScrollability);
+    Array.from(container.children).forEach(child => resizeObserver.observe(child));
+
+
+    return () => {
+      container.removeEventListener('scroll', checkScrollability);
+      window.removeEventListener('resize', checkScrollability);
+      resizeObserver.disconnect();
+    };
+  }, [projectsData]); // Re-run if projectsData changes (e.g., more projects added)
+
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.8; // Scroll by 80% of visible width
+      container.scrollBy({ 
+        left: direction === 'left' ? -scrollAmount : scrollAmount, 
+        behavior: 'smooth' 
+      });
+    }
+  };
 
   return (
     <section
@@ -95,21 +152,47 @@ export default function ProjectsSection() {
       <div ref={circle2Ref} className="absolute -z-10 bottom-[0%] right-[-18%] w-[30rem] h-[30rem] md:w-[42rem] md:h-[42rem] bg-secondary/35 rounded-full filter blur-[160px] md:blur-[220px] opacity-55 transition-transform duration-500 ease-out"></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
-        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12 px-4">
+        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-6 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💡 My Projects</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
             A selection of projects I&apos;ve worked on, showcasing my skills in cyber security.
           </p>
         </AnimatedSection>
         
-        <div className="w-full overflow-hidden pb-4"> {/* Added pb-4 for scrollbar visibility */}
-          <div className="flex flex-row gap-6 md:gap-8 overflow-x-auto py-4 px-4 md:px-0 scrollbar-thin scrollbar-thumb-accent/70 scrollbar-track-transparent -mx-4 md:-mx-0">
+        <div className="flex justify-end gap-3 mb-6 px-4 md:px-0">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleScroll('left')}
+            disabled={!canScrollLeft}
+            aria-label="Scroll projects left"
+            className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleScroll('right')}
+            disabled={!canScrollRight}
+            aria-label="Scroll projects right"
+            className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        <div className="w-full overflow-hidden">
+          <div
+            ref={scrollContainerRef}
+            className="flex flex-row gap-6 md:gap-8 overflow-x-auto py-4 px-4 md:px-0 scrollbar-thin scrollbar-thumb-accent/70 scrollbar-track-transparent -mx-4 md:-mx-0"
+          >
             {projectsData.map((project, index) => (
               <AnimatedSection 
                 key={project.id} 
                 animationType="scaleIn" 
                 delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
-                className="flex-none w-[calc(100%-2rem)] sm:w-96 md:w-[400px] h-full group" // Added group for image hover
+                className="flex-none w-[calc(100%-2rem)] sm:w-96 md:w-[400px] h-full group"
               >
                 <Card className="flex flex-col h-full overflow-hidden shadow-xl hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 ease-out bg-card/90 backdrop-blur-md border-secondary/30">
                   {project.imageUrl && (
@@ -162,7 +245,7 @@ export default function ProjectsSection() {
                 </Card>
               </AnimatedSection>
             ))}
-            {/* Padding elements to ensure last items can be scrolled fully into view if needed */}
+            {/* Padding elements to ensure last items can be scrolled fully into view if needed for snapping, not strictly necessary without snap */}
             <div className="flex-none w-1 md:w-4"></div>
           </div>
         </div>
@@ -170,3 +253,4 @@ export default function ProjectsSection() {
     </section>
   );
 }
+

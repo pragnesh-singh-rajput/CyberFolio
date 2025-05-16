@@ -3,7 +3,8 @@
 
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, CalendarDays, MapPin, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, CalendarDays, MapPin, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ExperienceItem } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState } from 'react';
@@ -52,25 +53,42 @@ const experienceData: ExperienceItem[] = [
       'Collaborated with clients to understand requirements and deliver solutions.',
     ],
   },
+  {
+    id: 'exp4',
+    title: 'Jr. Security Researcher (Hypothetical)',
+    company: 'CyberDef Innovations',
+    duration: 'Sep 2024 - Present',
+    location: 'Remote',
+    logoUrl: 'https://placehold.co/100x100.png',
+    imageHint: 'research lab tech',
+    description: [
+      'Exploring new threat vectors and defensive strategies in IoT security.',
+      'Contributing to research papers and security publications.',
+      'Developing proof-of-concept exploits for educational purposes.',
+    ],
+  },
 ];
 
 export default function ExperienceSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
-  const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
+  const [scrollContainerEl, setScrollContainerEl] = useState<HTMLElement | null>(null);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
 
   useEffect(() => {
-    const mainElement = document.querySelector('.parallax-scroll-container');
-    if (mainElement instanceof HTMLElement) {
-      setScrollContainer(mainElement);
-    }
+    const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
+    setScrollContainerEl(mainElement);
   }, []);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current) return;
+    if (!scrollContainerEl || !sectionRef.current) return;
 
-    const handleScroll = () => {
+    const handleParallaxScroll = () => {
       if (!sectionRef.current) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
@@ -83,13 +101,56 @@ export default function ExperienceSection() {
       }
     };
 
-    handleScroll(); 
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    handleParallaxScroll(); 
+    scrollContainerEl.addEventListener('scroll', handleParallaxScroll, { passive: true });
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
+      scrollContainerEl.removeEventListener('scroll', handleParallaxScroll);
     };
-  }, [scrollContainer]);
+  }, [scrollContainerEl]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const checkScrollability = () => {
+      if (container) {
+        const isOverflowing = container.scrollWidth > container.clientWidth;
+         if (!isOverflowing) {
+          setCanScrollLeft(false);
+          setCanScrollRight(false);
+          return;
+        }
+        setCanScrollLeft(container.scrollLeft > 5); // Add a small threshold
+        setCanScrollRight(container.scrollLeft < (container.scrollWidth - container.clientWidth - 5)); // Add a small threshold
+      }
+    };
+
+    checkScrollability();
+    container.addEventListener('scroll', checkScrollability, { passive: true });
+    window.addEventListener('resize', checkScrollability);
+    
+    const resizeObserver = new ResizeObserver(checkScrollability);
+    Array.from(container.children).forEach(child => resizeObserver.observe(child));
+
+    return () => {
+      container.removeEventListener('scroll', checkScrollability);
+      window.removeEventListener('resize', checkScrollability);
+      resizeObserver.disconnect();
+    };
+  }, [experienceData]);
+
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.8;
+      container.scrollBy({ 
+        left: direction === 'left' ? -scrollAmount : scrollAmount, 
+        behavior: 'smooth' 
+      });
+    }
+  };
+
 
   return (
     <section
@@ -101,21 +162,47 @@ export default function ExperienceSection() {
       <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[26rem] h-[26rem] md:w-[40rem] md:h-[40rem] bg-accent/35 rounded-full filter blur-[150px] md:blur-[210px] opacity-60 transition-transform duration-500 ease-out"></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
-        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12 px-4">
+        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-6 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💼 Professional Experience</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
             My journey and contributions in the professional cyber security landscape.
           </p>
         </AnimatedSection>
 
-        <div className="w-full overflow-hidden pb-4"> {/* Added pb-4 for scrollbar visibility */}
-          <div className="flex flex-row gap-6 md:gap-8 overflow-x-auto py-4 px-4 md:px-0 scrollbar-thin scrollbar-thumb-accent/70 scrollbar-track-transparent -mx-4 md:-mx-0">
+        <div className="flex justify-end gap-3 mb-6 px-4 md:px-0">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleScroll('left')}
+              disabled={!canScrollLeft}
+              aria-label="Scroll experience left"
+              className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleScroll('right')}
+              disabled={!canScrollRight}
+              aria-label="Scroll experience right"
+              className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+        </div>
+
+        <div className="w-full overflow-hidden">
+          <div 
+            ref={scrollContainerRef}
+            className="flex flex-row gap-6 md:gap-8 overflow-x-auto py-4 px-4 md:px-0 scrollbar-thin scrollbar-thumb-accent/70 scrollbar-track-transparent -mx-4 md:-mx-0"
+          >
             {experienceData.map((exp, index) => (
               <AnimatedSection 
                 key={exp.id} 
                 animationType={index % 2 === 0 ? 'fadeInLeft' : 'fadeInRight'}
                 delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
-                className="flex-none w-[calc(100%-2rem)] sm:w-96 md:w-[450px] h-full" // Ensure cards don't shrink and have defined width
+                className="flex-none w-[calc(100%-2rem)] sm:w-96 md:w-[450px] h-full"
               >
                 <Card className="flex flex-col h-full shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30">
                   <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-6">
@@ -162,7 +249,6 @@ export default function ExperienceSection() {
                 </Card>
               </AnimatedSection>
             ))}
-             {/* Padding elements to ensure last items can be scrolled fully into view if needed */}
             <div className="flex-none w-1 md:w-4"></div>
           </div>
         </div>
@@ -170,3 +256,4 @@ export default function ExperienceSection() {
     </section>
   );
 }
+
