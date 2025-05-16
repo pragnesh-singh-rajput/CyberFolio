@@ -10,17 +10,19 @@ import ContactSection from '@/components/sections/ContactSection';
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
       <Header />
-      <main className="flex-grow scroll-snap-type-y-proximity overflow-y-scroll h-[100vh]">
+      <main 
+        className="flex-1 overflow-y-auto scroll-snap-type-y-proximity scroll-pt-16"
+      >
         <HeroSection />
         <AboutSection />
         <EducationSection />
         <ExperienceSection />
         <ProjectsSection />
         <ContactSection />
+        <Footer />
       </main>
-      <Footer />
     </div>
   );
 }
