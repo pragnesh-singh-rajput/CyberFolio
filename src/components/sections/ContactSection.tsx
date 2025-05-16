@@ -111,11 +111,11 @@ export default function ContactSection() {
               <div className="space-y-4">
                 <a href="mailto:pragneshsinghrajput@gmail.com" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors duration-200 group">
                   <Mail className="h-6 w-6 text-accent group-hover:animate-pulse" />
-                  <span className="text-base">pragneshsinghrajput@gmail.com</span>
+                  <span className="text-base">singhpragnesh89@gmail.com</span>
                 </a>
                 <a href="tel:+919644643380" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors duration-200 group">
                   <Phone className="h-6 w-6 text-accent group-hover:animate-pulse" />
-                  <span className="text-base">+91 9644643380</span>
+                  <span className="text-base">+91 6355736986</span>
                 </a>
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function ContactSection() {
               <h3 className="text-xl font-semibold text-primary mb-6">Follow Me</h3>
               <div className="flex space-x-4">
                 <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-accent/10 hover:border-accent hover:text-accent transition-all duration-300 ease-in-out transform hover:scale-110">
-                  <Link href="https://www.linkedin.com/in/pragnesh-singh-rajput-394684220/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                  <Link href="https://www.linkedin.com/in/pragnesh-singh-rajput/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                     <Linkedin className="h-5 w-5" />
                   </Link>
                 </Button>
@@ -133,7 +133,7 @@ export default function ContactSection() {
                   </Link>
                 </Button>
                 <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-accent/10 hover:border-accent hover:text-accent transition-all duration-300 ease-in-out transform hover:scale-110">
-                  <Link href="https://twitter.com/PragneshSinghR" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                  <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
                     <Twitter className="h-5 w-5" />
                   </Link>
                 </Button>
