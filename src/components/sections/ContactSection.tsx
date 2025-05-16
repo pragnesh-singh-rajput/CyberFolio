@@ -53,7 +53,7 @@ export default function ContactSection() {
   return (
     <section
       id="contact"
-      className="min-h-screen scroll-snap-align-start flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/20"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/20"
     >
       {/* Background Gradient Circles */}
       <div className="absolute -z-10 top-[5%] right-[-10%] w-[25rem] h-[25rem] md:w-[35rem] md:h-[35rem] bg-primary/25 rounded-full filter blur-[120px] md:blur-[180px] opacity-40"></div>

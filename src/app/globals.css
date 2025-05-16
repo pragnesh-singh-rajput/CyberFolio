@@ -97,9 +97,7 @@
 }
 
 @layer utilities {
-  .scroll-snap-type-y-proximity {
-    scroll-snap-type: y proximity;
-  }
+  /* Removed .scroll-snap-type-y-proximity */
   .scroll-snap-align-start {
     scroll-snap-align: start;
   }

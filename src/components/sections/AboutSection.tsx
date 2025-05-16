@@ -5,7 +5,7 @@ export default function AboutSection() {
   return (
     <section
       id="about"
-      className="min-h-screen scroll-snap-align-start flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8"
+      className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8"
     >
       {/* Background Gradient Circles */}
       <div className="absolute -z-10 top-[5%] right-[-15%] w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] bg-secondary/30 rounded-full filter blur-[100px] md:blur-[160px] opacity-40"></div>

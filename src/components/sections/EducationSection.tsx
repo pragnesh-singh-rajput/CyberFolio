@@ -7,7 +7,7 @@ export default function EducationSection() {
   return (
     <section
       id="education"
-      className="min-h-screen scroll-snap-align-start flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5"
     >
       {/* Background Gradient Circles */}
       <div className="absolute -z-10 top-[10%] left-[-20%] w-[25rem] h-[25rem] md:w-[40rem] md:h-[40rem] bg-accent/20 rounded-full filter blur-[110px] md:blur-[170px] opacity-40"></div>

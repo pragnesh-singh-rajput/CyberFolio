@@ -8,7 +8,7 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="min-h-screen scroll-snap-align-start flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8"
+      className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8"
     >
       {/* Background Gradient Circles */}
       <div className="absolute -z-10 top-[-10%] left-[-15%] w-[25rem] h-[25rem] md:w-[35rem] md:h-[35rem] bg-accent/30 rounded-full filter blur-[100px] md:blur-[150px] opacity-50"></div>

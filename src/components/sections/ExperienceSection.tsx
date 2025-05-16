@@ -43,7 +43,7 @@ export default function ExperienceSection() {
   return (
     <section
       id="experience"
-      className="min-h-screen scroll-snap-align-start flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10"
     >
       {/* Background Gradient Circles */}
       <div className="absolute -z-10 top-[15%] right-[-20%] w-[26rem] h-[26rem] md:w-[42rem] md:h-[42rem] bg-primary/20 rounded-full filter blur-[120px] md:blur-[180px] opacity-40"></div>

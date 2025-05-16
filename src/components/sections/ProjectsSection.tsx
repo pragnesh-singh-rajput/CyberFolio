@@ -40,7 +40,7 @@ export default function ProjectsSection() {
   return (
     <section
       id="projects"
-      className="min-h-screen scroll-snap-align-start flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5"
     >
       {/* Background Gradient Circles */}
       <div className="absolute -z-10 top-[-5%] left-[-10%] w-[30rem] h-[30rem] md:w-[45rem] md:h-[45rem] bg-accent/25 rounded-full filter blur-[110px] md:blur-[170px] opacity-35"></div>
