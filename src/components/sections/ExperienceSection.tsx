@@ -14,17 +14,17 @@ const experienceData: ExperienceItem[] = [
   {
     id: 'exp1',
     title: 'Cyber Security Analyst Intern',
-    company: 'CyberGuard Solutions', // Placeholder, update if needed
+    company: 'CyberGuard Solutions',
     duration: 'June 2023 - August 2023',
     location: 'Remote',
     logoUrl: 'https://placehold.co/100x100.png',
     imageHint: 'company security',
     description: [
-      'Monitored and analyzed security alerts using SIEM tools, contributing to incident identification.',
-      'Performed vulnerability assessments on web applications and network infrastructure, identifying potential risks.',
-      'Assisted in developing security documentation, including incident response procedures.',
-      'Collaborated with senior analysts on threat intelligence gathering and analysis.',
-      'Gained practical experience with various security tools and technologies.',
+      'Monitored and analyzed security alerts using SIEM tools, contributing to rapid incident identification and response.',
+      'Performed vulnerability assessments on web applications and network infrastructure using tools like Nessus and Burp Suite, identifying and reporting potential risks.',
+      'Assisted in developing and refining security documentation, including incident response procedures and security best practices.',
+      'Collaborated with senior analysts on threat intelligence gathering, analysis, and dissemination of findings.',
+      'Gained practical experience with various security tools and technologies, including firewalls, IDS/IPS, and endpoint protection solutions.',
     ],
   },
   // {
@@ -106,7 +106,7 @@ export default function ExperienceSection() {
 
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
-    if (container) {
+    if (container && experienceData.length > 1) {
       const isActuallyScrollable = container.scrollWidth > container.clientWidth;
       setCanScrollLeft(isActuallyScrollable && activeIndex > 0);
       setCanScrollRight(isActuallyScrollable && activeIndex < experienceData.length - 1);
@@ -128,15 +128,15 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]); 
+  }, [experienceData.length]); // Removed activeIndex from dependencies
 
   useEffect(() => {
-    updateScrollability();
+    updateScrollability(); // Initial check
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleScrollEvent = () => updateScrollability(); // Re-check on manual scroll
+      const handleScrollEvent = () => updateScrollability(); 
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       
       resizeObserver = new ResizeObserver(updateScrollability);
@@ -150,15 +150,14 @@ export default function ExperienceSection() {
       };
     }
     
+    // Fallback for browsers not supporting ResizeObserver or if container is not available initially
     window.addEventListener('resize', updateScrollability);
     return () => {
       window.removeEventListener('resize', updateScrollability);
     };
-  }, [updateScrollability, experienceData.length]); // Removed activeIndex, scrollToCard from deps
+  }, [updateScrollability, experienceData.length]); 
   
   useEffect(() => {
-    // Ensure updateScrollability is called when activeIndex changes,
-    // especially important if scrollToCard is not called on initial mount.
     updateScrollability();
   }, [activeIndex, updateScrollability]);
   
@@ -171,11 +170,9 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        // More dynamic parallax: adjust multiplier, add horizontal shift, and rotation
         circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.022}deg)`;
       }
       if (circle2Ref.current) {
-        // Different speed and direction for the second circle
         circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.016}deg)`;
       }
     };
@@ -198,11 +195,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[10%] right-[-25%] w-[45rem] h-[70rem] md:w-[55rem] md:h-[85rem] bg-primary/50 rounded-full filter blur-[140px] md:blur-[200px] opacity-70 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[10%] right-[-25%] w-[45rem] h-[70rem] md:w-[65rem] md:h-[95rem] bg-primary/40 rounded-full filter blur-[150px] md:blur-[220px] opacity-60 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[55rem] h-[40rem] md:w-[70rem] md:h-[50rem] bg-accent/60 rounded-full filter blur-[130px] md:blur-[190px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[55rem] h-[40rem] md:w-[80rem] md:h-[60rem] bg-accent/50 rounded-full filter blur-[140px] md:blur-[210px] opacity-65 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -214,23 +211,29 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className="relative w-full mt-6">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex - 1)}
-            disabled={!canScrollLeft}
-            aria-label="Scroll experience left"
-            className={cn(
-                "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50" 
-              )}
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
+          {experienceData.length > 1 && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scrollToCard(activeIndex - 1)}
+              disabled={!canScrollLeft}
+              aria-label="Scroll experience left"
+              className={cn(
+                  "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                  "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50" 
+                )}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+          )}
           
           <div 
             ref={scrollContainerRef}
-            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2"
+            className={cn(
+              "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2",
+              experienceData.length > 1 ? "overflow-x-auto" : "overflow-x-hidden",
+              experienceData.length === 1 && "justify-center" 
+            )}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
           >
             {experienceData.map((exp, index) => (
@@ -238,7 +241,7 @@ export default function ExperienceSection() {
                 key={exp.id}
                 ref={(el) => { cardRefs.current[index] = el; }}
                 className={cn(
-                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2",
+                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", // Card wrapper ensures consistent width
                   "transition-all duration-500 ease-in-out transform"
                 )}
               >
@@ -250,7 +253,7 @@ export default function ExperienceSection() {
                     "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
                     index === activeIndex 
                       ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                      : "opacity-60 scale-90 hover:opacity-80 hover:scale-[0.92]"
+                      : "opacity-60 scale-90 hover:opacity-80 hover:scale-[0.92]" // Slightly more opacity on hover for inactive
                   )}>
                     <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
                       {exp.logoUrl && (
@@ -300,19 +303,21 @@ export default function ExperienceSection() {
             ))}
           </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex + 1)}
-            disabled={!canScrollRight}
-            aria-label="Scroll experience right"
-            className={cn(
-                "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-              )}
-          >
-            <ChevronRight className="h-6 w-6" />
-          </Button>
+          {experienceData.length > 1 && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scrollToCard(activeIndex + 1)}
+              disabled={!canScrollRight}
+              aria-label="Scroll experience right"
+              className={cn(
+                  "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                  "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                )}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          )}
         </div>
       </div>
     </section>
