@@ -70,7 +70,7 @@ export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
-  const [scrollContainerEl, setScrollContainerEl] = useState<HTMLElement | null>(null);
+  const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -81,22 +81,8 @@ export default function ProjectsSection() {
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
-    setScrollContainerEl(mainElement);
+    setParallaxScrollContainer(mainElement);
     cardRefs.current = cardRefs.current.slice(0, projectsData.length);
-  }, []);
-
-  const scrollToCard = useCallback((index: number) => {
-    if (index < 0 || index >= projectsData.length || !scrollContainerRef.current) return;
-    
-    const cardElement = cardRefs.current[index];
-    if (cardElement) {
-      cardElement.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest'
-      });
-      setActiveIndex(index);
-    }
   }, []);
 
   const updateScrollability = useCallback(() => {
@@ -111,6 +97,20 @@ export default function ProjectsSection() {
     }
   }, [activeIndex, projectsData.length]);
 
+  const scrollToCard = useCallback((index: number) => {
+    if (index < 0 || index >= projectsData.length || !scrollContainerRef.current) return;
+    
+    const cardElement = cardRefs.current[index];
+    if (cardElement) {
+      cardElement.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+      setActiveIndex(index);
+    }
+  }, [projectsData.length]); // Removed activeIndex
+
   useEffect(() => {
     updateScrollability(); 
     const container = scrollContainerRef.current;
@@ -121,8 +121,6 @@ export default function ProjectsSection() {
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
-      
-      updateScrollability();
     }
     
     window.addEventListener('resize', updateScrollability);
@@ -135,32 +133,32 @@ export default function ProjectsSection() {
       }
       window.removeEventListener('resize', updateScrollability);
     };
-  }, [updateScrollability, activeIndex, projectsData.length]);
+  }, [updateScrollability, activeIndex, projectsData.length]); // activeIndex is needed here
 
   useEffect(() => {
-    if (!scrollContainerEl || !sectionRef.current) return;
+    if (!parallaxScrollContainer || !sectionRef.current) return;
 
     const handleParallaxScroll = () => {
-      if (!sectionRef.current || !scrollContainerEl) return;
+      if (!sectionRef.current || !parallaxScrollContainer) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.19}px) translateX(${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.01}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.24}px) translateX(${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.012}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.09}px) translateX(-${scrollProgress * 0.03}px) rotate(-${scrollProgress * 0.005}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.14}px) translateX(-${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.007}deg)`;
       }
     };
 
     handleParallaxScroll(); 
-    scrollContainerEl.addEventListener('scroll', handleParallaxScroll, { passive: true });
+    parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     return () => {
-      if (scrollContainerEl) {
-        scrollContainerEl.removeEventListener('scroll', handleParallaxScroll);
+      if (parallaxScrollContainer) {
+        parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
       }
     };
-  }, [scrollContainerEl]);
+  }, [parallaxScrollContainer]);
 
   return (
     <section
@@ -168,8 +166,14 @@ export default function ProjectsSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background" 
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[-5%] left-[-10%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-accent/40 rounded-full filter blur-[190px] md:blur-[250px] opacity-50 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[0%] right-[-18%] w-[30rem] h-[30rem] md:w-[42rem] md:h-[42rem] bg-secondary/45 rounded-full filter blur-[180px] md:blur-[240px] opacity-60 transition-transform duration-500 ease-out"></div>
+      <div 
+        ref={circle1Ref} 
+        className="absolute -z-10 top-[-10%] left-[-15%] w-[35rem] h-[55rem] md:w-[45rem] md:h-[70rem] bg-accent/45 rounded-full filter blur-[160px] md:blur-[220px] opacity-65 transition-transform duration-500 ease-out"
+      ></div>
+      <div 
+        ref={circle2Ref} 
+        className="absolute -z-10 bottom-[-5%] right-[-20%] w-[45rem] h-[32rem] md:w-[60rem] md:h-[42rem] bg-secondary/50 rounded-full filter blur-[150px] md:blur-[210px] opacity-75 transition-transform duration-500 ease-out"
+      ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
@@ -290,4 +294,3 @@ export default function ProjectsSection() {
     </section>
   );
 }
-

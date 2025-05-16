@@ -26,24 +26,23 @@ export default function HeroSection() {
     const handleScroll = () => {
       if (!sectionRef.current) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
-      // scrollProgress will be positive when scrolling down and section is approaching/in view
-      // and negative when section has been scrolled past (upwards).
       const scrollProgress = -sectionTopInViewport; 
 
       if (circle1Ref.current) {
-        // More pronounced vertical parallax, subtle horizontal/rotation
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(${scrollProgress * 0.02}px) rotate(${scrollProgress * 0.01}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.32}px) translateX(${scrollProgress * 0.1}px) rotate(${scrollProgress * 0.018}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.15}px) translateX(-${scrollProgress * 0.03}px) rotate(-${scrollProgress * 0.005}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.11}px) rotate(-${scrollProgress * 0.012}deg)`;
       }
     };
     
-    handleScroll(); // Initial call to set position
+    handleScroll(); 
 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
     };
   }, [scrollContainer]);
 
@@ -53,15 +52,27 @@ export default function HeroSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8"
     >
-      {/* Background Gradient Circles */}
-      <div ref={circle1Ref} className="absolute -z-10 top-[-15%] left-[-20%] w-[30rem] h-[30rem] md:w-[45rem] md:h-[45rem] bg-accent/40 rounded-full filter blur-[140px] md:blur-[200px] opacity-60 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[-20%] right-[-15%] w-[25rem] h-[25rem] md:w-[40rem] md:h-[40rem] bg-primary/35 rounded-full filter blur-[130px] md:blur-[190px] opacity-70 transition-transform duration-500 ease-out"></div>
+      {/* Background Gradient Ellipses */}
+      <div 
+        ref={circle1Ref} 
+        className="absolute -z-10 top-[-20%] left-[-25%] w-[35rem] h-[28rem] md:w-[50rem] md:h-[40rem] bg-accent/50 rounded-full filter blur-[100px] md:blur-[160px] opacity-75 transition-transform duration-500 ease-out"
+      ></div>
+      <div 
+        ref={circle2Ref} 
+        className="absolute -z-10 bottom-[-25%] right-[-20%] w-[28rem] h-[35rem] md:w-[40rem] md:h-[50rem] bg-primary/40 rounded-full filter blur-[90px] md:blur-[140px] opacity-80 transition-transform duration-500 ease-out"
+      ></div>
 
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center gap-8">
           <AnimatedSection animationType="scaleIn" delay="delay-100" className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-              <span className="inline-block animate-pulse-subtle">👋</span> Hello, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-teal-400" style={{backgroundSize: '200% 200%'}}>Pragnesh Singh Rajput</span>
+              <span className="inline-block group-hover:animate-pulse-subtle">👋</span> Hello, I&apos;m{' '}
+              <span 
+                className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-teal-400 to-emerald-500 animate-gradient-x" 
+                style={{backgroundSize: '200% auto'}}
+              >
+                Pragnesh Singh Rajput
+              </span>
             </h1>
           </AnimatedSection>
           <AnimatedSection animationType="fadeInUp" delay="delay-300" className="max-w-3xl">
@@ -72,7 +83,12 @@ export default function HeroSection() {
             </p>
           </AnimatedSection>
           <AnimatedSection animationType="fadeInUp" delay="delay-500" className="mt-10">
-            <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-accent to-teal-600 hover:from-teal-600 hover:to-accent text-accent-foreground group">
+             <Button 
+              asChild 
+              size="lg" 
+              className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-accent via-teal-500 to-emerald-600 text-accent-foreground group"
+              style={{backgroundSize: '200% auto'}}
+            >
               <Link href="#contact">
                 🚀 Get In Touch
                 <ArrowDown className="ml-2 h-5 w-5 group-hover:animate-bounce" />

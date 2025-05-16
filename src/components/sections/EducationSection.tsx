@@ -28,10 +28,10 @@ export default function EducationSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.23}px) translateX(-${scrollProgress * 0.02}px) rotate(${scrollProgress * 0.012}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.29}px) translateX(-${scrollProgress * 0.04}px) rotate(${scrollProgress * 0.015}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.13}px) translateX(${scrollProgress * 0.03}px) rotate(-${scrollProgress * 0.006}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.19}px) translateX(${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.008}deg)`;
       }
     };
 
@@ -39,7 +39,9 @@ export default function EducationSection() {
 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
     };
   }, [scrollContainer]);
 
@@ -49,8 +51,14 @@ export default function EducationSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background"
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[10%] left-[-20%] w-[28rem] h-[28rem] md:w-[42rem] md:h-[42rem] bg-accent/30 rounded-full filter blur-[160px] md:blur-[220px] opacity-50 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[5%] right-[-15%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-primary/25 rounded-full filter blur-[150px] md:blur-[210px] opacity-60 transition-transform duration-500 ease-out"></div>
+      <div 
+        ref={circle1Ref} 
+        className="absolute -z-10 top-[5%] left-[-25%] w-[30rem] h-[48rem] md:w-[40rem] md:h-[60rem] bg-accent/40 rounded-full filter blur-[130px] md:blur-[190px] opacity-70 transition-transform duration-500 ease-out"
+      ></div>
+      <div 
+        ref={circle2Ref} 
+        className="absolute -z-10 bottom-[0%] right-[-20%] w-[35rem] h-[32rem] md:w-[50rem] md:h-[45rem] bg-primary/30 rounded-full filter blur-[110px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
+      ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
         <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full text-center mb-12">

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card"; // Added Card import
 import { useToast } from "@/hooks/use-toast";
 import { Linkedin, Github, Twitter, Mail, Phone } from "lucide-react";
 import Link from "next/link";
@@ -73,10 +73,10 @@ export default function ContactSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(-${scrollProgress * 0.03}px) rotate(-${scrollProgress * 0.011}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.26}px) translateX(-${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.014}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.1}px) translateX(${scrollProgress * 0.04}px) rotate(${scrollProgress * 0.005}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.16}px) translateX(${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.007}deg)`;
       }
     };
 
@@ -84,7 +84,9 @@ export default function ContactSection() {
 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
     };
   }, [scrollContainer]);
 
@@ -94,8 +96,14 @@ export default function ContactSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10"
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[5%] right-[-10%] w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] bg-primary/30 rounded-full filter blur-[170px] md:blur-[230px] opacity-45 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[32rem] h-[32rem] md:w-[42rem] md:h-[42rem] bg-accent/35 rounded-full filter blur-[160px] md:blur-[220px] opacity-55 transition-transform duration-500 ease-out"></div>
+      <div 
+        ref={circle1Ref} 
+        className="absolute -z-10 top-[0%] right-[-15%] w-[30rem] h-[45rem] md:w-[38rem] md:h-[55rem] bg-primary/35 rounded-full filter blur-[140px] md:blur-[200px] opacity-60 transition-transform duration-500 ease-out"
+      ></div>
+      <div 
+        ref={circle2Ref} 
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[35rem] h-[30rem] md:w-[45rem] md:h-[40rem] bg-accent/40 rounded-full filter blur-[130px] md:blur-[190px] opacity-70 transition-transform duration-500 ease-out"
+      ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">

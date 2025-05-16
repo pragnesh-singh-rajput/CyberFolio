@@ -88,7 +88,7 @@ export default function ExperienceSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
-  const [scrollContainerEl, setScrollContainerEl] = useState<HTMLElement | null>(null);
+  const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -99,23 +99,9 @@ export default function ExperienceSection() {
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
-    setScrollContainerEl(mainElement);
+    setParallaxScrollContainer(mainElement);
     cardRefs.current = cardRefs.current.slice(0, experienceData.length);
   }, []);
-
-  const scrollToCard = useCallback((index: number) => {
-    if (index < 0 || index >= experienceData.length || !scrollContainerRef.current) return;
-    
-    const cardElement = cardRefs.current[index];
-    if (cardElement) {
-      cardElement.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest'
-      });
-      setActiveIndex(index);
-    }
-  }, []); 
 
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -128,19 +114,31 @@ export default function ExperienceSection() {
       setCanScrollRight(false);
     }
   }, [activeIndex, experienceData.length]);
+  
+  const scrollToCard = useCallback((index: number) => {
+    if (index < 0 || index >= experienceData.length || !scrollContainerRef.current) return;
+    
+    const cardElement = cardRefs.current[index];
+    if (cardElement) {
+      cardElement.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+      setActiveIndex(index);
+    }
+  }, [experienceData.length]); // Removed activeIndex from here
 
   useEffect(() => {
-    updateScrollability(); 
+    updateScrollability();
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleScrollEvent = () => updateScrollability(); 
+      const handleScrollEvent = () => updateScrollability();
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
-      
-      updateScrollability(); 
     }
     
     window.addEventListener('resize', updateScrollability);
@@ -153,32 +151,32 @@ export default function ExperienceSection() {
       }
       window.removeEventListener('resize', updateScrollability);
     };
-  }, [updateScrollability, activeIndex, experienceData.length]);
+  }, [updateScrollability, activeIndex, experienceData.length]); // activeIndex is needed here to re-evaluate on change
   
   useEffect(() => {
-    if (!scrollContainerEl || !sectionRef.current) return;
+    if (!parallaxScrollContainer || !sectionRef.current) return;
 
     const handleParallaxScroll = () => {
-      if (!sectionRef.current || !scrollContainerEl) return;
+      if (!sectionRef.current || !parallaxScrollContainer) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.012}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.018}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.08}px) translateX(-${scrollProgress * 0.04}px) rotate(${scrollProgress * 0.008}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.15}px) translateX(-${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.012}deg)`;
       }
     };
 
     handleParallaxScroll(); 
-    scrollContainerEl.addEventListener('scroll', handleParallaxScroll, { passive: true });
+    parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     return () => {
-      if (scrollContainerEl) {
-        scrollContainerEl.removeEventListener('scroll', handleParallaxScroll);
+      if (parallaxScrollContainer) {
+        parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
       }
     };
-  }, [scrollContainerEl]);
+  }, [parallaxScrollContainer]);
 
 
   return (
@@ -187,8 +185,14 @@ export default function ExperienceSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5" 
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[15%] right-[-20%] w-[28rem] h-[28rem] md:w-[45rem] md:h-[45rem] bg-primary/40 rounded-full filter blur-[180px] md:blur-[240px] opacity-60 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[26rem] h-[26rem] md:w-[40rem] md:h-[40rem] bg-accent/45 rounded-full filter blur-[170px] md:blur-[230px] opacity-70 transition-transform duration-500 ease-out"></div>
+      <div 
+        ref={circle1Ref} 
+        className="absolute -z-10 top-[10%] right-[-25%] w-[30rem] h-[55rem] md:w-[40rem] md:h-[70rem] bg-primary/45 rounded-full filter blur-[150px] md:blur-[210px] opacity-75 transition-transform duration-500 ease-out"
+      ></div>
+      <div 
+        ref={circle2Ref} 
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[40rem] h-[30rem] md:w-[55rem] md:h-[40rem] bg-accent/50 rounded-full filter blur-[140px] md:blur-[200px] opacity-85 transition-transform duration-500 ease-out"
+      ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
@@ -303,4 +307,3 @@ export default function ExperienceSection() {
     </section>
   );
 }
-
