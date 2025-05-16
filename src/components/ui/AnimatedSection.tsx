@@ -28,13 +28,11 @@ export default function AnimatedSection({
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.unobserve(entry.target);
-          }
+          // Set visibility based on intersection status
+          setIsVisible(entry.isIntersecting);
         });
       },
-      { threshold: 0.1 } // Trigger when 10% of the section is visible
+      { threshold: 0.1 } // Trigger when 10% of the section is visible/hidden
     );
 
     const currentRef = sectionRef.current;
@@ -47,7 +45,7 @@ export default function AnimatedSection({
         observer.unobserve(currentRef);
       }
     };
-  }, []);
+  }, []); // Empty dependency array means this effect runs once on mount and cleanup on unmount
 
   const getAnimationClasses = () => {
     if (isVisible) {
@@ -63,6 +61,7 @@ export default function AnimatedSection({
           return 'opacity-100 translate-y-0';
       }
     } else {
+      // These are the "initial" or "exit" states
       switch (animationType) {
         case 'fadeInLeft':
           return 'opacity-0 -translate-x-20';
@@ -78,13 +77,13 @@ export default function AnimatedSection({
   };
 
   return (
-    <div // Changed from section to div to avoid nested <section> elements if used inside another <section>
+    <div
       id={id}
       ref={sectionRef}
       className={cn(
-        'transition-all duration-1000 ease-in-out transform',
+        'transition-all duration-1000 ease-in-out transform', // Duration applies to both enter and exit
         getAnimationClasses(),
-        delay, // Tailwind delay class for transition-delay
+        delay, // Tailwind delay class for transition-delay (applies on enter)
         className
       )}
     >
