@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Github, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Project } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 
 const projectsData: Project[] = [
   {
@@ -52,9 +53,17 @@ const projectsData: Project[] = [
     description: 'A personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
     imageHint: 'portfolio website code',
-    repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio', // Assuming this is the repo
     tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React'],
   },
+  {
+    id: '6',
+    title: 'Cloud Security Posture Management Tool',
+    description: 'A conceptual tool designed to audit cloud configurations (AWS, Azure) for security misconfigurations and compliance violations. Features automated checks and reporting.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    imageHint: 'cloud security dashboard',
+    tags: ['Cloud Security', 'CSPM', 'AWS', 'Azure', 'Compliance'],
+  }
 ];
 
 export default function ProjectsSection() {
@@ -64,83 +73,89 @@ export default function ProjectsSection() {
   const [scrollContainerEl, setScrollContainerEl] = useState<HTMLElement | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  const [activeIndex, setActiveIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
     setScrollContainerEl(mainElement);
+    cardRefs.current = cardRefs.current.slice(0, projectsData.length);
   }, []);
+
+  const updateScrollability = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const isOverflowing = container.scrollWidth > container.clientWidth;
+      setCanScrollLeft(isOverflowing && activeIndex > 0);
+      setCanScrollRight(isOverflowing && activeIndex < projectsData.length - 1);
+    } else {
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+    }
+  }, [activeIndex]);
+
+  useEffect(() => {
+    updateScrollability();
+    window.addEventListener('resize', updateScrollability);
+    return () => window.removeEventListener('resize', updateScrollability);
+  }, [updateScrollability]);
 
   useEffect(() => {
     if (!scrollContainerEl || !sectionRef.current) return;
 
-    const handleScroll = () => {
+    const handleParallaxScroll = () => {
       if (!sectionRef.current) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.21}px) translateX(${scrollProgress * 0.05}px) rotate(${scrollProgress * 0.009}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.19}px) translateX(${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.01}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.11}px) translateX(-${scrollProgress * 0.02}px) rotate(-${scrollProgress * 0.004}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.09}px) translateX(-${scrollProgress * 0.03}px) rotate(-${scrollProgress * 0.005}deg)`;
       }
     };
 
-    handleScroll(); 
-
-    scrollContainerEl.addEventListener('scroll', handleScroll, { passive: true });
+    handleParallaxScroll(); 
+    scrollContainerEl.addEventListener('scroll', handleParallaxScroll, { passive: true });
     return () => {
-      scrollContainerEl.removeEventListener('scroll', handleScroll);
+      scrollContainerEl.removeEventListener('scroll', handleParallaxScroll);
     };
   }, [scrollContainerEl]);
 
-  useEffect(() => {
+  const scrollToCard = useCallback((index: number) => {
     const container = scrollContainerRef.current;
-    if (!container) return;
+    const cardElement = cardRefs.current[index];
 
-    const checkScrollability = () => {
-      if (container) {
-        const isOverflowing = container.scrollWidth > container.clientWidth;
-        if (!isOverflowing) {
-          setCanScrollLeft(false);
-          setCanScrollRight(false);
-          return;
-        }
-        setCanScrollLeft(container.scrollLeft > 5); // Add a small threshold
-        setCanScrollRight(container.scrollLeft < (container.scrollWidth - container.clientWidth - 5)); // Add a small threshold
-      }
-    };
+    if (container && cardElement) {
+      const containerWidth = container.clientWidth;
+      const cardWidth = cardElement.offsetWidth;
+      const cardLeft = cardElement.offsetLeft;
+      
+      let targetScrollLeft = cardLeft - (containerWidth / 2) + (cardWidth / 2);
+      
+      targetScrollLeft = Math.max(0, targetScrollLeft);
+      targetScrollLeft = Math.min(container.scrollWidth - containerWidth, targetScrollLeft);
 
-    checkScrollability();
-    container.addEventListener('scroll', checkScrollability, { passive: true });
-    window.addEventListener('resize', checkScrollability);
-
-    // Observe changes in children that might affect scrollWidth (e.g., if images load and change size)
-    // This is more robust for dynamic content, though projectsData dependency also helps.
-    const resizeObserver = new ResizeObserver(checkScrollability);
-    Array.from(container.children).forEach(child => resizeObserver.observe(child));
-
-
-    return () => {
-      container.removeEventListener('scroll', checkScrollability);
-      window.removeEventListener('resize', checkScrollability);
-      resizeObserver.disconnect();
-    };
-  }, [projectsData]); // Re-run if projectsData changes (e.g., more projects added)
-
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const scrollAmount = container.clientWidth * 0.8; // Scroll by 80% of visible width
-      container.scrollBy({ 
-        left: direction === 'left' ? -scrollAmount : scrollAmount, 
-        behavior: 'smooth' 
+      container.scrollTo({
+        left: targetScrollLeft,
+        behavior: 'smooth',
       });
+      setActiveIndex(index);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        if (projectsData.length > 0) {
+            scrollToCard(activeIndex);
+        }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [projectsData, scrollToCard, activeIndex]);
 
   return (
     <section
@@ -148,109 +163,118 @@ export default function ProjectsSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background" 
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[-5%] left-[-10%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-accent/30 rounded-full filter blur-[170px] md:blur-[230px] opacity-40 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[0%] right-[-18%] w-[30rem] h-[30rem] md:w-[42rem] md:h-[42rem] bg-secondary/35 rounded-full filter blur-[160px] md:blur-[220px] opacity-55 transition-transform duration-500 ease-out"></div>
+      <div ref={circle1Ref} className="absolute -z-10 top-[-5%] left-[-10%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-accent/40 rounded-full filter blur-[190px] md:blur-[250px] opacity-30 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[0%] right-[-18%] w-[30rem] h-[30rem] md:w-[42rem] md:h-[42rem] bg-secondary/45 rounded-full filter blur-[180px] md:blur-[240px] opacity-45 transition-transform duration-500 ease-out"></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
-        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-6 px-4">
+        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💡 My Projects</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
             A selection of projects I&apos;ve worked on, showcasing my skills in cyber security.
           </p>
         </AnimatedSection>
         
-        <div className="flex justify-end gap-3 mb-6 px-4 md:px-0">
-          <Button
+        <div className="relative w-full mt-6">
+           <Button
             variant="outline"
             size="icon"
-            onClick={() => handleScroll('left')}
+            onClick={() => scrollToCard(activeIndex - 1)}
             disabled={!canScrollLeft}
             aria-label="Scroll projects left"
-            className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
+            className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-6 w-6" />
           </Button>
+
+          <div
+            ref={scrollContainerRef}
+            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2" // Hide scrollbar visually
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {projectsData.map((project, index) => (
+              <div
+                key={project.id} 
+                ref={(el) => cardRefs.current[index] = el}
+                className={cn(
+                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", // Added py-2 for spacing
+                  "transition-all duration-500 ease-in-out"
+                )}
+              >
+                <AnimatedSection 
+                  animationType="scaleIn" 
+                  delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
+                >
+                  <Card className={cn(
+                    "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-300 ease-out bg-card/90 backdrop-blur-md border-secondary/30 group",
+                     index === activeIndex 
+                       ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
+                       : "opacity-60 scale-90 hover:opacity-80 hover:scale-[0.92]"
+                  )}>
+                    {project.imageUrl && (
+                      <div className="relative h-48 md:h-52 w-full overflow-hidden">
+                        <Image
+                          src={project.imageUrl}
+                          alt={project.title}
+                          fill
+                          className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+                          data-ai-hint={project.imageHint || "technology project"}
+                        />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent"></div>
+                      </div>
+                    )}
+                    <CardHeader className="pb-2 pt-4 px-4 md:px-5">
+                      <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">
+                        {project.title}
+                      </CardTitle>
+                      <CardDescription className="text-xs text-muted-foreground min-h-[3.75rem] mt-1 leading-relaxed line-clamp-3"> {/* 3 lines for description */}
+                        {project.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-grow pt-2 pb-3 px-4 md:px-5">
+                      <div className="flex flex-wrap gap-1.5">
+                        {project.tags.map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-xs bg-secondary/70 text-secondary-foreground/80 border-secondary/50 px-1.5 py-0.5">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-start gap-2.5 pt-3 pb-4 px-4 md:px-5 border-t border-border/50">
+                      {project.repoUrl && (
+                        <Button variant="outline" size="sm" asChild className="text-xs px-2.5 py-1 h-auto hover:bg-accent/10 hover:text-accent hover:border-accent transition-all duration-200">
+                          <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
+                            <Github className="mr-1.5 h-3.5 w-3.5" />
+                            GitHub
+                          </Link>
+                        </Button>
+                      )}
+                      {project.liveUrl && (
+                        <Button variant="default" size="sm" asChild className="text-xs px-2.5 py-1 h-auto bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-200">
+                          <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                            Live Demo
+                          </Link>
+                        </Button>
+                      )}
+                    </CardFooter>
+                  </Card>
+                </AnimatedSection>
+              </div>
+            ))}
+          </div>
+
           <Button
             variant="outline"
             size="icon"
-            onClick={() => handleScroll('right')}
+            onClick={() => scrollToCard(activeIndex + 1)}
             disabled={!canScrollRight}
             aria-label="Scroll projects right"
-            className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
+            className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-6 w-6" />
           </Button>
-        </div>
-        
-        <div className="w-full overflow-hidden">
-          <div
-            ref={scrollContainerRef}
-            className="flex flex-row gap-6 md:gap-8 overflow-x-auto py-4 px-4 md:px-0 scrollbar-thin scrollbar-thumb-accent/70 scrollbar-track-transparent -mx-4 md:-mx-0"
-          >
-            {projectsData.map((project, index) => (
-              <AnimatedSection 
-                key={project.id} 
-                animationType="scaleIn" 
-                delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
-                className="flex-none w-[calc(100%-2rem)] sm:w-96 md:w-[400px] h-full group"
-              >
-                <Card className="flex flex-col h-full overflow-hidden shadow-xl hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 ease-out bg-card/90 backdrop-blur-md border-secondary/30">
-                  {project.imageUrl && (
-                    <div className="relative h-52 w-full overflow-hidden">
-                      <Image
-                        src={project.imageUrl}
-                        alt={project.title}
-                        fill
-                        className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
-                        data-ai-hint={project.imageHint || "technology project"}
-                      />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                    </div>
-                  )}
-                  <CardHeader className="pb-3 pt-5">
-                    <CardTitle className="text-xl font-semibold text-primary group-hover:text-accent transition-colors">
-                      {project.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground min-h-[4.5rem] mt-1 leading-relaxed">
-                      {project.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-grow pt-2 pb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs bg-secondary/70 text-secondary-foreground/80 border-secondary/50">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex justify-start gap-3 pt-4 pb-5 border-t border-border/50">
-                    {project.repoUrl && (
-                      <Button variant="outline" size="sm" asChild className="hover:bg-accent/10 hover:text-accent hover:border-accent transition-all duration-200">
-                        <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
-                          <Github className="mr-2 h-4 w-4" />
-                          GitHub
-                        </Link>
-                      </Button>
-                    )}
-                    {project.liveUrl && (
-                      <Button variant="default" size="sm" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-200">
-                        <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Live Demo
-                        </Link>
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
-              </AnimatedSection>
-            ))}
-            {/* Padding elements to ensure last items can be scrolled fully into view if needed for snapping, not strictly necessary without snap */}
-            <div className="flex-none w-1 md:w-4"></div>
-          </div>
         </div>
       </div>
     </section>
   );
 }
-

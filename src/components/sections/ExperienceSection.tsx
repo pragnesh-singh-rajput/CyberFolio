@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Building2, CalendarDays, MapPin, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ExperienceItem } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 
 const experienceData: ExperienceItem[] = [
   {
@@ -67,6 +68,20 @@ const experienceData: ExperienceItem[] = [
       'Developing proof-of-concept exploits for educational purposes.',
     ],
   },
+  {
+    id: 'exp5',
+    title: 'Lead Security Engineer (Future Goal)',
+    company: 'Global Cyber Corp',
+    duration: 'Jan 2028 - Present',
+    location: 'New York, USA',
+    logoUrl: 'https://placehold.co/100x100.png',
+    imageHint: 'corporate security future',
+    description: [
+      'Leading a team of security professionals to protect enterprise assets.',
+      'Designing and implementing next-generation security architectures.',
+      'Overseeing threat intelligence and incident response operations globally.',
+    ],
+  }
 ];
 
 export default function ExperienceSection() {
@@ -76,15 +91,38 @@ export default function ExperienceSection() {
   const [scrollContainerEl, setScrollContainerEl] = useState<HTMLElement | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  const [activeIndex, setActiveIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
     setScrollContainerEl(mainElement);
+    // Initialize card refs array
+    cardRefs.current = cardRefs.current.slice(0, experienceData.length);
   }, []);
 
+  const updateScrollability = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const isOverflowing = container.scrollWidth > container.clientWidth;
+      setCanScrollLeft(isOverflowing && activeIndex > 0);
+      setCanScrollRight(isOverflowing && activeIndex < experienceData.length - 1);
+    } else {
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+    }
+  }, [activeIndex]);
+
+  useEffect(() => {
+    updateScrollability();
+    // Listener for window resize to re-check scrollability
+    window.addEventListener('resize', updateScrollability);
+    return () => window.removeEventListener('resize', updateScrollability);
+  }, [updateScrollability]);
+  
   useEffect(() => {
     if (!scrollContainerEl || !sectionRef.current) return;
 
@@ -94,10 +132,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.24}px) translateX(${scrollProgress * 0.04}px) rotate(-${scrollProgress * 0.01}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.012}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.14}px) translateX(-${scrollProgress * 0.03}px) rotate(${scrollProgress * 0.007}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.08}px) translateX(-${scrollProgress * 0.04}px) rotate(${scrollProgress * 0.008}deg)`;
       }
     };
 
@@ -108,48 +146,40 @@ export default function ExperienceSection() {
     };
   }, [scrollContainerEl]);
 
-  useEffect(() => {
+  const scrollToCard = useCallback((index: number) => {
     const container = scrollContainerRef.current;
-    if (!container) return;
+    const cardElement = cardRefs.current[index];
 
-    const checkScrollability = () => {
-      if (container) {
-        const isOverflowing = container.scrollWidth > container.clientWidth;
-         if (!isOverflowing) {
-          setCanScrollLeft(false);
-          setCanScrollRight(false);
-          return;
-        }
-        setCanScrollLeft(container.scrollLeft > 5); // Add a small threshold
-        setCanScrollRight(container.scrollLeft < (container.scrollWidth - container.clientWidth - 5)); // Add a small threshold
-      }
-    };
+    if (container && cardElement) {
+      const containerWidth = container.clientWidth;
+      const cardWidth = cardElement.offsetWidth;
+      const cardLeft = cardElement.offsetLeft;
+      
+      // Calculate scrollLeft to center the card
+      let targetScrollLeft = cardLeft - (containerWidth / 2) + (cardWidth / 2);
+      
+      // Clamp targetScrollLeft to prevent overscrolling
+      targetScrollLeft = Math.max(0, targetScrollLeft);
+      targetScrollLeft = Math.min(container.scrollWidth - containerWidth, targetScrollLeft);
 
-    checkScrollability();
-    container.addEventListener('scroll', checkScrollability, { passive: true });
-    window.addEventListener('resize', checkScrollability);
-    
-    const resizeObserver = new ResizeObserver(checkScrollability);
-    Array.from(container.children).forEach(child => resizeObserver.observe(child));
-
-    return () => {
-      container.removeEventListener('scroll', checkScrollability);
-      window.removeEventListener('resize', checkScrollability);
-      resizeObserver.disconnect();
-    };
-  }, [experienceData]);
-
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const scrollAmount = container.clientWidth * 0.8;
-      container.scrollBy({ 
-        left: direction === 'left' ? -scrollAmount : scrollAmount, 
-        behavior: 'smooth' 
+      container.scrollTo({
+        left: targetScrollLeft,
+        behavior: 'smooth',
       });
+      setActiveIndex(index);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Ensure the active card is in view on initial load or data change
+    // Small delay to allow layout to settle, especially if images are loading
+    const timer = setTimeout(() => {
+        if (experienceData.length > 0) {
+             scrollToCard(activeIndex);
+        }
+    }, 100); // A small delay
+    return () => clearTimeout(timer);
+  }, [experienceData, scrollToCard, activeIndex]);
 
 
   return (
@@ -158,102 +188,112 @@ export default function ExperienceSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5" 
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[15%] right-[-20%] w-[28rem] h-[28rem] md:w-[45rem] md:h-[45rem] bg-primary/30 rounded-full filter blur-[160px] md:blur-[220px] opacity-50 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[26rem] h-[26rem] md:w-[40rem] md:h-[40rem] bg-accent/35 rounded-full filter blur-[150px] md:blur-[210px] opacity-60 transition-transform duration-500 ease-out"></div>
+      <div ref={circle1Ref} className="absolute -z-10 top-[15%] right-[-20%] w-[28rem] h-[28rem] md:w-[45rem] md:h-[45rem] bg-primary/40 rounded-full filter blur-[180px] md:blur-[240px] opacity-40 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[26rem] h-[26rem] md:w-[40rem] md:h-[40rem] bg-accent/45 rounded-full filter blur-[170px] md:blur-[230px] opacity-50 transition-transform duration-500 ease-out"></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
-        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-6 px-4">
+        <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💼 Professional Experience</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
             My journey and contributions in the professional cyber security landscape.
           </p>
         </AnimatedSection>
 
-        <div className="flex justify-end gap-3 mb-6 px-4 md:px-0">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleScroll('left')}
-              disabled={!canScrollLeft}
-              aria-label="Scroll experience left"
-              className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleScroll('right')}
-              disabled={!canScrollRight}
-              aria-label="Scroll experience right"
-              className="rounded-full border-accent/70 text-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-        </div>
-
-        <div className="w-full overflow-hidden">
+        <div className="relative w-full mt-6">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => scrollToCard(activeIndex - 1)}
+            disabled={!canScrollLeft}
+            aria-label="Scroll experience left"
+            className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          
           <div 
             ref={scrollContainerRef}
-            className="flex flex-row gap-6 md:gap-8 overflow-x-auto py-4 px-4 md:px-0 scrollbar-thin scrollbar-thumb-accent/70 scrollbar-track-transparent -mx-4 md:-mx-0"
+            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2" // Hide scrollbar visually, still scrollable
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // For Firefox and IE/Edge
           >
             {experienceData.map((exp, index) => (
-              <AnimatedSection 
-                key={exp.id} 
-                animationType={index % 2 === 0 ? 'fadeInLeft' : 'fadeInRight'}
-                delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
-                className="flex-none w-[calc(100%-2rem)] sm:w-96 md:w-[450px] h-full"
+              <div
+                key={exp.id}
+                ref={(el) => { cardRefs.current[index] = el; }}
+                className={cn(
+                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", // Added py-2 for spacing if scale makes it touch top/bottom
+                  "transition-all duration-500 ease-in-out"
+                )}
               >
-                <Card className="flex flex-col h-full shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30">
-                  <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-6">
-                    {exp.logoUrl && (
-                      <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-2">
-                        <Image
-                          src={exp.logoUrl}
-                          alt={`${exp.company} logo`}
-                          fill
-                          className="object-contain"
-                          data-ai-hint={exp.imageHint || "company logo"}
-                        />
-                      </div>
-                    )}
-                    <div className="flex-grow pt-2 md:pt-0">
-                      <CardTitle className="text-xl md:text-2xl font-semibold text-primary">{exp.title}</CardTitle>
-                      <div className="flex items-center gap-2 text-muted-foreground mt-1.5">
-                        <Building2 className="h-5 w-5 text-accent" />
-                        <span className="font-medium text-foreground/90">{exp.company}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                        <CalendarDays className="h-4 w-4 text-accent" />
-                        <span>{exp.duration}</span>
-                      </div>
-                      {exp.location && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                          <MapPin className="h-4 w-4 text-accent" />
-                          <span>{exp.location}</span>
+                <AnimatedSection 
+                  animationType="scaleIn" 
+                  delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
+                >
+                  <Card className={cn(
+                    "flex flex-col h-full shadow-xl transition-all duration-300 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
+                    index === activeIndex 
+                      ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
+                      : "opacity-60 scale-90 hover:opacity-80 hover:scale-[0.92]"
+                  )}>
+                    <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
+                      {exp.logoUrl && (
+                        <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-1.5">
+                          <Image
+                            src={exp.logoUrl}
+                            alt={`${exp.company} logo`}
+                            fill
+                            className="object-contain"
+                            data-ai-hint={exp.imageHint || "company logo"}
+                          />
                         </div>
                       )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0 space-y-3 flex-grow">
-                    <h4 className="text-md font-semibold text-foreground/90 mb-2">Key Responsibilities & Achievements:</h4>
-                    <ul className="space-y-2.5 list-inside">
-                      {exp.description.map((item, idx) => (
-                        <li key={idx} className="flex items-start">
-                          <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400 mr-2.5 mt-0.5 flex-shrink-0" />
-                          <span className="text-foreground/80 text-sm leading-relaxed">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
+                      <div className="flex-grow pt-1 md:pt-0">
+                        <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">{exp.title}</CardTitle>
+                        <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                          <Building2 className="h-4 w-4 text-accent" />
+                          <span className="font-medium text-foreground/90 text-sm">{exp.company}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                          <CalendarDays className="h-3 w-3 text-accent" />
+                          <span>{exp.duration}</span>
+                        </div>
+                        {exp.location && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                            <MapPin className="h-3 w-3 text-accent" />
+                            <span>{exp.location}</span>
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-5 md:p-6 pt-0 space-y-2.5 flex-grow">
+                      <h4 className="text-sm font-semibold text-foreground/90 mb-1.5">Key Responsibilities & Achievements:</h4>
+                      <ul className="space-y-2 list-inside">
+                        {exp.description.map((item, idx) => (
+                          <li key={idx} className="flex items-start">
+                            <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                            <span className="text-foreground/80 text-xs leading-relaxed">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </AnimatedSection>
+              </div>
             ))}
-            <div className="flex-none w-1 md:w-4"></div>
           </div>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => scrollToCard(activeIndex + 1)}
+            disabled={!canScrollRight}
+            aria-label="Scroll experience right"
+            className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
         </div>
       </div>
     </section>
   );
 }
-
