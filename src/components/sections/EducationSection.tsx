@@ -28,10 +28,10 @@ export default function EducationSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.29}px) translateX(-${scrollProgress * 0.04}px) rotate(${scrollProgress * 0.015}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.32}px) translateX(-${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.018}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.19}px) translateX(${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.008}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.01}deg)`;
       }
     };
 
@@ -53,11 +53,11 @@ export default function EducationSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] left-[-25%] w-[30rem] h-[48rem] md:w-[40rem] md:h-[60rem] bg-accent/40 rounded-full filter blur-[130px] md:blur-[190px] opacity-70 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[5%] left-[-25%] w-[35rem] h-[50rem] md:w-[45rem] md:h-[65rem] bg-accent/55 rounded-full filter blur-[120px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] right-[-20%] w-[35rem] h-[32rem] md:w-[50rem] md:h-[45rem] bg-primary/30 rounded-full filter blur-[110px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[0%] right-[-20%] w-[40rem] h-[35rem] md:w-[55rem] md:h-[50rem] bg-foreground/20 rounded-full filter blur-[100px] md:blur-[160px] opacity-65 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">

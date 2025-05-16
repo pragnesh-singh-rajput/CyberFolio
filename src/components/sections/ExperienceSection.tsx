@@ -120,14 +120,14 @@ export default function ExperienceSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      cardElement.scrollIntoView({
+        cardElement.scrollIntoView({
         behavior: 'smooth',
         inline: 'center',
         block: 'nearest'
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]); // Removed activeIndex from here
+  }, [experienceData.length]); 
 
   useEffect(() => {
     updateScrollability();
@@ -137,21 +137,31 @@ export default function ExperienceSection() {
     if (container) {
       const handleScrollEvent = () => updateScrollability();
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
+      
+      // Delay initial scroll to ensure layout is stable
+      const timer = setTimeout(() => {
+        if(cardRefs.current[activeIndex]){
+           // scrollToCard(activeIndex); // No initial scroll to prevent page load issue
+        }
+      }, 100);
+
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
+
+      return () => {
+        clearTimeout(timer);
+        container.removeEventListener('scroll', handleScrollEvent);
+        if (resizeObserver) {
+          resizeObserver.unobserve(container);
+        }
+      };
     }
     
     window.addEventListener('resize', updateScrollability);
     return () => {
-      if (container) {
-        container.removeEventListener('scroll', updateScrollability);
-        if (resizeObserver) {
-          resizeObserver.unobserve(container);
-        }
-      }
       window.removeEventListener('resize', updateScrollability);
     };
-  }, [updateScrollability, activeIndex, experienceData.length]); // activeIndex is needed here to re-evaluate on change
+  }, [updateScrollability, activeIndex, experienceData.length]); 
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -162,10 +172,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.018}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.02}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.15}px) translateX(-${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.012}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.014}deg)`;
       }
     };
 
@@ -183,15 +193,15 @@ export default function ExperienceSection() {
     <section
       id="experience"
       ref={sectionRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5" 
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10" 
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[10%] right-[-25%] w-[30rem] h-[55rem] md:w-[40rem] md:h-[70rem] bg-primary/45 rounded-full filter blur-[150px] md:blur-[210px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[10%] right-[-25%] w-[35rem] h-[60rem] md:w-[45rem] md:h-[75rem] bg-primary/50 rounded-full filter blur-[130px] md:blur-[190px] opacity-80 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[40rem] h-[30rem] md:w-[55rem] md:h-[40rem] bg-accent/50 rounded-full filter blur-[140px] md:blur-[200px] opacity-85 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[45rem] h-[35rem] md:w-[60rem] md:h-[45rem] bg-accent/60 rounded-full filter blur-[120px] md:blur-[180px] opacity-80 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">

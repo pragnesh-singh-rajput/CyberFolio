@@ -29,10 +29,10 @@ export default function HeroSection() {
       const scrollProgress = -sectionTopInViewport; 
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.32}px) translateX(${scrollProgress * 0.1}px) rotate(${scrollProgress * 0.018}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(${scrollProgress * 0.12}px) rotate(${scrollProgress * 0.02}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.11}px) rotate(-${scrollProgress * 0.012}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(-${scrollProgress * 0.13}px) rotate(-${scrollProgress * 0.015}deg)`;
       }
     };
     
@@ -55,11 +55,11 @@ export default function HeroSection() {
       {/* Background Gradient Ellipses */}
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-25%] w-[35rem] h-[28rem] md:w-[50rem] md:h-[40rem] bg-accent/50 rounded-full filter blur-[100px] md:blur-[160px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-25%] w-[40rem] h-[30rem] md:w-[55rem] md:h-[45rem] bg-accent/60 rounded-full filter blur-[100px] md:blur-[150px] opacity-80 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-20%] w-[28rem] h-[35rem] md:w-[40rem] md:h-[50rem] bg-primary/40 rounded-full filter blur-[90px] md:blur-[140px] opacity-80 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-20%] w-[30rem] h-[40rem] md:w-[45rem] md:h-[55rem] bg-foreground/20 rounded-full filter blur-[90px] md:blur-[140px] opacity-70 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-4 md:px-6">

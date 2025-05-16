@@ -102,14 +102,14 @@ export default function ProjectsSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      cardElement.scrollIntoView({
+        cardElement.scrollIntoView({
         behavior: 'smooth',
         inline: 'center',
         block: 'nearest'
       });
       setActiveIndex(index);
     }
-  }, [projectsData.length]); // Removed activeIndex
+  }, [projectsData.length]); 
 
   useEffect(() => {
     updateScrollability(); 
@@ -119,21 +119,32 @@ export default function ProjectsSection() {
     if (container) {
       const handleScrollEvent = () => updateScrollability();
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
+      
+       // Delay initial scroll to ensure layout is stable
+       const timer = setTimeout(() => {
+        if(cardRefs.current[activeIndex]){
+          // scrollToCard(activeIndex); // No initial scroll to prevent page load issue
+        }
+      }, 100);
+
+
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
+      
+      return () => {
+        clearTimeout(timer);
+        container.removeEventListener('scroll', handleScrollEvent);
+        if (resizeObserver) {
+          resizeObserver.unobserve(container);
+        }
+      };
     }
     
     window.addEventListener('resize', updateScrollability);
     return () => {
-      if (container) {
-        container.removeEventListener('scroll', updateScrollability);
-        if (resizeObserver) {
-          resizeObserver.unobserve(container);
-        }
-      }
       window.removeEventListener('resize', updateScrollability);
     };
-  }, [updateScrollability, activeIndex, projectsData.length]); // activeIndex is needed here
+  }, [updateScrollability, activeIndex, projectsData.length]); 
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -144,10 +155,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.24}px) translateX(${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.012}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.27}px) translateX(${scrollProgress * 0.09}px) rotate(${scrollProgress * 0.014}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.14}px) translateX(-${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.007}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.17}px) translateX(-${scrollProgress * 0.06}px) rotate(-${scrollProgress * 0.009}deg)`;
       }
     };
 
@@ -168,11 +179,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] left-[-15%] w-[35rem] h-[55rem] md:w-[45rem] md:h-[70rem] bg-accent/45 rounded-full filter blur-[160px] md:blur-[220px] opacity-65 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-10%] left-[-15%] w-[40rem] h-[60rem] md:w-[50rem] md:h-[75rem] bg-accent/55 rounded-full filter blur-[140px] md:blur-[200px] opacity-75 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-5%] right-[-20%] w-[45rem] h-[32rem] md:w-[60rem] md:h-[42rem] bg-secondary/50 rounded-full filter blur-[150px] md:blur-[210px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-5%] right-[-20%] w-[50rem] h-[35rem] md:w-[65rem] md:h-[45rem] bg-foreground/20 rounded-full filter blur-[130px] md:blur-[190px] opacity-70 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">

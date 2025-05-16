@@ -26,10 +26,10 @@ export default function AboutSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(${scrollProgress * 0.05}px) rotate(${scrollProgress * 0.018}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.02}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.06}px) rotate(-${scrollProgress * 0.01}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(-${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.012}deg)`;
       }
     };
 
@@ -51,11 +51,11 @@ export default function AboutSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-20%] w-[40rem] h-[30rem] md:w-[55rem] md:h-[40rem] bg-secondary/45 rounded-full filter blur-[120px] md:blur-[180px] opacity-65 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[0%] right-[-20%] w-[45rem] h-[35rem] md:w-[60rem] md:h-[45rem] bg-accent/50 rounded-full filter blur-[110px] md:blur-[160px] opacity-70 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-15%] w-[25rem] h-[38rem] md:w-[35rem] md:h-[50rem] bg-primary/35 rounded-full filter blur-[110px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-15%] w-[30rem] h-[40rem] md:w-[40rem] md:h-[55rem] bg-foreground/15 rounded-full filter blur-[100px] md:blur-[150px] opacity-60 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16">

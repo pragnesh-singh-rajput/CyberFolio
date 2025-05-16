@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card"; // Added Card import
+import { Card, CardContent } from "@/components/ui/card"; 
 import { useToast } from "@/hooks/use-toast";
 import { Linkedin, Github, Twitter, Mail, Phone } from "lucide-react";
 import Link from "next/link";
@@ -73,10 +73,10 @@ export default function ContactSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.26}px) translateX(-${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.014}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.29}px) translateX(-${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.016}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.16}px) translateX(${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.007}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.19}px) translateX(${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.009}deg)`;
       }
     };
 
@@ -98,11 +98,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-15%] w-[30rem] h-[45rem] md:w-[38rem] md:h-[55rem] bg-primary/35 rounded-full filter blur-[140px] md:blur-[200px] opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[0%] right-[-15%] w-[35rem] h-[50rem] md:w-[42rem] md:h-[60rem] bg-primary/40 rounded-full filter blur-[120px] md:blur-[180px] opacity-70 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[35rem] h-[30rem] md:w-[45rem] md:h-[40rem] bg-accent/40 rounded-full filter blur-[130px] md:blur-[190px] opacity-70 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[40rem] h-[35rem] md:w-[50rem] md:h-[45rem] bg-accent/50 rounded-full filter blur-[110px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
