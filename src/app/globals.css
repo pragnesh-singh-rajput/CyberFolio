@@ -70,6 +70,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-geist-sans);
+    cursor: none !important; /* Hide default system cursor */
   }
   
   /* Custom scrollbar for webkit browsers */
