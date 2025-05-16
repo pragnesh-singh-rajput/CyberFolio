@@ -160,7 +160,7 @@ export default function ContactSection() {
                   </Link>
                 </Button>
                 <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-pink-500/10 hover:border-pink-500 hover:text-pink-500 transition-all duration-300 ease-in-out transform hover:scale-110">
-                  <Link href="https://instagram.com/your_username_here" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                  <Link href="https://instagram.com/pragnesh_singh_rajput" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                     <Instagram className="h-5 w-5" />
                   </Link>
                 </Button>
