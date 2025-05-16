@@ -16,7 +16,6 @@ export default function CustomCursor() {
     setIsClient(true);
   }, []);
 
-  // Update mousePosition directly on mousemove
   useEffect(() => {
     if (!isClient) return;
 
@@ -30,7 +29,6 @@ export default function CustomCursor() {
     return () => document.removeEventListener('mousemove', updateMousePositionDirect);
   }, [isVisible, isClient]);
 
-  // Update outlinePosition with a delay (for the trail effect using lerp)
   useEffect(() => {
     if (!isClient) return;
 
@@ -39,8 +37,8 @@ export default function CustomCursor() {
 
     const animateOutline = () => {
       setOutlinePosition(prev => ({
-        x: lerp(prev.x, mousePosition.x, 0.2), // Adjust 0.2 for smoothing
-        y: lerp(prev.y, mousePosition.y, 0.2),
+        x: lerp(prev.x, mousePosition.x, 0.15), // Slightly slower lerp for smoother trail
+        y: lerp(prev.y, mousePosition.y, 0.15),
       }));
       animationFrameId = requestAnimationFrame(animateOutline);
     };
@@ -52,7 +50,6 @@ export default function CustomCursor() {
   }, [mousePosition, isClient]);
 
 
-  // Handle document visibility and interactive element states
   useEffect(() => {
     if (!isClient) return;
 
@@ -102,20 +99,21 @@ export default function CustomCursor() {
     return null;
   }
 
-  const outlineBaseSize = 32;
-  const dotBaseSize = 8;
+  const outlineBaseSize = 36; // Slightly larger outline
+  const dotBaseSize = 6; // Slightly smaller dot
 
   const outlineStyle = {
-    width: `${isPointer ? outlineBaseSize * 1.4 : outlineBaseSize}px`,
-    height: `${isPointer ? outlineBaseSize * 1.4 : outlineBaseSize}px`,
-    transform: `translate(-50%, -50%) translate3d(${outlinePosition.x}px, ${outlinePosition.y}px, 0) scale(${isMouseDown ? 0.85 : 1})`,
+    width: `${isPointer ? outlineBaseSize * 1.5 : outlineBaseSize}px`, // More pronounced interactive scale
+    height: `${isPointer ? outlineBaseSize * 1.5 : outlineBaseSize}px`,
+    transform: `translate(-50%, -50%) translate3d(${outlinePosition.x}px, ${outlinePosition.y}px, 0) scale(${isMouseDown ? 0.8 : 1})`, // Slightly more shrink on click
     borderColor: 'hsl(var(--accent))',
+    borderWidth: '1.5px', // Thinner border for a sleeker look
   };
 
   const dotStyle = {
     width: `${dotBaseSize}px`,
     height: `${dotBaseSize}px`,
-    transform: `translate(-50%, -50%) translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0) scale(${isMouseDown ? 1.1 : 1})`,
+    transform: `translate(-50%, -50%) translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0) scale(${isMouseDown ? 1.2 : 1})`,
     backgroundColor: 'hsl(var(--accent))',
   };
 
@@ -124,15 +122,15 @@ export default function CustomCursor() {
       <div
         className={cn(
           'fixed top-0 left-0 rounded-full border-2 pointer-events-none z-[9998]',
-          'transition-all duration-150 ease-out', // For size, scale, and opacity (if class based)
-          isVisible ? 'opacity-100' : 'opacity-0'
+          'transition-all duration-100 ease-out', 
+          isVisible ? 'opacity-75' : 'opacity-0' // Slightly less opacity for the outline
         )}
         style={outlineStyle}
       />
       <div
         className={cn(
           'fixed top-0 left-0 rounded-full pointer-events-none z-[9999]',
-          'transition-opacity duration-100 ease-out', // For opacity
+          'transition-opacity duration-50 ease-out', // Faster opacity transition for dot
           isVisible ? 'opacity-100' : 'opacity-0'
         )}
         style={dotStyle}

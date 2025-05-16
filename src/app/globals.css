@@ -33,25 +33,25 @@
   }
 
   .dark {
-    --background: 215 15% 12%; /* Darker navy blue for more depth */
-    --foreground: 210 17% 97%; /* Light gray */
-    --card: 215 15% 18%; /* Slightly lighter dark navy */
-    --card-foreground: 210 17% 97%; /* Light gray */
-    --popover: 215 15% 18%; /* Slightly lighter dark navy */
-    --popover-foreground: 210 17% 97%; /* Light gray */
-    --primary: 174 63% 45%; /* Teal - slightly brighter for dark mode */
-    --primary-foreground: 0 0% 100%; /* White */
-    --secondary: 215 15% 22%; /* Darker shade for secondary elements */
-    --secondary-foreground: 210 17% 97%; /* Light gray */
-    --muted: 215 15% 25%; /* Darker shade */
-    --muted-foreground: 210 17% 70%; /* Lighter gray */
-    --accent: 174 70% 55%; /* Lighter Teal */
-    --accent-foreground: 215 15% 10%; /* Very dark navy/black */
-    --destructive: 0 70% 50%; /* Adjusted destructive for dark */
+    --background: 215 20% 10%; /* Darker, richer navy blue */
+    --foreground: 210 20% 95%; /* Softer light gray */
+    --card: 215 18% 14%; /* Slightly lighter dark navy for cards */
+    --card-foreground: 210 20% 95%; /* Softer light gray */
+    --popover: 215 18% 13%; /* Darker popover */
+    --popover-foreground: 210 20% 95%; /* Softer light gray */
+    --primary: 174 65% 50%; /* More vibrant Teal for primary actions */
+    --primary-foreground: 215 15% 10%; /* Darker text on primary buttons */
+    --secondary: 215 15% 20%; /* Darker shade for secondary elements */
+    --secondary-foreground: 210 20% 90%; /* Lighter gray for secondary text */
+    --muted: 215 15% 22%; /* Darker muted shade */
+    --muted-foreground: 210 20% 65%; /* Lighter muted text */
+    --accent: 174 70% 55%; /* Even more vibrant Teal for accents */
+    --accent-foreground: 215 15% 10%; /* Dark text on accent elements */
+    --destructive: 0 70% 50%; 
     --destructive-foreground: 0 0% 98%;
-    --border: 215 15% 28%; /* Darker border */
-    --input: 215 15% 25%; /* Darker input background */
-    --ring: 174 70% 55%; /* Lighter Teal for rings */
+    --border: 215 15% 25%; /* Softer border color */
+    --input: 215 15% 18%; /* Darker input background */
+    --ring: 174 70% 55%; /* Vibrant Teal for focus rings */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -69,8 +69,18 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* font-family is now handled by Tailwind's font-sans utility and the CSS variable */
     cursor: none !important; /* Hide default system cursor */
+  }
+  
+  h1, h2, h3 {
+    @apply tracking-tight; /* Slightly tighter tracking for headings */
+  }
+
+  h1 {
+    @apply leading-tight;
+  }
+  h2 {
+    @apply leading-snug;
   }
   
   /* Custom scrollbar for webkit browsers */
@@ -81,18 +91,18 @@
     @apply bg-transparent;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    @apply bg-accent/40 rounded-full;
+    @apply bg-accent/50 rounded-full; /* Increased opacity for thumb */
   }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    @apply bg-accent/60;
+    @apply bg-accent/70; /* Darker on hover */
   }
 
   /* For Firefox */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--accent) / 0.4) transparent;
+    scrollbar-color: hsl(var(--accent) / 0.5) transparent;
   }
    .scrollbar-thin:hover {
-    scrollbar-color: hsl(var(--accent) / 0.6) transparent;
+    scrollbar-color: hsl(var(--accent) / 0.7) transparent;
   }
 }

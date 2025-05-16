@@ -25,7 +25,6 @@ export default function Header() {
     setMounted(true);
   }, []);
   
-  // Effect to handle smooth scrolling for hash links, especially with scroll-snap
   useEffect(() => {
     const handleHashLinkClick = (event: MouseEvent) => {
       const target = event.currentTarget as HTMLAnchorElement;
@@ -54,8 +53,6 @@ export default function Header() {
   }, [isSheetOpen]);
 
   if (!mounted) {
-    // Render a simplified header or null during SSR to avoid hydration mismatch for Sheet
-    // For scroll-snap, it's better to render something to maintain layout consistency
     return (
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm h-16">
         <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
@@ -74,17 +71,17 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm h-16">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/50 shadow-md h-16">
       <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
-        <Link href="#home" className="flex items-center gap-2 text-xl font-bold text-primary hover:text-accent transition-colors">
-          <ShieldCheck className="h-7 w-7 text-accent" />
+        <Link href="#home" className="flex items-center gap-2 text-xl font-bold text-primary hover:text-accent transition-colors duration-300 ease-in-out group">
+          <ShieldCheck className="h-7 w-7 text-accent group-hover:animate-pulse" />
           <span>Pragnesh</span>
         </Link>
         
         <nav className="hidden md:flex gap-1">
           {navItems.map((item) => (
             <Button key={item.label} variant="ghost" asChild>
-              <Link href={item.href} className="text-sm font-medium text-foreground hover:text-accent hover:bg-accent/10 px-3 py-2 rounded-md">
+              <Link href={item.href} className="text-sm font-medium text-foreground hover:text-accent hover:bg-accent/10 px-3 py-2 rounded-md transition-all duration-200 ease-in-out">
                 {item.label}
               </Link>
             </Button>
@@ -94,23 +91,23 @@ export default function Header() {
         <div className="md:hidden">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hover:bg-accent/10 focus:ring-2 focus:ring-accent">
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs bg-background p-6">
+            <SheetContent side="right" className="w-full max-w-xs bg-background/95 backdrop-blur-md p-6 border-l-accent/50">
               <div className="flex flex-col gap-6">
-                <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary">
-                  <ShieldCheck className="h-6 w-6 text-accent" />
+                <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group">
+                  <ShieldCheck className="h-6 w-6 text-accent group-hover:animate-pulse" />
                   <span>Pragnesh</span>
                 </Link>
-                <nav className="flex flex-col gap-4">
+                <nav className="flex flex-col gap-3">
                   {navItems.map((item) => (
                     <SheetClose key={item.label} asChild>
                        <Link
                         href={item.href}
-                        className="flex items-center gap-3 rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="flex items-center gap-3 rounded-md p-3 text-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-in-out text-base"
                       >
                         {item.icon && <item.icon className="h-5 w-5" />}
                         <span>{item.label}</span>

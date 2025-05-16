@@ -26,14 +26,14 @@ export default function AboutSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(${scrollProgress * 0.03}px) rotate(${scrollProgress * 0.015}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.1}px)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.12}px) translateX(-${scrollProgress * 0.04}px) rotate(-${scrollProgress * 0.008}deg)`;
       }
     };
 
-    handleScroll(); // Initial call
+    handleScroll(); 
 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
@@ -47,16 +47,16 @@ export default function AboutSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8"
     >
-      {/* Background Gradient Circles */}
-      <div ref={circle1Ref} className="absolute -z-10 top-[5%] right-[-15%] w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] bg-secondary/30 rounded-full filter blur-[100px] md:blur-[160px] opacity-40"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-10%] w-[22rem] h-[22rem] md:w-[32rem] md:h-[32rem] bg-primary/25 rounded-full filter blur-[90px] md:blur-[140px] opacity-50"></div>
+      {/* Background Gradient Circles - increased opacity and blur */}
+      <div ref={circle1Ref} className="absolute -z-10 top-[5%] right-[-15%] w-[28rem] h-[28rem] md:w-[40rem] md:h-[40rem] bg-secondary/30 rounded-full filter blur-[130px] md:blur-[190px] opacity-50 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-10%] w-[22rem] h-[22rem] md:w-[35rem] md:h-[35rem] bg-primary/20 rounded-full filter blur-[120px] md:blur-[180px] opacity-60 transition-transform duration-500 ease-out"></div>
       
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full">
-          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-6">🧐 About Me</h2>
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16">
+        <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full mb-8">
+          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl mb-6">🧐 About Me</h2>
         </AnimatedSection>
         <AnimatedSection animationType="fadeInRight" delay="delay-300" className="w-full">
-          <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
+          <p className="max-w-3xl mx-auto text-lg leading-relaxed text-muted-foreground sm:text-xl">
             As a dedicated Cyber Security enthusiast currently in my final year of B.Tech in Computer Science and Engineering,
             I am deeply invested in the ever-evolving landscape of digital security. My academic journey has equipped me with a strong foundation
             in network protocols, cryptography, ethical hacking, and secure software development practices. I am passionate about identifying vulnerabilities,
