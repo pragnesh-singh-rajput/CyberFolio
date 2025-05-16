@@ -74,6 +74,7 @@ export default function ProjectsSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -125,8 +126,7 @@ export default function ProjectsSection() {
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
       
-      // Removed the auto-scroll to card 0 on mount to fix page load scroll issue.
-      // The first card is active by default via activeIndex=0.
+      updateScrollability();
 
       return () => {
         container.removeEventListener('scroll', handleScrollEvent);
@@ -144,24 +144,35 @@ export default function ProjectsSection() {
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
 
-    const handleParallaxScroll = () => {
+    const performParallaxUpdate = () => {
       if (!sectionRef.current || !parallaxScrollContainer) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.01}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(${scrollProgress * 0.1}px) rotate(${scrollProgress * 0.012}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.12}px) translateX(-${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.006}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.15}px) translateX(-${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.008}deg)`;
       }
+      animationFrameIdRef.current = null;
     };
 
+    const handleParallaxScroll = () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+    };
+    
     handleParallaxScroll(); 
     parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     return () => {
       if (parallaxScrollContainer) {
         parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
+      }
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
   }, [parallaxScrollContainer]);
@@ -174,11 +185,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] left-[-15%] w-[40rem] h-[55rem] md:w-[55rem] md:h-[70rem] bg-primary/50 rounded-full filter blur-[170px] md:blur-[210px] opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-15%] left-[-20%] w-[45rem] h-[60rem] md:w-[60rem] md:h-[75rem] bg-primary/30 dark:bg-primary/40 rounded-full filter blur-[180px] md:blur-[240px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-15%] right-[-20%] w-[50rem] h-[45rem] md:w-[65rem] md:h-[55rem] bg-accent/60 rounded-full filter blur-[160px] md:blur-[200px] opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] right-[-25%] w-[55rem] h-[50rem] md:w-[70rem] md:h-[60rem] bg-accent/40 dark:bg-accent/50 rounded-full filter blur-[170px] md:blur-[230px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -300,5 +311,3 @@ export default function ProjectsSection() {
     </section>
   );
 }
-
-    

@@ -12,6 +12,7 @@ export default function HeroSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -23,25 +24,37 @@ export default function HeroSection() {
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
 
-    const handleScroll = () => {
+    const performParallaxUpdate = () => {
       if (!sectionRef.current) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport; 
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(${scrollProgress * 0.12}px) rotate(${scrollProgress * 0.02}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.45}px) translateX(${scrollProgress * 0.15}px) rotate(${scrollProgress * 0.025}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(-${scrollProgress * 0.13}px) rotate(-${scrollProgress * 0.015}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(-${scrollProgress * 0.16}px) rotate(-${scrollProgress * 0.018}deg)`;
       }
+      animationFrameIdRef.current = null;
     };
     
+    const handleScroll = () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+    };
+    
+    // Initial call to set position based on current scroll
     handleScroll(); 
 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       if (scrollContainer) {
         scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
   }, [scrollContainer]);
@@ -55,11 +68,11 @@ export default function HeroSection() {
       {/* Background Gradient Ellipses */}
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-25%] w-[40rem] h-[30rem] md:w-[55rem] md:h-[45rem] bg-accent/60 rounded-full filter blur-[100px] md:blur-[150px] opacity-80 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-25%] left-[-30%] w-[50rem] h-[40rem] md:w-[65rem] md:h-[50rem] bg-accent/40 dark:bg-accent/50 rounded-full filter blur-[130px] md:blur-[180px] opacity-60 dark:opacity-70 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-20%] w-[30rem] h-[40rem] md:w-[45rem] md:h-[55rem] bg-foreground/20 rounded-full filter blur-[90px] md:blur-[140px] opacity-70 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[40rem] h-[50rem] md:w-[55rem] md:h-[65rem] bg-primary/20 dark:bg-primary/30 rounded-full filter blur-[120px] md:blur-[170px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-4 md:px-6">
@@ -68,10 +81,10 @@ export default function HeroSection() {
             <h1 className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="inline-block group-hover:animate-pulse-subtle">👋</span> Hello, I&apos;m{' '}
               <span 
-                className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-teal-400 to-emerald-500 animate-gradient-x" 
+                className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-teal-400 to-emerald-500" 
                 style={{backgroundSize: '200% auto'}}
               >
-                PragneshKumar S. Singh
+                PK Singh
               </span>
             </h1>
           </AnimatedSection>

@@ -56,6 +56,7 @@ export default function ContactSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -67,17 +68,25 @@ export default function ContactSection() {
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
 
-    const handleScroll = () => {
+    const performParallaxUpdate = () => {
       if (!sectionRef.current) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.29}px) translateX(-${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.016}deg) scale(1.1)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(-${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.018}deg) scale(1.1)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.19}px) translateX(${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.009}deg) scale(1.1)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(${scrollProgress * 0.11}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
       }
+      animationFrameIdRef.current = null;
+    };
+
+    const handleScroll = () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
 
     handleScroll(); 
@@ -86,6 +95,9 @@ export default function ContactSection() {
     return () => {
       if (scrollContainer) {
         scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
   }, [scrollContainer]);
@@ -98,11 +110,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-15%] w-[42rem] h-[60rem] md:w-[60rem] md:h-[70rem] bg-pink-500/20 dark:bg-pink-500/30 rounded-[45%/60%] filter blur-[130px] md:blur-[200px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[0%] right-[-20%] w-[45rem] h-[65rem] md:w-[65rem] md:h-[75rem] bg-pink-500/15 dark:bg-pink-500/25 rounded-[45%/60%] filter blur-[160px] md:blur-[230px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[50rem] h-[45rem] md:w-[70rem] md:h-[60rem] bg-purple-500/20 dark:bg-purple-600/25 rounded-[60%/45%] filter blur-[120px] md:blur-[190px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[5%] left-[-25%] w-[55rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-purple-500/15 dark:bg-purple-600/20 rounded-[60%/45%] filter blur-[150px] md:blur-[220px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -121,7 +133,7 @@ export default function ContactSection() {
                   <Mail className="h-6 w-6 text-accent group-hover:animate-pulse" />
                   <span className="text-base">singhpragnesh89@gmail.com</span>
                 </a>
-                <a href="tel:+919644643380" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors duration-200 group">
+                <a href="tel:+916355736986" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors duration-200 group">
                   <Phone className="h-6 w-6 text-accent group-hover:animate-pulse" />
                   <span className="text-base">+91 6355736986</span>
                 </a>
@@ -140,7 +152,7 @@ export default function ContactSection() {
                     <Github className="h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-white/5 hover:border-white/20 hover:text-white transition-all duration-300 ease-in-out transform hover:scale-110">
+                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-gray-700/10 hover:border-gray-500 hover:text-gray-300 transition-all duration-300 ease-in-out transform hover:scale-110">
                   <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
@@ -212,4 +224,3 @@ export default function ContactSection() {
     </section>
   );
 }
-

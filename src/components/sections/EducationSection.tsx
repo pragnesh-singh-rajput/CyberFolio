@@ -11,6 +11,7 @@ export default function EducationSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -22,17 +23,25 @@ export default function EducationSection() {
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
 
-    const handleScroll = () => {
+    const performParallaxUpdate = () => {
       if (!sectionRef.current) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.32}px) translateX(-${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.018}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.42}px) translateX(-${scrollProgress * 0.09}px) rotate(${scrollProgress * 0.02}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.01}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.012}deg)`;
       }
+      animationFrameIdRef.current = null;
+    };
+
+    const handleScroll = () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
 
     handleScroll(); 
@@ -41,6 +50,9 @@ export default function EducationSection() {
     return () => {
       if (scrollContainer) {
         scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
   }, [scrollContainer]);
@@ -53,11 +65,11 @@ export default function EducationSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] left-[-25%] w-[35rem] h-[50rem] md:w-[45rem] md:h-[65rem] bg-accent/55 rounded-full filter blur-[120px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[5%] left-[-30%] w-[40rem] h-[55rem] md:w-[50rem] md:h-[70rem] bg-accent/35 dark:bg-accent/45 rounded-full filter blur-[150px] md:blur-[200px] opacity-60 dark:opacity-70 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] right-[-20%] w-[40rem] h-[35rem] md:w-[55rem] md:h-[50rem] bg-foreground/20 rounded-full filter blur-[100px] md:blur-[160px] opacity-65 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[0%] right-[-25%] w-[45rem] h-[40rem] md:w-[60rem] md:h-[55rem] bg-primary/15 dark:bg-primary/25 rounded-full filter blur-[140px] md:blur-[190px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -86,14 +98,17 @@ export default function EducationSection() {
               <CardContent className="space-y-4 pt-2 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4 text-accent" />
-                  <span>Parul Institute of Engineering and Technology, Vadodara, Gujarat</span>
+                  <span>Parul Institute of Engineering and Technology, Parul University, Vadodara, Gujarat</span>
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
                   <CalendarDays className="h-4 w-4 text-accent" />
-                  <span>Expected May 2026 - Currently in 4th Year</span>
+                  <span>2022 - Expected May 2026 (Currently in Final Year)</span>
                 </div>
                 <p className="text-foreground/90 pt-3 text-base leading-relaxed">
-                  Pursuing a comprehensive curriculum focused on core computer science principles with an advanced specialization in cyber security. Coursework includes network security, cryptography, ethical hacking, digital forensics, and secure software development. Actively involved in technical communities and coding challenges.
+                  Pursuing a comprehensive B.Tech in Computer Science with a specialization in Cybersecurity. 
+                  Coursework includes advanced topics in network security, cryptography, ethical hacking, digital forensics, 
+                  and secure software development. Actively participating in coding competitions, technical workshops, 
+                  and cybersecurity awareness programs. Committed to continuous learning and staying updated with the latest industry trends.
                 </p>
                  <p className="text-md text-accent font-semibold pt-2 text-center sm:text-left">CGPA: 8.1 / 10.0</p>
               </CardContent>

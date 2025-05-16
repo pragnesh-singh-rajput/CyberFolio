@@ -13,18 +13,19 @@ import { cn } from '@/lib/utils';
 const experienceData: ExperienceItem[] = [
   {
     id: 'exp1',
-    title: 'Digital Forensics Intern',
+    title: 'Cyber Security Analyst Intern',
     company: 'Cyber Crime Cell, CID Crime',
-    duration: 'November 2024 - May 2025',
-    location: 'On-Site',
+    duration: 'November 2024 - May 2025 (Expected)',
+    location: 'Gandhinagar, Gujarat (On-Site)',
     logoUrl: 'https://placehold.co/100x100.png',
-    imageHint: 'company security',
+    imageHint: 'government security shield',
     description: [
-      'Conducted various types of Information Gathering techniques to support cyber investigations.',
-      'Performed analysis on Android Applications and engaged in Malware Reverse Engineering.',
-      'Executed Digital Forensics procedures on devices collected from criminal cases and crime scenes.',
-      'Investigated cases involving cyber fraud, malware attacks, and data breaches impacting companies and banks.',
-      'Gained practical experience in a law enforcement setting at the CID Headquarter, Gandhinagar, focusing on digital evidence analysis.',
+      'Assisted senior analysts in monitoring network traffic and identifying potential security breaches using SIEM tools.',
+      'Conducted vulnerability assessments and penetration testing on web applications and internal networks.',
+      'Contributed to the development and implementation of security policies and incident response procedures.',
+      'Performed digital forensics tasks on collected evidence from simulated and real-world cases under supervision.',
+      'Researched emerging cyber threats and presented findings to the team.',
+      'Gained hands-on experience with various security tools and technologies in a law enforcement environment.'
     ],
   },
   // {
@@ -43,46 +44,18 @@ const experienceData: ExperienceItem[] = [
   // },
   // {
   //   id: 'exp3',
-  //   title: 'Freelance Web Developer',
+  //   title: 'Freelance Web Developer (Part-time)',
   //   company: 'Self-Employed',
   //   duration: 'Sep 2022 - Dec 2022',
   //   location: 'Remote',
   //   logoUrl: 'https://placehold.co/100x100.png',
   //   imageHint: 'freelance code computer',
   //   description: [
-  //     'Developed and maintained websites for small businesses using HTML, CSS, and JavaScript.',
-  //     'Implemented responsive designs to ensure optimal viewing across all devices.',
-  //     'Collaborated with clients to understand requirements and deliver solutions.',
+  //     'Developed and maintained responsive websites for small businesses using HTML, CSS, JavaScript, and PHP.',
+  //     'Integrated third-party APIs and services as per client requirements.',
+  //     'Managed project timelines and communicated effectively with clients to deliver satisfactory results.',
   //   ],
   // },
-  // {
-  //   id: 'exp4',
-  //   title: 'Jr. Security Researcher (Hypothetical)',
-  //   company: 'CyberDef Innovations',
-  //   duration: 'Sep 2024 - Present',
-  //   location: 'Remote',
-  //   logoUrl: 'https://placehold.co/100x100.png',
-  //   imageHint: 'research lab tech',
-  //   description: [
-  //     'Exploring new threat vectors and defensive strategies in IoT security.',
-  //     'Contributing to research papers and security publications.',
-  //     'Developing proof-of-concept exploits for educational purposes.',
-  //   ],
-  // },
-  // {
-  //   id: 'exp5',
-  //   title: 'Lead Security Engineer (Future Goal)',
-  //   company: 'Global Cyber Corp',
-  //   duration: 'Jan 2028 - Present',
-  //   location: 'New York, USA',
-  //   logoUrl: 'https://placehold.co/100x100.png',
-  //   imageHint: 'corporate security future',
-  //   description: [
-  //     'Leading a team of security professionals to protect enterprise assets.',
-  //     'Designing and implementing next-generation security architectures.',
-  //     'Overseeing threat intelligence and incident response operations globally.',
-  //   ],
-  // }
 ];
 
 export default function ExperienceSection() {
@@ -90,6 +63,7 @@ export default function ExperienceSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -103,13 +77,13 @@ export default function ExperienceSection() {
     setParallaxScrollContainer(mainElement);
     cardRefs.current = cardRefs.current.slice(0, experienceData.length);
   }, []);
-
+  
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isActuallyScrollable = container.scrollWidth > container.clientWidth + 1; // Add 1px buffer
-      setCanScrollLeft(isActuallyScrollable && activeIndex > 0);
-      setCanScrollRight(isActuallyScrollable && activeIndex < experienceData.length - 1);
+      const isScrollable = container.scrollWidth > container.clientWidth + 1;
+      setCanScrollLeft(isScrollable && activeIndex > 0);
+      setCanScrollRight(isScrollable && activeIndex < experienceData.length - 1);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
@@ -128,22 +102,26 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]); // Removed activeIndex from here
+  }, [experienceData.length]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleScrollEvent = () => updateScrollability(); 
+      const handleScrollEvent = () => {
+        // We might not need to call updateScrollability on every scroll event
+        // if activeIndex is the primary driver for button states.
+        // However, it's good for robustness if direct scrollbar interaction is used.
+        updateScrollability();
+      };
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
-
-      // Initial scroll to activeIndex if needed, after layout calculation
-      // Removed the auto-scroll to card 0 on mount from previous iteration
-      // to fix page load scroll issue. The first card is active by default.
+      
+      // Ensure scrollability is set correctly on mount
+      updateScrollability();
 
       return () => {
         container.removeEventListener('scroll', handleScrollEvent);
@@ -161,24 +139,35 @@ export default function ExperienceSection() {
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
 
-    const handleParallaxScroll = () => {
+    const performParallaxUpdate = () => {
       if (!sectionRef.current || !parallaxScrollContainer) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.012}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.1}px) translateX(-${scrollProgress * 0.04}px) rotate(${scrollProgress * 0.008}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.15}px) translateX(-${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.01}deg)`;
       }
+      animationFrameIdRef.current = null;
     };
 
+    const handleParallaxScroll = () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+    };
+    
     handleParallaxScroll(); 
     parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     return () => {
       if (parallaxScrollContainer) {
         parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
+      }
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
   }, [parallaxScrollContainer]);
@@ -192,11 +181,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] right-[-20%] w-[45rem] h-[60rem] md:w-[65rem] md:h-[75rem] bg-primary/50 rounded-full filter blur-[170px] md:blur-[200px] opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[5%] right-[-25%] w-[50rem] h-[65rem] md:w-[70rem] md:h-[80rem] bg-primary/30 dark:bg-primary/40 rounded-full filter blur-[180px] md:blur-[230px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] left-[-15%] w-[50rem] h-[45rem] md:w-[70rem] md:h-[60rem] bg-accent/60 rounded-full filter blur-[160px] md:blur-[190px] opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[0%] left-[-20%] w-[55rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-accent/40 dark:bg-accent/50 rounded-full filter blur-[170px] md:blur-[220px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -216,7 +205,7 @@ export default function ExperienceSection() {
             aria-label="Scroll experience left"
             className={cn(
                 "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed" 
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
               )}
           >
             <ChevronLeft className="h-6 w-6" />
@@ -241,13 +230,13 @@ export default function ExperienceSection() {
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`} // Keep initial animation consistent
+                  delay={`delay-${100}` as `delay-${number}`} 
                 >
                   <Card className={cn(
                     "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
                     index === activeIndex 
                       ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                      : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" // Enhanced "behind" effect
+                      : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
                   )}>
                     <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
                       {exp.logoUrl && (
@@ -315,4 +304,3 @@ export default function ExperienceSection() {
     </section>
   );
 }
-
