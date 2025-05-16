@@ -13,7 +13,7 @@ export default function HomePage() {
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
       <Header />
       <main 
-        className="flex-1 overflow-y-auto scroll-pt-16"
+        className="flex-1 overflow-y-auto scroll-pt-16 parallax-scroll-container"
       >
         <HeroSection />
         <AboutSection />
