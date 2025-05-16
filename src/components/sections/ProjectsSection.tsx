@@ -100,7 +100,7 @@ export default function ProjectsSection() {
               animationType="scaleIn" 
               delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
             >
-              <Card className="flex flex-col h-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card/80 backdrop-blur-sm">
+              <Card className="flex flex-col h-full overflow-hidden shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-out bg-card/80 backdrop-blur-sm">
                 {project.imageUrl && (
                   <div className="relative h-48 w-full">
                     <Image

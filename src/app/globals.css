@@ -81,24 +81,23 @@
     @apply bg-transparent;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
+    @apply bg-accent/40 rounded-full;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
+    @apply bg-accent/60;
   }
 
   /* For Firefox */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-color: hsl(var(--accent) / 0.4) transparent;
   }
    .scrollbar-thin:hover {
-    scrollbar-color: hsl(var(--muted-foreground) / 0.5) transparent;
+    scrollbar-color: hsl(var(--accent) / 0.6) transparent;
   }
 }
 
 @layer utilities {
-  /* Removed .scroll-snap-type-y-proximity */
   .scroll-snap-align-start {
     scroll-snap-align: start;
   }

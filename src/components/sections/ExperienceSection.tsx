@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Removed CardDescription as it's not used here
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, CalendarDays, MapPin, CheckCircle } from 'lucide-react';
 import type { ExperienceItem } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
@@ -102,7 +102,7 @@ export default function ExperienceSection() {
               animationType={index % 2 === 0 ? 'fadeInLeft' : 'fadeInRight'}
               delay={`delay-${(index * 150) + 200}` as `delay-${number}`}
             >
-              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden bg-card/80 backdrop-blur-sm">
+              <Card className="shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-out overflow-hidden bg-card/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-6">
                   {exp.logoUrl && (
                     <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-md overflow-hidden border shadow-sm flex-shrink-0 bg-background/50">
