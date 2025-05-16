@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowDown } from 'lucide-react';
 import Link from 'next/link';
@@ -8,15 +7,7 @@ export default function HeroSection() {
     <div id="home" className="py-16 md:py-24 lg:py-32 text-center">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center gap-8">
-          <Image
-            src="https://placehold.co/200x200.png"
-            alt="Professional Headshot"
-            width={200}
-            height={200}
-            className="rounded-full object-cover border-4 border-accent shadow-lg"
-            data-ai-hint="professional headshot"
-            priority
-          />
+          {/* Image component removed as per request */}
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
               Hello, I&apos;m <span className="text-accent">Your Name</span>
