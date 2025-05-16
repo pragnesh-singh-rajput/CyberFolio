@@ -69,7 +69,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-geist-sans);
+    /* font-family is now handled by Tailwind's font-sans utility and the CSS variable */
     cursor: none !important; /* Hide default system cursor */
   }
   
@@ -94,11 +94,5 @@
   }
    .scrollbar-thin:hover {
     scrollbar-color: hsl(var(--accent) / 0.6) transparent;
-  }
-}
-
-@layer utilities {
-  .scroll-snap-align-start {
-    scroll-snap-align: start;
   }
 }

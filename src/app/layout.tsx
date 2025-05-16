@@ -1,13 +1,15 @@
 
 import type {Metadata} from 'next';
-import { GeistSans } from 'geist/font/sans';
-// import { GeistMono } from 'geist/font/mono'; // Assuming this might still be an issue if not installed
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import CustomCursor from '@/components/effects/CustomCursor';
 
-const geistSans = GeistSans;
-// const geistMono = GeistMono; // Keep commented if 'geist' package isn't fully set up
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'Pragnesh Singh Rajput | Cyber Security Professional',
@@ -20,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${geistSans.variable} antialiased bg-background text-foreground`}> {/* Removed geistMono if not used/installed */}
+    <html lang="en" className={`${inter.variable} dark font-sans`} suppressHydrationWarning>
+      <body className={`antialiased bg-background text-foreground`}>
         <CustomCursor />
         {children}
         <Toaster />

@@ -15,7 +15,7 @@ This project is built with a modern web development stack:
 -   **Lucide React**: A library for beautiful and consistent icons.
 -   **Framer Motion (implied by `AnimatedSection` principles)**: For page animations and transitions.
 -   **Genkit**: Integrated for potential future AI-powered features.
--   **Geist Font**: For clean and modern typography.
+-   **Inter Font**: For clean and modern typography (using `next/font`).
 
 ## ✨ Key Features
 
