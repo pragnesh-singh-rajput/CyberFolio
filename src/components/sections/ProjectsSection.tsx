@@ -16,7 +16,7 @@ const projectsData: Project[] = [
   {
     id: 'proj-cyberconnect',
     title: 'CyberConnect-AI',
-    description: 'An AI-powered platform for cybersecurity, leveraging machine learning for threat detection and analysis. Built with Next.js and Python.',
+    description: 'An AI-powered platform for cybersecurity, leveraging machine learning for cold mails. Built with Next.js and Python.',
     imageUrl: 'https://placehold.co/600x400.png',
     imageHint: 'ai cybersecurity',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/CyberConnect-AI',
