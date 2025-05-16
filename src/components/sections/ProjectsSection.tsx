@@ -53,7 +53,7 @@ const projectsData: Project[] = [
     description: 'A personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
     imageHint: 'portfolio website code',
-    repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio', // Assuming this is the repo
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio', 
     tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React'],
   },
   {
@@ -85,22 +85,43 @@ export default function ProjectsSection() {
     cardRefs.current = cardRefs.current.slice(0, projectsData.length);
   }, []);
 
+  const scrollToCard = useCallback((index: number) => {
+    const cardElement = cardRefs.current[index];
+    if (cardElement) {
+      cardElement.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+      setActiveIndex(index);
+    }
+  }, [setActiveIndex]); // cardRefs is stable
+
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isOverflowing = container.scrollWidth > container.clientWidth;
-      setCanScrollLeft(isOverflowing && activeIndex > 0);
-      setCanScrollRight(isOverflowing && activeIndex < projectsData.length - 1);
+      const isActuallyScrollable = container.scrollWidth > container.clientWidth;
+      setCanScrollLeft(isActuallyScrollable && activeIndex > 0);
+      setCanScrollRight(isActuallyScrollable && activeIndex < projectsData.length - 1);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
     }
-  }, [activeIndex]);
+  }, [activeIndex, projectsData.length]);
 
   useEffect(() => {
     updateScrollability();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', updateScrollability, { passive: true });
+    }
     window.addEventListener('resize', updateScrollability);
-    return () => window.removeEventListener('resize', updateScrollability);
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', updateScrollability);
+      }
+      window.removeEventListener('resize', updateScrollability);
+    };
   }, [updateScrollability]);
 
   useEffect(() => {
@@ -126,36 +147,14 @@ export default function ProjectsSection() {
     };
   }, [scrollContainerEl]);
 
-  const scrollToCard = useCallback((index: number) => {
-    const container = scrollContainerRef.current;
-    const cardElement = cardRefs.current[index];
-
-    if (container && cardElement) {
-      const containerWidth = container.clientWidth;
-      const cardWidth = cardElement.offsetWidth;
-      const cardLeft = cardElement.offsetLeft;
-      
-      let targetScrollLeft = cardLeft - (containerWidth / 2) + (cardWidth / 2);
-      
-      targetScrollLeft = Math.max(0, targetScrollLeft);
-      targetScrollLeft = Math.min(container.scrollWidth - containerWidth, targetScrollLeft);
-
-      container.scrollTo({
-        left: targetScrollLeft,
-        behavior: 'smooth',
-      });
-      setActiveIndex(index);
-    }
-  }, []);
-
   useEffect(() => {
     const timer = setTimeout(() => {
-        if (projectsData.length > 0) {
+        if (projectsData.length > 0 && cardRefs.current[activeIndex]) {
             scrollToCard(activeIndex);
         }
-    }, 100);
+    }, 150); // Increased delay slightly
     return () => clearTimeout(timer);
-  }, [projectsData, scrollToCard, activeIndex]);
+  }, [projectsData.length, scrollToCard, activeIndex]);
 
   return (
     <section
@@ -163,8 +162,8 @@ export default function ProjectsSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background" 
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[-5%] left-[-10%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-accent/40 rounded-full filter blur-[190px] md:blur-[250px] opacity-30 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[0%] right-[-18%] w-[30rem] h-[30rem] md:w-[42rem] md:h-[42rem] bg-secondary/45 rounded-full filter blur-[180px] md:blur-[240px] opacity-45 transition-transform duration-500 ease-out"></div>
+      <div ref={circle1Ref} className="absolute -z-10 top-[-5%] left-[-10%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-accent/40 rounded-full filter blur-[190px] md:blur-[250px] opacity-50 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[0%] right-[-18%] w-[30rem] h-[30rem] md:w-[42rem] md:h-[42rem] bg-secondary/45 rounded-full filter blur-[180px] md:blur-[240px] opacity-60 transition-transform duration-500 ease-out"></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
@@ -188,7 +187,7 @@ export default function ProjectsSection() {
 
           <div
             ref={scrollContainerRef}
-            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2" // Hide scrollbar visually
+            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {projectsData.map((project, index) => (
@@ -196,13 +195,13 @@ export default function ProjectsSection() {
                 key={project.id} 
                 ref={(el) => cardRefs.current[index] = el}
                 className={cn(
-                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", // Added py-2 for spacing
-                  "transition-all duration-500 ease-in-out"
+                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2",
+                  "transition-all duration-500 ease-in-out transform" // Added transform
                 )}
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
+                  delay={`delay-${100}` as `delay-${number}`}
                 >
                   <Card className={cn(
                     "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-300 ease-out bg-card/90 backdrop-blur-md border-secondary/30 group",
@@ -216,6 +215,7 @@ export default function ProjectsSection() {
                           src={project.imageUrl}
                           alt={project.title}
                           fill
+                          sizes="(max-width: 640px) 90vw, (max-width: 768px) 80vw, 400px"
                           className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
                           data-ai-hint={project.imageHint || "technology project"}
                         />
@@ -226,7 +226,7 @@ export default function ProjectsSection() {
                       <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">
                         {project.title}
                       </CardTitle>
-                      <CardDescription className="text-xs text-muted-foreground min-h-[3.75rem] mt-1 leading-relaxed line-clamp-3"> {/* 3 lines for description */}
+                      <CardDescription className="text-xs text-muted-foreground min-h-[3.75rem] mt-1 leading-relaxed line-clamp-3">
                         {project.description}
                       </CardDescription>
                     </CardHeader>
@@ -278,3 +278,4 @@ export default function ProjectsSection() {
     </section>
   );
 }
+

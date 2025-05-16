@@ -100,27 +100,46 @@ export default function ExperienceSection() {
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
     setScrollContainerEl(mainElement);
-    // Initialize card refs array
     cardRefs.current = cardRefs.current.slice(0, experienceData.length);
   }, []);
+
+  const scrollToCard = useCallback((index: number) => {
+    const cardElement = cardRefs.current[index];
+    if (cardElement) {
+      cardElement.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+      setActiveIndex(index);
+    }
+  }, [setActiveIndex]); // cardRefs is stable
 
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isOverflowing = container.scrollWidth > container.clientWidth;
-      setCanScrollLeft(isOverflowing && activeIndex > 0);
-      setCanScrollRight(isOverflowing && activeIndex < experienceData.length - 1);
+      const isActuallyScrollable = container.scrollWidth > container.clientWidth;
+      setCanScrollLeft(isActuallyScrollable && activeIndex > 0);
+      setCanScrollRight(isActuallyScrollable && activeIndex < experienceData.length - 1);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
     }
-  }, [activeIndex]);
+  }, [activeIndex, experienceData.length]);
 
   useEffect(() => {
     updateScrollability();
-    // Listener for window resize to re-check scrollability
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', updateScrollability, { passive: true });
+    }
     window.addEventListener('resize', updateScrollability);
-    return () => window.removeEventListener('resize', updateScrollability);
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', updateScrollability);
+      }
+      window.removeEventListener('resize', updateScrollability);
+    };
   }, [updateScrollability]);
   
   useEffect(() => {
@@ -146,40 +165,14 @@ export default function ExperienceSection() {
     };
   }, [scrollContainerEl]);
 
-  const scrollToCard = useCallback((index: number) => {
-    const container = scrollContainerRef.current;
-    const cardElement = cardRefs.current[index];
-
-    if (container && cardElement) {
-      const containerWidth = container.clientWidth;
-      const cardWidth = cardElement.offsetWidth;
-      const cardLeft = cardElement.offsetLeft;
-      
-      // Calculate scrollLeft to center the card
-      let targetScrollLeft = cardLeft - (containerWidth / 2) + (cardWidth / 2);
-      
-      // Clamp targetScrollLeft to prevent overscrolling
-      targetScrollLeft = Math.max(0, targetScrollLeft);
-      targetScrollLeft = Math.min(container.scrollWidth - containerWidth, targetScrollLeft);
-
-      container.scrollTo({
-        left: targetScrollLeft,
-        behavior: 'smooth',
-      });
-      setActiveIndex(index);
-    }
-  }, []);
-
   useEffect(() => {
-    // Ensure the active card is in view on initial load or data change
-    // Small delay to allow layout to settle, especially if images are loading
     const timer = setTimeout(() => {
-        if (experienceData.length > 0) {
+        if (experienceData.length > 0 && cardRefs.current[activeIndex]) {
              scrollToCard(activeIndex);
         }
-    }, 100); // A small delay
+    }, 150); // Increased delay slightly for layout to be super sure
     return () => clearTimeout(timer);
-  }, [experienceData, scrollToCard, activeIndex]);
+  }, [experienceData.length, scrollToCard, activeIndex]);
 
 
   return (
@@ -188,8 +181,8 @@ export default function ExperienceSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5" 
     >
-      <div ref={circle1Ref} className="absolute -z-10 top-[15%] right-[-20%] w-[28rem] h-[28rem] md:w-[45rem] md:h-[45rem] bg-primary/40 rounded-full filter blur-[180px] md:blur-[240px] opacity-40 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[26rem] h-[26rem] md:w-[40rem] md:h-[40rem] bg-accent/45 rounded-full filter blur-[170px] md:blur-[230px] opacity-50 transition-transform duration-500 ease-out"></div>
+      <div ref={circle1Ref} className="absolute -z-10 top-[15%] right-[-20%] w-[28rem] h-[28rem] md:w-[45rem] md:h-[45rem] bg-primary/40 rounded-full filter blur-[180px] md:blur-[240px] opacity-60 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[26rem] h-[26rem] md:w-[40rem] md:h-[40rem] bg-accent/45 rounded-full filter blur-[170px] md:blur-[230px] opacity-70 transition-transform duration-500 ease-out"></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
@@ -213,21 +206,21 @@ export default function ExperienceSection() {
           
           <div 
             ref={scrollContainerRef}
-            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2" // Hide scrollbar visually, still scrollable
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // For Firefox and IE/Edge
+            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} 
           >
             {experienceData.map((exp, index) => (
               <div
                 key={exp.id}
                 ref={(el) => { cardRefs.current[index] = el; }}
                 className={cn(
-                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", // Added py-2 for spacing if scale makes it touch top/bottom
-                  "transition-all duration-500 ease-in-out"
+                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2",
+                  "transition-all duration-500 ease-in-out transform" // Added transform for smooth scaling
                 )}
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${(index * 100) + 200}` as `delay-${number}`}
+                  delay={`delay-${100}` as `delay-${number}`} // All cards animate in similarly, focus is on active state
                 >
                   <Card className={cn(
                     "flex flex-col h-full shadow-xl transition-all duration-300 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
@@ -242,6 +235,7 @@ export default function ExperienceSection() {
                             src={exp.logoUrl}
                             alt={`${exp.company} logo`}
                             fill
+                            sizes="(max-width: 768px) 4rem, 5rem"
                             className="object-contain"
                             data-ai-hint={exp.imageHint || "company logo"}
                           />
@@ -297,3 +291,4 @@ export default function ExperienceSection() {
     </section>
   );
 }
+
