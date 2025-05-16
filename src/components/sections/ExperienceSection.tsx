@@ -14,74 +14,75 @@ const experienceData: ExperienceItem[] = [
   {
     id: 'exp1',
     title: 'Cyber Security Analyst Intern',
-    company: 'TechSecure Solutions',
-    duration: 'June 2023 - Aug 2023',
+    company: 'CyberGuard Solutions', // Placeholder, update if needed
+    duration: 'June 2023 - August 2023',
     location: 'Remote',
     logoUrl: 'https://placehold.co/100x100.png',
     imageHint: 'company security',
     description: [
-      'Assisted in monitoring security alerts and responding to incidents using advanced SIEM tools.',
-      'Conducted comprehensive vulnerability assessments on web applications, identifying critical flaws.',
-      'Contributed to the development and dissemination of engaging security awareness materials.',
-      'Gained hands-on experience with threat intelligence platforms and incident response protocols.',
+      'Monitored and analyzed security alerts using SIEM tools, contributing to incident identification.',
+      'Performed vulnerability assessments on web applications and network infrastructure, identifying potential risks.',
+      'Assisted in developing security documentation, including incident response procedures.',
+      'Collaborated with senior analysts on threat intelligence gathering and analysis.',
+      'Gained practical experience with various security tools and technologies.',
     ],
   },
-  {
-    id: 'exp2',
-    title: 'IT Support Volunteer',
-    company: 'Community Tech Hub',
-    duration: 'Jan 2022 - May 2022',
-    location: 'Bhopal, MP',
-    logoUrl: 'https://placehold.co/100x100.png',
-    imageHint: 'organization tech',
-    description: [
-      'Provided technical support and troubleshooting for hardware and software issues to community members.',
-      'Assisted in setting up, configuring, and maintaining local network infrastructure.',
-      'Educated users on fundamental cybersecurity best practices and digital safety.',
-    ],
-  },
-  {
-    id: 'exp3',
-    title: 'Freelance Web Developer',
-    company: 'Self-Employed',
-    duration: 'Sep 2022 - Dec 2022',
-    location: 'Remote',
-    logoUrl: 'https://placehold.co/100x100.png',
-    imageHint: 'freelance code computer',
-    description: [
-      'Developed and maintained websites for small businesses using HTML, CSS, and JavaScript.',
-      'Implemented responsive designs to ensure optimal viewing across all devices.',
-      'Collaborated with clients to understand requirements and deliver solutions.',
-    ],
-  },
-  {
-    id: 'exp4',
-    title: 'Jr. Security Researcher (Hypothetical)',
-    company: 'CyberDef Innovations',
-    duration: 'Sep 2024 - Present',
-    location: 'Remote',
-    logoUrl: 'https://placehold.co/100x100.png',
-    imageHint: 'research lab tech',
-    description: [
-      'Exploring new threat vectors and defensive strategies in IoT security.',
-      'Contributing to research papers and security publications.',
-      'Developing proof-of-concept exploits for educational purposes.',
-    ],
-  },
-  {
-    id: 'exp5',
-    title: 'Lead Security Engineer (Future Goal)',
-    company: 'Global Cyber Corp',
-    duration: 'Jan 2028 - Present',
-    location: 'New York, USA',
-    logoUrl: 'https://placehold.co/100x100.png',
-    imageHint: 'corporate security future',
-    description: [
-      'Leading a team of security professionals to protect enterprise assets.',
-      'Designing and implementing next-generation security architectures.',
-      'Overseeing threat intelligence and incident response operations globally.',
-    ],
-  }
+  // {
+  //   id: 'exp2',
+  //   title: 'IT Support Volunteer',
+  //   company: 'Community Tech Hub',
+  //   duration: 'Jan 2022 - May 2022',
+  //   location: 'Bhopal, MP',
+  //   logoUrl: 'https://placehold.co/100x100.png',
+  //   imageHint: 'organization tech',
+  //   description: [
+  //     'Provided technical support and troubleshooting for hardware and software issues to community members.',
+  //     'Assisted in setting up, configuring, and maintaining local network infrastructure.',
+  //     'Educated users on fundamental cybersecurity best practices and digital safety.',
+  //   ],
+  // },
+  // {
+  //   id: 'exp3',
+  //   title: 'Freelance Web Developer',
+  //   company: 'Self-Employed',
+  //   duration: 'Sep 2022 - Dec 2022',
+  //   location: 'Remote',
+  //   logoUrl: 'https://placehold.co/100x100.png',
+  //   imageHint: 'freelance code computer',
+  //   description: [
+  //     'Developed and maintained websites for small businesses using HTML, CSS, and JavaScript.',
+  //     'Implemented responsive designs to ensure optimal viewing across all devices.',
+  //     'Collaborated with clients to understand requirements and deliver solutions.',
+  //   ],
+  // },
+  // {
+  //   id: 'exp4',
+  //   title: 'Jr. Security Researcher (Hypothetical)',
+  //   company: 'CyberDef Innovations',
+  //   duration: 'Sep 2024 - Present',
+  //   location: 'Remote',
+  //   logoUrl: 'https://placehold.co/100x100.png',
+  //   imageHint: 'research lab tech',
+  //   description: [
+  //     'Exploring new threat vectors and defensive strategies in IoT security.',
+  //     'Contributing to research papers and security publications.',
+  //     'Developing proof-of-concept exploits for educational purposes.',
+  //   ],
+  // },
+  // {
+  //   id: 'exp5',
+  //   title: 'Lead Security Engineer (Future Goal)',
+  //   company: 'Global Cyber Corp',
+  //   duration: 'Jan 2028 - Present',
+  //   location: 'New York, USA',
+  //   logoUrl: 'https://placehold.co/100x100.png',
+  //   imageHint: 'corporate security future',
+  //   description: [
+  //     'Leading a team of security professionals to protect enterprise assets.',
+  //     'Designing and implementing next-generation security architectures.',
+  //     'Overseeing threat intelligence and incident response operations globally.',
+  //   ],
+  // }
 ];
 
 export default function ExperienceSection() {
@@ -135,21 +136,13 @@ export default function ExperienceSection() {
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleScrollEvent = () => updateScrollability();
+      const handleScrollEvent = () => updateScrollability(); // Re-check on manual scroll
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       
-      // Delay initial scroll to ensure layout is stable
-      const timer = setTimeout(() => {
-        if(cardRefs.current[activeIndex]){
-           // scrollToCard(activeIndex); // No initial scroll to prevent page load issue
-        }
-      }, 100);
-
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
 
       return () => {
-        clearTimeout(timer);
         container.removeEventListener('scroll', handleScrollEvent);
         if (resizeObserver) {
           resizeObserver.unobserve(container);
@@ -161,7 +154,13 @@ export default function ExperienceSection() {
     return () => {
       window.removeEventListener('resize', updateScrollability);
     };
-  }, [updateScrollability, activeIndex, experienceData.length]); 
+  }, [updateScrollability, experienceData.length]); // Removed activeIndex, scrollToCard from deps
+  
+  useEffect(() => {
+    // Ensure updateScrollability is called when activeIndex changes,
+    // especially important if scrollToCard is not called on initial mount.
+    updateScrollability();
+  }, [activeIndex, updateScrollability]);
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -172,10 +171,12 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.02}deg)`;
+        // More dynamic parallax: adjust multiplier, add horizontal shift, and rotation
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.022}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.014}deg)`;
+        // Different speed and direction for the second circle
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.016}deg)`;
       }
     };
 
@@ -197,11 +198,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[10%] right-[-25%] w-[35rem] h-[60rem] md:w-[45rem] md:h-[75rem] bg-primary/50 rounded-full filter blur-[130px] md:blur-[190px] opacity-80 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[10%] right-[-25%] w-[45rem] h-[70rem] md:w-[55rem] md:h-[85rem] bg-primary/50 rounded-full filter blur-[140px] md:blur-[200px] opacity-70 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[45rem] h-[35rem] md:w-[60rem] md:h-[45rem] bg-accent/60 rounded-full filter blur-[120px] md:blur-[180px] opacity-80 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[55rem] h-[40rem] md:w-[70rem] md:h-[50rem] bg-accent/60 rounded-full filter blur-[130px] md:blur-[190px] opacity-75 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -221,7 +222,7 @@ export default function ExperienceSection() {
             aria-label="Scroll experience left"
             className={cn(
                 "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed" 
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50" 
               )}
           >
             <ChevronLeft className="h-6 w-6" />
@@ -307,7 +308,7 @@ export default function ExperienceSection() {
             aria-label="Scroll experience right"
             className={cn(
                 "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
               )}
           >
             <ChevronRight className="h-6 w-6" />
@@ -317,3 +318,4 @@ export default function ExperienceSection() {
     </section>
   );
 }
+
