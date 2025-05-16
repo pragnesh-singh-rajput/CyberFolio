@@ -1,16 +1,18 @@
+
 "use client";
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { Menu, ShieldCheck, Home, User, GraduationCap, Briefcase, Mail } from 'lucide-react';
+import { Menu, ShieldCheck, Home, User, GraduationCap, Briefcase, Mail, Building2 } from 'lucide-react';
 import type { NavItem } from '@/types';
 
 const navItems: NavItem[] = [
   { href: '#home', label: 'Home', icon: Home },
   { href: '#about', label: 'About', icon: User },
   { href: '#education', label: 'Education', icon: GraduationCap },
+  { href: '#experience', label: 'Experience', icon: Building2 },
   { href: '#projects', label: 'Projects', icon: Briefcase },
   { href: '#contact', label: 'Contact', icon: Mail },
 ];

@@ -1,7 +1,9 @@
+
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/sections/HeroSection';
 import EducationSection from '@/components/sections/EducationSection';
+import ExperienceSection from '@/components/sections/ExperienceSection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
 import ContactSection from '@/components/sections/ContactSection';
 import AnimatedSection from '@/components/ui/AnimatedSection';
@@ -29,12 +31,16 @@ export default function HomePage() {
           <AnimatedSection delay="delay-200">
             <EducationSection />
           </AnimatedSection>
-          
+
           <AnimatedSection delay="delay-300">
-            <ProjectsSection />
+            <ExperienceSection />
           </AnimatedSection>
           
           <AnimatedSection delay="delay-400">
+            <ProjectsSection />
+          </AnimatedSection>
+          
+          <AnimatedSection delay="delay-500">
             <ContactSection />
           </AnimatedSection>
         </div>
