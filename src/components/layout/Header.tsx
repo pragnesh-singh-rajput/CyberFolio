@@ -58,7 +58,7 @@ export default function Header() {
         <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2 text-xl font-bold text-primary">
             <ShieldCheck className="h-7 w-7 text-accent" />
-            <span>Pragnesh</span>
+            <span>PK Singh</span>
           </div>
           <div className="md:hidden">
             <Button variant="ghost" size="icon" disabled>
@@ -75,7 +75,7 @@ export default function Header() {
       <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
         <Link href="#home" className="flex items-center gap-2 text-xl font-bold text-primary hover:text-accent transition-colors duration-300 ease-in-out group">
           <ShieldCheck className="h-7 w-7 text-accent group-hover:animate-pulse" />
-          <span>Pragnesh</span>
+          <span>PK Singh</span>
         </Link>
         
         <nav className="hidden md:flex gap-1">
@@ -100,7 +100,7 @@ export default function Header() {
               <div className="flex flex-col gap-6">
                 <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group">
                   <ShieldCheck className="h-6 w-6 text-accent group-hover:animate-pulse" />
-                  <span>Pragnesh</span>
+                  <span>PK Singh</span>
                 </Link>
                 <nav className="flex flex-col gap-3">
                   {navItems.map((item) => (
