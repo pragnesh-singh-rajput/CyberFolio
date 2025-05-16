@@ -104,9 +104,10 @@ export default function ExperienceSection() {
   }, []);
 
   const scrollToCard = useCallback((index: number) => {
-    if (index < 0 || index >= experienceData.length) return;
+    if (index < 0 || index >= experienceData.length || !scrollContainerRef.current) return;
+    
     const cardElement = cardRefs.current[index];
-    if (cardElement && scrollContainerRef.current) {
+    if (cardElement) {
       cardElement.scrollIntoView({
         behavior: 'smooth',
         inline: 'center',
@@ -114,7 +115,7 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, []); // cardRefs and scrollContainerRef are stable after mount
+  }, []); 
 
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -129,14 +130,17 @@ export default function ExperienceSection() {
   }, [activeIndex, experienceData.length]);
 
   useEffect(() => {
-    updateScrollability();
+    updateScrollability(); 
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      container.addEventListener('scroll', updateScrollability, { passive: true });
+      const handleScrollEvent = () => updateScrollability(); 
+      container.addEventListener('scroll', handleScrollEvent, { passive: true });
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
+      
+      updateScrollability(); 
     }
     
     window.addEventListener('resize', updateScrollability);
@@ -149,13 +153,13 @@ export default function ExperienceSection() {
       }
       window.removeEventListener('resize', updateScrollability);
     };
-  }, [updateScrollability]);
+  }, [updateScrollability, activeIndex, experienceData.length]);
   
   useEffect(() => {
     if (!scrollContainerEl || !sectionRef.current) return;
 
     const handleParallaxScroll = () => {
-      if (!sectionRef.current) return;
+      if (!sectionRef.current || !scrollContainerEl) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
@@ -170,18 +174,11 @@ export default function ExperienceSection() {
     handleParallaxScroll(); 
     scrollContainerEl.addEventListener('scroll', handleParallaxScroll, { passive: true });
     return () => {
-      scrollContainerEl.removeEventListener('scroll', handleParallaxScroll);
+      if (scrollContainerEl) {
+        scrollContainerEl.removeEventListener('scroll', handleParallaxScroll);
+      }
     };
   }, [scrollContainerEl]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        if (experienceData.length > 0 && cardRefs.current[activeIndex]) {
-             scrollToCard(0); // Start at the first card
-        }
-    }, 200); 
-    return () => clearTimeout(timer);
-  }, [experienceData.length, scrollToCard]);
 
 
   return (
@@ -208,14 +205,17 @@ export default function ExperienceSection() {
             onClick={() => scrollToCard(activeIndex - 1)}
             disabled={!canScrollLeft}
             aria-label="Scroll experience left"
-            className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
+            className={cn(
+                "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed" 
+              )}
           >
             <ChevronLeft className="h-6 w-6" />
           </Button>
           
           <div 
             ref={scrollContainerRef}
-            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-accent/0 scrollbar-track-transparent -mx-2"
+            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
           >
             {experienceData.map((exp, index) => (
@@ -232,7 +232,7 @@ export default function ExperienceSection() {
                   delay={`delay-${100}` as `delay-${number}`}
                 >
                   <Card className={cn(
-                    "flex flex-col h-full shadow-xl transition-all duration-300 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
+                    "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
                     index === activeIndex 
                       ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
                       : "opacity-60 scale-90 hover:opacity-80 hover:scale-[0.92]"
@@ -291,7 +291,10 @@ export default function ExperienceSection() {
             onClick={() => scrollToCard(activeIndex + 1)}
             disabled={!canScrollRight}
             aria-label="Scroll experience right"
-            className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:border-muted disabled:text-muted-foreground transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12"
+            className={cn(
+                "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+              )}
           >
             <ChevronRight className="h-6 w-6" />
           </Button>
@@ -300,3 +303,4 @@ export default function ExperienceSection() {
     </section>
   );
 }
+
