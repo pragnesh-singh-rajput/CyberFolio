@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,25 +33,25 @@
   }
 
   .dark {
-    --background: 215 15% 16%; /* Dark navy blue */
+    --background: 215 15% 12%; /* Darker navy blue for more depth */
     --foreground: 210 17% 97%; /* Light gray */
-    --card: 215 15% 20%; /* Slightly lighter dark navy */
+    --card: 215 15% 18%; /* Slightly lighter dark navy */
     --card-foreground: 210 17% 97%; /* Light gray */
-    --popover: 215 15% 20%; /* Slightly lighter dark navy */
+    --popover: 215 15% 18%; /* Slightly lighter dark navy */
     --popover-foreground: 210 17% 97%; /* Light gray */
-    --primary: 174 63% 40%; /* Teal */
+    --primary: 174 63% 45%; /* Teal - slightly brighter for dark mode */
     --primary-foreground: 0 0% 100%; /* White */
-    --secondary: 215 15% 25%; /* Darker shade for secondary elements */
+    --secondary: 215 15% 22%; /* Darker shade for secondary elements */
     --secondary-foreground: 210 17% 97%; /* Light gray */
     --muted: 215 15% 25%; /* Darker shade */
     --muted-foreground: 210 17% 70%; /* Lighter gray */
-    --accent: 174 70% 65%; /* Lighter Teal */
+    --accent: 174 70% 55%; /* Lighter Teal */
     --accent-foreground: 215 15% 10%; /* Very dark navy/black */
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 70% 50%; /* Adjusted destructive for dark */
     --destructive-foreground: 0 0% 98%;
-    --border: 215 15% 30%; /* Darker border */
+    --border: 215 15% 28%; /* Darker border */
     --input: 215 15% 25%; /* Darker input background */
-    --ring: 174 70% 65%; /* Lighter Teal for rings */
+    --ring: 174 70% 55%; /* Lighter Teal for rings */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -65,9 +66,46 @@
   }
   html {
     @apply scroll-smooth;
+    /* Ensure scroll-snap works on html/body if main isn't filling viewport correctly */
+    /* height: 100%; 
+    overflow: hidden; */
   }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-geist-sans);
+    /* height: 100%;
+    overflow-y: auto; */
+  }
+  
+  /* Custom scrollbar for webkit browsers */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+
+  /* For Firefox */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+   .scrollbar-thin:hover {
+    scrollbar-color: hsl(var(--muted-foreground) / 0.5) transparent;
+  }
+}
+
+@layer utilities {
+  .scroll-snap-type-y-mandatory {
+    scroll-snap-type: y mandatory;
+  }
+  .scroll-snap-align-start {
+    scroll-snap-align: start;
   }
 }

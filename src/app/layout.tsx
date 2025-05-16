@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
@@ -8,8 +9,8 @@ const geistSans = GeistSans;
 const geistMono = GeistMono;
 
 export const metadata: Metadata = {
-  title: 'CyberFolio | Cyber Security Professional',
-  description: 'Portfolio of a Cyber Security Professional specializing in B.Tech CSE.',
+  title: 'Pragnesh Singh Rajput | Cyber Security Professional',
+  description: 'Portfolio of Pragnesh Singh Rajput, a Cyber Security Professional and B.Tech CSE student.',
 };
 
 export default function RootLayout({
@@ -19,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
         {children}
         <Toaster />
       </body>

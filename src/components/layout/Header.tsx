@@ -25,19 +25,62 @@ export default function Header() {
     setMounted(true);
   }, []);
   
+  // Effect to handle smooth scrolling for hash links, especially with scroll-snap
+  useEffect(() => {
+    const handleHashLinkClick = (event: MouseEvent) => {
+      const target = event.currentTarget as HTMLAnchorElement;
+      const href = target.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        event.preventDefault();
+        const element = document.getElementById(href.substring(1));
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+        if (isSheetOpen) {
+          setIsSheetOpen(false);
+        }
+      }
+    };
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', handleHashLinkClick as EventListener);
+    });
+
+    return () => {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.removeEventListener('click', handleHashLinkClick as EventListener);
+      });
+    };
+  }, [isSheetOpen]);
+
   if (!mounted) {
-    return null; // Avoid rendering mismatch during hydration
+    // Render a simplified header or null during SSR to avoid hydration mismatch for Sheet
+    // For scroll-snap, it's better to render something to maintain layout consistency
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm h-16">
+        <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
+          <div className="flex items-center gap-2 text-xl font-bold text-primary">
+            <ShieldCheck className="h-7 w-7 text-accent" />
+            <span>Pragnesh</span>
+          </div>
+          <div className="md:hidden">
+            <Button variant="ghost" size="icon" disabled>
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
+        </div>
+      </header>
+    );
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm h-16">
+      <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
         <Link href="#home" className="flex items-center gap-2 text-xl font-bold text-primary hover:text-accent transition-colors">
           <ShieldCheck className="h-7 w-7 text-accent" />
-          <span>CyberFolio</span>
+          <span>Pragnesh</span>
         </Link>
         
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-1">
           {navItems.map((item) => (
             <Button key={item.label} variant="ghost" asChild>
@@ -48,7 +91,6 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Mobile Navigation */}
         <div className="md:hidden">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
@@ -59,9 +101,9 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs bg-background p-6">
               <div className="flex flex-col gap-6">
-                <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary" onClick={() => setIsSheetOpen(false)}>
+                <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary">
                   <ShieldCheck className="h-6 w-6 text-accent" />
-                  <span>CyberFolio</span>
+                  <span>Pragnesh</span>
                 </Link>
                 <nav className="flex flex-col gap-4">
                   {navItems.map((item) => (
@@ -69,7 +111,6 @@ export default function Header() {
                        <Link
                         href={item.href}
                         className="flex items-center gap-3 rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                        onClick={() => setIsSheetOpen(false)}
                       >
                         {item.icon && <item.icon className="h-5 w-5" />}
                         <span>{item.label}</span>
