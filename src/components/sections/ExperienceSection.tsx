@@ -95,7 +95,7 @@ export default function ExperienceSection() {
           </p>
         </AnimatedSection>
 
-        <div className="space-y-10 md:space-y-12 max-h-[65vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-accent/60 hover:scrollbar-thumb-accent/80 scrollbar-track-transparent">
+        <div className="space-y-10 md:space-y-12">
           {experienceData.map((exp, index) => (
             <AnimatedSection 
               key={exp.id} 

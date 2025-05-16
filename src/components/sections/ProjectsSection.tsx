@@ -93,7 +93,7 @@ export default function ProjectsSection() {
             A selection of projects I&apos;ve worked on, showcasing my skills in cyber security.
           </p>
         </AnimatedSection>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-accent/60 hover:scrollbar-thumb-accent/80 scrollbar-track-transparent pr-2 md:pr-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projectsData.map((project, index) => (
             <AnimatedSection 
               key={project.id} 
