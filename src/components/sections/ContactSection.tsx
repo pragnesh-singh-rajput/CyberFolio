@@ -46,7 +46,7 @@ export default function ContactSection() {
     toast({
       title: "Message Sent! 🎉",
       description: "Thanks for reaching out, Pragnesh will get back to you soon.",
-      variant: "default", // 'default' should use accent color from theme
+      variant: "default", 
       duration: 5000,
     });
     form.reset();
@@ -94,9 +94,8 @@ export default function ContactSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10"
     >
-      {/* Background Gradient Circles - increased opacity and blur */}
-      <div ref={circle1Ref} className="absolute -z-10 top-[5%] right-[-10%] w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] bg-primary/20 rounded-full filter blur-[150px] md:blur-[210px] opacity-45 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[32rem] h-[32rem] md:w-[42rem] md:h-[42rem] bg-accent/25 rounded-full filter blur-[140px] md:blur-[200px] opacity-55 transition-transform duration-500 ease-out"></div>
+      <div ref={circle1Ref} className="absolute -z-10 top-[5%] right-[-10%] w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] bg-primary/30 rounded-full filter blur-[170px] md:blur-[230px] opacity-45 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-15%] w-[32rem] h-[32rem] md:w-[42rem] md:h-[42rem] bg-accent/35 rounded-full filter blur-[160px] md:blur-[220px] opacity-55 transition-transform duration-500 ease-out"></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">

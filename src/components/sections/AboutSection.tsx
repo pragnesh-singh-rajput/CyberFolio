@@ -47,9 +47,8 @@ export default function AboutSection() {
       ref={sectionRef}
       className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8"
     >
-      {/* Background Gradient Circles - increased opacity and blur */}
-      <div ref={circle1Ref} className="absolute -z-10 top-[5%] right-[-15%] w-[28rem] h-[28rem] md:w-[40rem] md:h-[40rem] bg-secondary/30 rounded-full filter blur-[130px] md:blur-[190px] opacity-50 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-10%] w-[22rem] h-[22rem] md:w-[35rem] md:h-[35rem] bg-primary/20 rounded-full filter blur-[120px] md:blur-[180px] opacity-60 transition-transform duration-500 ease-out"></div>
+      <div ref={circle1Ref} className="absolute -z-10 top-[5%] right-[-15%] w-[28rem] h-[28rem] md:w-[40rem] md:h-[40rem] bg-secondary/40 rounded-full filter blur-[150px] md:blur-[210px] opacity-50 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[10%] left-[-10%] w-[22rem] h-[22rem] md:w-[35rem] md:h-[35rem] bg-primary/30 rounded-full filter blur-[140px] md:blur-[200px] opacity-60 transition-transform duration-500 ease-out"></div>
       
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16">
         <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full mb-8">

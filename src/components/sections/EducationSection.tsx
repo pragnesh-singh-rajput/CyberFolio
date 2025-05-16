@@ -47,11 +47,10 @@ export default function EducationSection() {
     <section
       id="education"
       ref={sectionRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background" // Changed bg slightly
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background"
     >
-      {/* Background Gradient Circles - increased opacity and blur */}
-      <div ref={circle1Ref} className="absolute -z-10 top-[10%] left-[-20%] w-[28rem] h-[28rem] md:w-[42rem] md:h-[42rem] bg-accent/20 rounded-full filter blur-[140px] md:blur-[200px] opacity-50 transition-transform duration-500 ease-out"></div>
-      <div ref={circle2Ref} className="absolute -z-10 bottom-[5%] right-[-15%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-primary/15 rounded-full filter blur-[130px] md:blur-[190px] opacity-60 transition-transform duration-500 ease-out"></div>
+      <div ref={circle1Ref} className="absolute -z-10 top-[10%] left-[-20%] w-[28rem] h-[28rem] md:w-[42rem] md:h-[42rem] bg-accent/30 rounded-full filter blur-[160px] md:blur-[220px] opacity-50 transition-transform duration-500 ease-out"></div>
+      <div ref={circle2Ref} className="absolute -z-10 bottom-[5%] right-[-15%] w-[32rem] h-[32rem] md:w-[48rem] md:h-[48rem] bg-primary/25 rounded-full filter blur-[150px] md:blur-[210px] opacity-60 transition-transform duration-500 ease-out"></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
         <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full text-center mb-12">
