@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card"; 
 import { useToast } from "@/hooks/use-toast";
-import { Linkedin, Github, Twitter, Mail, Phone } from "lucide-react";
+import { Linkedin, Github, X, Mail, Phone } from "lucide-react"; // Changed Twitter to X
 import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useEffect, useRef, useState } from 'react';
@@ -45,7 +45,7 @@ export default function ContactSection() {
     console.log(data); 
     toast({
       title: "Message Sent! 🎉",
-      description: "Thanks for reaching out, Pragnesh will get back to you soon.",
+      description: "Thanks for reaching out, PK Singh will get back to you soon.",
       variant: "default", 
       duration: 5000,
     });
@@ -98,11 +98,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-15%] w-[35rem] h-[50rem] md:w-[42rem] md:h-[60rem] bg-primary/40 rounded-full filter blur-[120px] md:blur-[180px] opacity-70 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[0%] right-[-15%] w-[35rem] h-[50rem] md:w-[42rem] md:h-[60rem] bg-primary/40 rounded-full filter blur-[120px] md:blur-[180px] opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[40rem] h-[35rem] md:w-[50rem] md:h-[45rem] bg-accent/50 rounded-full filter blur-[110px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[40rem] h-[35rem] md:w-[50rem] md:h-[45rem] bg-accent/60 rounded-full filter blur-[110px] md:blur-[170px] opacity-75 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -117,7 +117,7 @@ export default function ContactSection() {
             <div className="bg-card/70 backdrop-blur-md p-6 rounded-lg shadow-lg border border-border/50">
               <h3 className="text-xl font-semibold text-primary mb-6">Contact Information</h3>
               <div className="space-y-4">
-                <a href="mailto:pragneshsinghrajput@gmail.com" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors duration-200 group">
+                <a href="mailto:singhpragnesh89@gmail.com" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors duration-200 group">
                   <Mail className="h-6 w-6 text-accent group-hover:animate-pulse" />
                   <span className="text-base">singhpragnesh89@gmail.com</span>
                 </a>
@@ -141,8 +141,8 @@ export default function ContactSection() {
                   </Link>
                 </Button>
                 <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-accent/10 hover:border-accent hover:text-accent transition-all duration-300 ease-in-out transform hover:scale-110">
-                  <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                    <Twitter className="h-5 w-5" />
+                  <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
+                    <X className="h-5 w-5" />
                   </Link>
                 </Button>
               </div>
