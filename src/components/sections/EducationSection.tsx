@@ -86,11 +86,11 @@ export default function EducationSection() {
               <CardContent className="space-y-4 pt-2 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4 text-accent" />
-                  <span>Sagar Institute of Science and Technology, Bhopal</span>
+                  <span>Parul Institute of Engineering and Technology, Vadodara, Gujarat</span>
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
                   <CalendarDays className="h-4 w-4 text-accent" />
-                  <span>Expected May 2025 - Currently in 4th Year</span>
+                  <span>Expected May 2026 - Currently in 4th Year</span>
                 </div>
                 <p className="text-foreground/90 pt-3 text-base leading-relaxed">
                   Pursuing a comprehensive curriculum focused on core computer science principles with an advanced specialization in cyber security. Coursework includes network security, cryptography, ethical hacking, digital forensics, and secure software development. Actively involved in technical communities and coding challenges.

@@ -13,18 +13,18 @@ import { cn } from '@/lib/utils';
 const experienceData: ExperienceItem[] = [
   {
     id: 'exp1',
-    title: 'Cyber Security Analyst Intern',
-    company: 'CyberGuard Solutions',
-    duration: 'June 2023 - August 2023',
-    location: 'Remote',
+    title: 'Digital Forensics Intern',
+    company: 'Cyber Crime Cell, CID Crime',
+    duration: 'November 2024 - May 2025',
+    location: 'On-Site',
     logoUrl: 'https://placehold.co/100x100.png',
     imageHint: 'company security',
     description: [
-      'Monitored and analyzed security alerts using SIEM tools, contributing to rapid incident identification and response.',
-      'Performed vulnerability assessments on web applications and network infrastructure using tools like Nessus and Burp Suite, identifying and reporting potential risks.',
-      'Assisted in developing and refining security documentation, including incident response procedures and security best practices.',
-      'Collaborated with senior analysts on threat intelligence gathering, analysis, and dissemination of findings.',
-      'Gained practical experience with various security tools and technologies, including firewalls, IDS/IPS, and endpoint protection solutions.',
+      'Conducted various types of Information Gathering techniques to support cyber investigations.',
+      'Performed analysis on Android Applications and engaged in Malware Reverse Engineering.',
+      'Executed Digital Forensics procedures on devices collected from criminal cases and crime scenes.',
+      'Investigated cases involving cyber fraud, malware attacks, and data breaches impacting companies and banks.',
+      'Gained practical experience in a law enforcement setting at the CID Headquarter, Gandhinagar, focusing on digital evidence analysis.',
     ],
   },
   // {
