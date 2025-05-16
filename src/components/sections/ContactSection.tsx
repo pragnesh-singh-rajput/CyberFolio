@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card"; 
 import { useToast } from "@/hooks/use-toast";
-import { Linkedin, Github, Mail, Phone } from "lucide-react"; // Removed X from lucide
+import { Linkedin, Github, Mail, Phone, Instagram } from "lucide-react"; 
 import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useEffect, useRef, useState } from 'react';
@@ -73,11 +73,9 @@ export default function ContactSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        // Slightly more vibrant accent for contact
         circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.29}px) translateX(-${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.016}deg)`;
       }
       if (circle2Ref.current) {
-        // Softer secondary for balance
         circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.19}px) translateX(${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.009}deg)`;
       }
     };
@@ -96,15 +94,15 @@ export default function ContactSection() {
     <section
       id="contact"
       ref={sectionRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10" // Slightly lighter background for this section
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10"
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-15%] w-[35rem] h-[50rem] md:w-[42rem] md:h-[60rem] bg-accent/70 rounded-full filter blur-[120px] md:blur-[180px] opacity-60 transition-transform duration-500 ease-out" // Accent color more prominent
+        className="absolute -z-10 top-[0%] right-[-15%] w-[42rem] h-[60rem] md:w-[60rem] md:h-[70rem] bg-pink-500/30 rounded-full filter blur-[120px] md:blur-[180px] opacity-60 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[40rem] h-[35rem] md:w-[50rem] md:h-[45rem] bg-primary/40 rounded-full filter blur-[110px] md:blur-[170px] opacity-50 transition-transform duration-500 ease-out" // Primary color for contrast
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[50rem] h-[45rem] md:w-[70rem] md:h-[60rem] bg-purple-500/30 rounded-full filter blur-[110px] md:blur-[170px] opacity-50 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -147,6 +145,11 @@ export default function ContactSection() {
                     <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
                     </svg>
+                  </Link>
+                </Button>
+                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-pink-500/10 hover:border-pink-500 hover:text-pink-500 transition-all duration-300 ease-in-out transform hover:scale-110">
+                  <Link href="https://instagram.com/your_username_here" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <Instagram className="h-5 w-5" />
                   </Link>
                 </Button>
               </div>
@@ -209,3 +212,4 @@ export default function ContactSection() {
     </section>
   );
 }
+
