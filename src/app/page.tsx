@@ -12,15 +12,19 @@ import ContactSection from '@/components/sections/ContactSection';
 
 export default function HomePage() {
   useEffect(() => {
-    // On initial mount, scroll to the top/hero section.
-    // This helps override browser's scroll restoration to ensure a consistent starting point.
     if (typeof window !== 'undefined') {
-      const homeElement = document.getElementById('home');
-      if (homeElement) {
-        homeElement.scrollIntoView({ behavior: 'auto' }); // 'auto' for an instant jump
+      // Prevent browser from automatically restoring scroll position
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+
+      // Scroll the main content area to the top
+      const mainScrollContainer = document.querySelector('.parallax-scroll-container');
+      if (mainScrollContainer) {
+        mainScrollContainer.scrollTop = 0;
       } else {
-        // Fallback if #home is somehow not found
-        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        // Fallback if the specific container isn't found immediately (less likely)
+        window.scrollTo(0, 0);
       }
     }
   }, []); // Empty dependency array ensures this runs only once on mount
@@ -42,3 +46,4 @@ export default function HomePage() {
     </div>
   );
 }
+
