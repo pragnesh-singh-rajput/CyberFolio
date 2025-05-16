@@ -100,7 +100,7 @@ export default function Header() {
               <div className="flex flex-col gap-6">
                 <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group">
                   <ShieldCheck className="h-6 w-6 text-accent group-hover:animate-pulse" />
-                  <span>Pragnesh</span>
+                  <span>PKS</span>
                 </Link>
                 <nav className="flex flex-col gap-3">
                   {navItems.map((item) => (
