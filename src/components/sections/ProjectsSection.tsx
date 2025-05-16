@@ -14,56 +14,59 @@ import { cn } from '@/lib/utils';
 
 const projectsData: Project[] = [
   {
-    id: '1',
-    title: 'Network Intrusion Detection System',
-    description: 'Developed a Python-based NIDS to monitor network traffic for suspicious activities and generate alerts. Utilized Scapy for packet manipulation and analysis.',
+    id: 'proj-cyberconnect',
+    title: 'CyberConnect-AI',
+    description: 'An AI-powered platform for cybersecurity, leveraging machine learning for threat detection and analysis. Built with Next.js and Python.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'network security abstract',
-    repoUrl: 'https://github.com/pragnesh-singh-rajput/NIDS',
-    tags: ['Python', 'Scapy', 'Network Security', 'IDS'],
+    imageHint: 'ai cybersecurity abstract',
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/CyberConnect-AI',
+    tags: ['AI', 'Cybersecurity', 'Machine Learning', 'Next.js', 'Python', 'Threat Detection'],
   },
   {
-    id: '2',
-    title: 'Secure Web Application Firewall (WAF)',
-    description: 'Designed and implemented a WAF to protect web applications from common vulnerabilities like XSS and SQL injection. Focused on rule-based filtering and anomaly detection.',
+    id: 'proj-absconders',
+    title: 'Absconders Portal',
+    description: 'A web portal designed for law enforcement or security agencies to track and manage information about absconders, enhancing operational efficiency.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'web security firewall tech',
-    tags: ['Web Security', 'WAF', 'XSS', 'SQLi', 'Python'],
+    imageHint: 'security portal interface',
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/absconders-portal',
+    tags: ['Web App', 'PHP', 'MySQL', 'Data Management', 'Security'],
   },
   {
-    id: '3',
-    title: 'Malware Analysis Sandbox',
-    description: 'Created a controlled environment for analyzing malware behavior. Implemented dynamic and static analysis techniques to understand threat capabilities.',
+    id: 'proj-sharencrypt',
+    title: 'Sharenrypt P2P File Sharing',
+    description: 'A secure peer-to-peer file sharing application developed with Python, focusing on data encryption and user privacy during transit.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'malware analysis code',
-    tags: ['Malware Analysis', 'Reverse Engineering', 'Sandbox', 'Virtualization', 'Security Tools'],
+    imageHint: 'p2p network security',
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/Sharenrypt-p2p-file-sharing',
+    tags: ['P2P', 'File Sharing', 'Python', 'Encryption', 'Networking', 'Security'],
   },
   {
-    id: '4',
-    title: 'Ethical Hacking Toolkit',
-    description: 'A collection of scripts and tools for penetration testing and security auditing purposes. Includes port scanners, password crackers, and vulnerability scanners.',
+    id: 'proj-twitterbot',
+    title: 'Twitter News Bot',
+    description: 'An automated Python bot that fetches news from various sources and tweets updates, utilizing the Twitter API and web scraping techniques.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'cybersecurity tools code',
-    repoUrl: 'https://github.com/pragnesh-singh-rajput/EthicalHackingToolkit',
-    tags: ['Ethical Hacking', 'Python', 'Security Tools', 'Penetration Testing'],
+    imageHint: 'twitter bot social media',
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/Twitter-News-Bot',
+    tags: ['Bot', 'Python', 'Twitter API', 'Web Scraping', 'Automation'],
   },
   {
-    id: '5',
-    title: 'Portfolio Website (This one!)',
-    description: 'A personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations and a custom cursor.',
+    id: 'proj-awsrekognition',
+    title: 'Image & Video Rekognition with AWS',
+    description: 'A project leveraging AWS Rekognition for advanced image and video analysis, demonstrating cloud-based computer vision capabilities.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    imageHint: 'aws cloud ai vision',
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/image-and-video-rekognition-with-aws',
+    tags: ['AWS', 'Rekognition', 'Cloud AI', 'Computer Vision', 'Python'],
+  },
+  {
+    id: 'portfolio',
+    title: 'Personal Portfolio Website (This one!)',
+    description: 'My personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations, parallax effects, and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
     imageHint: 'portfolio website code',
-    repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio', 
-    tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React'],
+    repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
+    tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React', 'Framer Motion'],
   },
-  {
-    id: '6',
-    title: 'Cloud Security Posture Management Tool',
-    description: 'A conceptual tool designed to audit cloud configurations (AWS, Azure) for security misconfigurations and compliance violations. Features automated checks and reporting.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'cloud security dashboard',
-    tags: ['Cloud Security', 'CSPM', 'AWS', 'Azure', 'Compliance'],
-  }
 ];
 
 export default function ProjectsSection() {
@@ -88,7 +91,7 @@ export default function ProjectsSection() {
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isActuallyScrollable = container.scrollWidth > container.clientWidth + 1; // Add 1px buffer
+      const isActuallyScrollable = container.scrollWidth > container.clientWidth + 1; 
       setCanScrollLeft(isActuallyScrollable && activeIndex > 0);
       setCanScrollRight(isActuallyScrollable && activeIndex < projectsData.length - 1);
     } else {
@@ -102,14 +105,14 @@ export default function ProjectsSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-        cardElement.scrollIntoView({
+      cardElement.scrollIntoView({
         behavior: 'smooth',
         inline: 'center',
         block: 'nearest'
       });
       setActiveIndex(index);
     }
-  }, [projectsData.length]);  // Removed activeIndex from here
+  }, [projectsData.length]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -122,8 +125,8 @@ export default function ProjectsSection() {
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
       
-      // Removed the auto-scroll to card 0 on mount from previous iteration
-      // to fix page load scroll issue. The first card is active by default.
+      // Removed the auto-scroll to card 0 on mount to fix page load scroll issue.
+      // The first card is active by default via activeIndex=0.
 
       return () => {
         container.removeEventListener('scroll', handleScrollEvent);
@@ -147,10 +150,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.01}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.01}deg)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.09}px) translateX(-${scrollProgress * 0.04}px) rotate(-${scrollProgress * 0.006}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.12}px) translateX(-${scrollProgress * 0.05}px) rotate(-${scrollProgress * 0.006}deg)`;
       }
     };
 
@@ -171,18 +174,18 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] left-[-10%] w-[35rem] h-[50rem] md:w-[50rem] md:h-[65rem] bg-accent/60 rounded-full filter blur-[160px] md:blur-[200px] opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-10%] left-[-15%] w-[40rem] h-[55rem] md:w-[55rem] md:h-[70rem] bg-primary/50 rounded-full filter blur-[170px] md:blur-[210px] opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] right-[-15%] w-[45rem] h-[40rem] md:w-[60rem] md:h-[50rem] bg-foreground/25 rounded-full filter blur-[150px] md:blur-[190px] opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-15%] right-[-20%] w-[50rem] h-[45rem] md:w-[65rem] md:h-[55rem] bg-accent/60 rounded-full filter blur-[160px] md:blur-[200px] opacity-60 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💡 My Projects</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
-            A selection of projects I&apos;ve worked on, showcasing my skills in cyber security.
+            A selection of projects I&apos;ve worked on, showcasing my skills in cyber security and software development.
           </p>
         </AnimatedSection>
         
@@ -195,7 +198,7 @@ export default function ProjectsSection() {
             aria-label="Scroll projects left"
             className={cn(
                 "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed" 
               )}
           >
             <ChevronLeft className="h-6 w-6" />
@@ -217,13 +220,13 @@ export default function ProjectsSection() {
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`} // Keep initial animation consistent
+                  delay={`delay-${100}` as `delay-${number}`}
                 >
                   <Card className={cn(
                     "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 ease-out bg-card/90 backdrop-blur-md border-secondary/30 group",
                      index === activeIndex 
                        ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                       : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" // Enhanced "behind" effect
+                       : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
                   )}>
                     {project.imageUrl && (
                       <div className="relative h-48 md:h-52 w-full overflow-hidden">
@@ -287,7 +290,7 @@ export default function ProjectsSection() {
             aria-label="Scroll projects right"
             className={cn(
                 "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed" 
               )}
           >
             <ChevronRight className="h-6 w-6" />
@@ -298,3 +301,4 @@ export default function ProjectsSection() {
   );
 }
 
+    
