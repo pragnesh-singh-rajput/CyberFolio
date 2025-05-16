@@ -55,7 +55,7 @@ export default function EducationSection() {
 
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">My Education</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">📚 My Education</h2>
           <p className="mt-4 text-lg text-muted-foreground">
             My academic journey in the field of computer science and cyber security.
           </p>

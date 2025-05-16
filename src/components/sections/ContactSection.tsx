@@ -44,7 +44,7 @@ export default function ContactSection() {
   async function onSubmit(data: ContactFormValues) {
     console.log(data); // In a real app, send this to a backend
     toast({
-      title: "Message Sent!",
+      title: "Message Sent! 🎉",
       description: "Thanks for reaching out. I'll get back to you soon.",
       variant: "default",
     });
@@ -99,7 +99,7 @@ export default function ContactSection() {
 
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Get In Touch</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">📬 Get In Touch</h2>
           <p className="mt-4 text-lg text-muted-foreground">
             Have a question or want to collaborate? Feel free to reach out.
           </p>

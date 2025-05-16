@@ -89,7 +89,7 @@ export default function ExperienceSection() {
       
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Professional Experience</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">💼 Professional Experience</h2>
           <p className="mt-4 text-lg text-muted-foreground">
             My journey and contributions in the professional cyber security landscape.
           </p>

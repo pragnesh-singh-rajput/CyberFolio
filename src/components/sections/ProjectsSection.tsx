@@ -88,7 +88,7 @@ export default function ProjectsSection() {
 
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">My Projects</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">💡 My Projects</h2>
           <p className="mt-4 text-lg text-muted-foreground">
             A selection of projects I&apos;ve worked on, showcasing my skills in cyber security.
           </p>

@@ -58,7 +58,7 @@ export default function HeroSection() {
         <div className="flex flex-col items-center gap-8">
           <AnimatedSection animationType="scaleIn" delay="delay-100" className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Hello, I&apos;m <span className="text-accent">Pragnesh Singh Rajput</span>
+              👋 Hello, I&apos;m <span className="text-accent">Pragnesh Singh Rajput</span>
             </h1>
           </AnimatedSection>
           <AnimatedSection animationType="fadeInUp" delay="delay-300" className="max-w-3xl">
@@ -71,7 +71,7 @@ export default function HeroSection() {
           <AnimatedSection animationType="fadeInUp" delay="delay-500" className="mt-8">
             <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
               <Link href="#contact">
-                Get In Touch
+                🚀 Get In Touch
                 <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
               </Link>
             </Button>
