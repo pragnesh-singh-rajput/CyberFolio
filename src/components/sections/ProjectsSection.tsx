@@ -18,7 +18,7 @@ const projectsData: Project[] = [
     title: 'CyberConnect-AI',
     description: 'An AI-powered platform for cybersecurity, leveraging machine learning for threat detection and analysis. Built with Next.js and Python.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'ai cybersecurity abstract',
+    imageHint: 'ai cybersecurity',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/CyberConnect-AI',
     tags: ['AI', 'Cybersecurity', 'Machine Learning', 'Next.js', 'Python', 'Threat Detection'],
   },
@@ -27,7 +27,7 @@ const projectsData: Project[] = [
     title: 'Absconders Portal',
     description: 'A web portal designed for law enforcement or security agencies to track and manage information about absconders, enhancing operational efficiency.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'security portal interface',
+    imageHint: 'security portal',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/absconders-portal',
     tags: ['Web App', 'PHP', 'MySQL', 'Data Management', 'Security'],
   },
@@ -36,7 +36,7 @@ const projectsData: Project[] = [
     title: 'Sharenrypt P2P File Sharing',
     description: 'A secure peer-to-peer file sharing application developed with Python, focusing on data encryption and user privacy during transit.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'p2p network security',
+    imageHint: 'p2p security',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Sharenrypt-p2p-file-sharing',
     tags: ['P2P', 'File Sharing', 'Python', 'Encryption', 'Networking', 'Security'],
   },
@@ -45,7 +45,7 @@ const projectsData: Project[] = [
     title: 'Twitter News Bot',
     description: 'An automated Python bot that fetches news from various sources and tweets updates, utilizing the Twitter API and web scraping techniques.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'twitter bot social media',
+    imageHint: 'twitter bot',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Twitter-News-Bot',
     tags: ['Bot', 'Python', 'Twitter API', 'Web Scraping', 'Automation'],
   },
@@ -54,7 +54,7 @@ const projectsData: Project[] = [
     title: 'Image & Video Rekognition with AWS',
     description: 'A project leveraging AWS Rekognition for advanced image and video analysis, demonstrating cloud-based computer vision capabilities.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'aws cloud ai vision',
+    imageHint: 'aws vision',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/image-and-video-rekognition-with-aws',
     tags: ['AWS', 'Rekognition', 'Cloud AI', 'Computer Vision', 'Python'],
   },
@@ -63,7 +63,7 @@ const projectsData: Project[] = [
     title: 'Personal Portfolio Website (This one!)',
     description: 'My personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations, parallax effects, and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'portfolio website code',
+    imageHint: 'portfolio code',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
     tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React', 'Framer Motion'],
   },
@@ -150,10 +150,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(${scrollProgress * 0.1}px) rotate(${scrollProgress * 0.012}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.12}px) rotate(${scrollProgress * 0.015}deg) scale(1.1)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.15}px) translateX(-${scrollProgress * 0.07}px) rotate(-${scrollProgress * 0.008}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.09}px) rotate(-${scrollProgress * 0.01}deg) scale(1.1)`;
       }
       animationFrameIdRef.current = null;
     };
@@ -185,11 +185,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-15%] left-[-20%] w-[45rem] h-[60rem] md:w-[60rem] md:h-[75rem] bg-primary/30 dark:bg-primary/40 rounded-full filter blur-[180px] md:blur-[240px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-15%] left-[-20%] w-[60rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-primary/25 dark:bg-primary/35 rounded-[60%/45%] filter blur-[190px] md:blur-[250px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] right-[-25%] w-[55rem] h-[50rem] md:w-[70rem] md:h-[60rem] bg-accent/40 dark:bg-accent/50 rounded-full filter blur-[170px] md:blur-[230px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] right-[-25%] w-[50rem] h-[55rem] md:w-[65rem] md:h-[70rem] bg-accent/30 dark:bg-accent/40 rounded-[45%/60%] filter blur-[180px] md:blur-[240px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -209,7 +209,7 @@ export default function ProjectsSection() {
             aria-label="Scroll projects left"
             className={cn(
                 "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed" 
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50" 
               )}
           >
             <ChevronLeft className="h-6 w-6" />
@@ -234,9 +234,9 @@ export default function ProjectsSection() {
                   delay={`delay-${100}` as `delay-${number}`}
                 >
                   <Card className={cn(
-                    "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 ease-out bg-card/90 backdrop-blur-md border-secondary/30 group",
+                    "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 ease-out bg-card/80 backdrop-blur-md border-border/40 group",
                      index === activeIndex 
-                       ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
+                       ? "opacity-100 scale-100 shadow-2xl border-accent/60" 
                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
                   )}>
                     {project.imageUrl && (
@@ -301,7 +301,7 @@ export default function ProjectsSection() {
             aria-label="Scroll projects right"
             className={cn(
                 "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed" 
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50" 
               )}
           >
             <ChevronRight className="h-6 w-6" />
@@ -311,3 +311,5 @@ export default function ProjectsSection() {
     </section>
   );
 }
+
+    
