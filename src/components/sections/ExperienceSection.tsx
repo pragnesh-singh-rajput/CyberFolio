@@ -75,7 +75,6 @@ export default function ExperienceSection() {
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollUpdateRafId = useRef<number | null>(null);
 
-
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
     setParallaxScrollContainer(mainElement);
@@ -87,7 +86,6 @@ export default function ExperienceSection() {
     if (container) {
       const { scrollLeft, scrollWidth, clientWidth } = container;
       const threshold = 5; 
-
       setCanScrollLeft(scrollLeft > threshold);
       setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
     } else {
@@ -101,22 +99,29 @@ export default function ExperienceSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      const scrollOptions: ScrollIntoViewOptions = {
+      let scrollBehavior: ScrollLogicalPosition = 'center';
+      if (experienceData.length > 1) {
+        if (index === 0) {
+          scrollBehavior = 'start';
+        } else if (index === experienceData.length - 1) {
+          scrollBehavior = 'end';
+        }
+      }
+
+      cardElement.scrollIntoView({
         behavior: 'smooth',
-        inline: 'center',
+        inline: scrollBehavior,
         block: 'nearest'
-      };
-      cardElement.scrollIntoView(scrollOptions);
+      });
       setActiveIndex(index);
     }
-  }, [experienceData.length]); // Removed activeIndex from dependencies
+  }, [experienceData.length]); 
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
       const handleScroll = () => {
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        
         scrollTimeoutRef.current = setTimeout(() => {
           if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
           scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
@@ -124,33 +129,24 @@ export default function ExperienceSection() {
       };
 
       container.addEventListener('scroll', handleScroll, { passive: true });
-      
-      const initialCheckTimeout = setTimeout(() => {
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-      }, 150); // Delay to allow layout to settle
-
       return () => {
         container.removeEventListener('scroll', handleScroll);
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        clearTimeout(initialCheckTimeout);
       };
     }
   }, [updateScrollability]);
   
   useEffect(() => {
-    // Update scrollability after activeIndex changes (e.g., after button click)
     const timeoutId = setTimeout(() => {
       if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
       scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-    }, 350); // A bit longer delay to ensure smooth scroll finishes
-
+    }, 350); 
     return () => {
       clearTimeout(timeoutId);
       if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
     };
-  }, [activeIndex, updateScrollability, experienceData.length]); // Ensure this runs when data length might change
+  }, [activeIndex, updateScrollability, experienceData.length]);
   
    useEffect(() => {
     const container = scrollContainerRef.current;
@@ -161,11 +157,9 @@ export default function ExperienceSection() {
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         scrollUpdateRafId.current = requestAnimationFrame(() => {
           updateScrollability();
-          // Recenter current card on resize, only if there are cards
           if (experienceData.length > 0 && cardRefs.current[activeIndex]) {
              scrollToCard(activeIndex);
           } else if (experienceData.length === 0) {
-            // Handle case where all cards are removed or data is empty
             setCanScrollLeft(false);
             setCanScrollRight(false);
           }
@@ -175,11 +169,10 @@ export default function ExperienceSection() {
       resizeObserver = new ResizeObserver(handleResize);
       resizeObserver.observe(container);
       
-      // Initial layout check
       const initialLayoutTimeout = setTimeout(() => {
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        scrollUpdateRafId.current = requestAnimationFrame(handleResize);
-      }, 250); // Increased delay
+         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+         scrollUpdateRafId.current = requestAnimationFrame(handleResize);
+      }, 250);
 
       return () => {
         if (resizeObserver && container) resizeObserver.unobserve(container);
@@ -198,10 +191,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.1)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.015}deg) scale(1.15)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.012}deg) scale(1.12)`;
       }
       parallaxAnimationFrameIdRef.current = null; 
     };
@@ -222,7 +215,6 @@ export default function ExperienceSection() {
     };
   }, [parallaxScrollContainer]);
 
-
   return (
     <section
       id="experience"
@@ -231,11 +223,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] right-[-35%] w-[80rem] h-[90rem] md:w-[95rem] md:h-[105rem] bg-blue-500/15 dark:bg-blue-700/20 rounded-[65%/45%] filter blur-[210px] md:blur-[270px] opacity-60 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-15%] right-[-40%] w-[90rem] h-[100rem] md:w-[105rem] md:h-[115rem] bg-blue-500/20 dark:bg-blue-800/25 rounded-[60%/45%] filter blur-[220px] md:blur-[300px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] left-[-40%] w-[90rem] h-[75rem] md:w-[105rem] md:h-[90rem] bg-teal-400/10 dark:bg-teal-600/15 rounded-[45%/60%] filter blur-[200px] md:blur-[260px] opacity-60 dark:opacity-35 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] left-[-45%] w-[100rem] h-[85rem] md:w-[115rem] md:h-[100rem] bg-teal-400/15 dark:bg-teal-700/20 rounded-[50%/65%] filter blur-[210px] md:blur-[290px] opacity-40 dark:opacity-25 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -246,7 +238,7 @@ export default function ExperienceSection() {
           </p>
         </AnimatedSection>
 
-        <div className="relative w-full mt-6 overflow-hidden">
+        <div className="relative w-full mt-6"> {/* Outer wrapper for buttons and scroller */}
           {experienceData.length > 0 && (
             <>
               <Button
@@ -279,81 +271,82 @@ export default function ExperienceSection() {
             </>
           )}
           
-          <div 
-            ref={scrollContainerRef}
-            className={cn(
-              "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
-               experienceData.length === 1 && "justify-center" 
-            )}
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
-          >
-            {experienceData.map((exp, index) => (
-              <div
-                key={exp.id}
-                ref={(el) => { cardRefs.current[index] = el; }}
-                className={cn(
-                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
-                  "transition-all duration-500 ease-in-out transform"
-                )}
-              >
-                <AnimatedSection 
-                  animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`} 
+          <div className="overflow-hidden w-full"> {/* Scroller Clip Wrapper */}
+            <div 
+              ref={scrollContainerRef}
+              className={cn(
+                "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
+                experienceData.length === 1 && "justify-center" 
+              )}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
+            >
+              {experienceData.map((exp, index) => (
+                <div
+                  key={exp.id}
+                  ref={(el) => { cardRefs.current[index] = el; }}
+                  className={cn(
+                    "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
+                    "transition-all duration-500 ease-in-out transform"
+                  )}
                 >
-                  <Card className={cn(
-                    "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
-                    index === activeIndex 
-                      ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                      : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
-                  )}>
-                    <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
-                      {exp.logoUrl && (
-                        <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-1.5">
-                          <Image
-                            src={exp.logoUrl}
-                            alt={`${exp.company} logo`}
-                            fill
-                            sizes="(max-width: 768px) 4rem, 5rem"
-                            className="object-contain"
-                            data-ai-hint={exp.imageHint || "company logo"}
-                          />
-                        </div>
-                      )}
-                      <div className="flex-grow pt-1 md:pt-0">
-                        <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">{exp.title}</CardTitle>
-                        <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                          <Building2 className="h-4 w-4 text-accent" />
-                          <span className="font-medium text-foreground/90 text-sm">{exp.company}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                          <CalendarDays className="h-3 w-3 text-accent" />
-                          <span>{exp.duration}</span>
-                        </div>
-                        {exp.location && (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                            <MapPin className="h-3 w-3 text-accent" />
-                            <span>{exp.location}</span>
+                  <AnimatedSection 
+                    animationType="scaleIn" 
+                    delay={`delay-${100}` as `delay-${number}`} 
+                  >
+                    <Card className={cn(
+                      "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
+                      index === activeIndex 
+                        ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
+                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
+                    )}>
+                      <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
+                        {exp.logoUrl && (
+                          <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-1.5">
+                            <Image
+                              src={exp.logoUrl}
+                              alt={`${exp.company} logo`}
+                              fill
+                              sizes="(max-width: 768px) 4rem, 5rem"
+                              className="object-contain"
+                              data-ai-hint={exp.imageHint || "company logo"}
+                            />
                           </div>
                         )}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-5 md:p-6 pt-0 space-y-2.5 flex-grow">
-                      <h4 className="text-sm font-semibold text-foreground/90 mb-1.5">Key Responsibilities & Achievements:</h4>
-                      <ul className="space-y-2 list-inside">
-                        {exp.description.map((item, idx) => (
-                          <li key={idx} className="flex items-start">
-                            <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
-                            <span className="text-foreground/80 text-xs leading-relaxed">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </AnimatedSection>
-              </div>
-            ))}
+                        <div className="flex-grow pt-1 md:pt-0">
+                          <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">{exp.title}</CardTitle>
+                          <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                            <Building2 className="h-4 w-4 text-accent" />
+                            <span className="font-medium text-foreground/90 text-sm">{exp.company}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                            <CalendarDays className="h-3 w-3 text-accent" />
+                            <span>{exp.duration}</span>
+                          </div>
+                          {exp.location && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              <MapPin className="h-3 w-3 text-accent" />
+                              <span>{exp.location}</span>
+                            </div>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-5 md:p-6 pt-0 space-y-2.5 flex-grow">
+                        <h4 className="text-sm font-semibold text-foreground/90 mb-1.5">Key Responsibilities & Achievements:</h4>
+                        <ul className="space-y-2 list-inside">
+                          {exp.description.map((item, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                              <span className="text-foreground/80 text-xs leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </AnimatedSection>
+                </div>
+              ))}
+            </div>
           </div>
-          
         </div>
       </div>
     </section>
@@ -361,4 +354,6 @@ export default function ExperienceSection() {
 }
     
  
+    
+
     

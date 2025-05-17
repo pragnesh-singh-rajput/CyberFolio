@@ -96,7 +96,6 @@ export default function ProjectsSection() {
     if (container) {
       const { scrollLeft, scrollWidth, clientWidth } = container;
       const threshold = 5; 
-
       setCanScrollLeft(scrollLeft > threshold);
       setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
     } else {
@@ -110,22 +109,28 @@ export default function ProjectsSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      const scrollOptions: ScrollIntoViewOptions = {
+      let scrollBehavior: ScrollLogicalPosition = 'center';
+      if (projectsData.length > 1) {
+        if (index === 0) {
+          scrollBehavior = 'start';
+        } else if (index === projectsData.length - 1) {
+          scrollBehavior = 'end';
+        }
+      }
+      cardElement.scrollIntoView({
         behavior: 'smooth',
-        inline: 'center',
+        inline: scrollBehavior,
         block: 'nearest'
-      };
-      cardElement.scrollIntoView(scrollOptions);
+      });
       setActiveIndex(index);
     }
-  }, [projectsData.length]); // Removed activeIndex from dependencies
+  }, [projectsData.length]); 
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
       const handleScroll = () => {
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        
         scrollTimeoutRef.current = setTimeout(() => {
           if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
           scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
@@ -133,17 +138,10 @@ export default function ProjectsSection() {
       };
 
       container.addEventListener('scroll', handleScroll, { passive: true });
-      
-      const initialCheckTimeout = setTimeout(() => {
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-      }, 150);
-      
       return () => {
         container.removeEventListener('scroll', handleScroll);
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        clearTimeout(initialCheckTimeout);
       };
     }
   }, [updateScrollability]);
@@ -153,7 +151,6 @@ export default function ProjectsSection() {
       if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
       scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
     }, 350); 
-
     return () => {
       clearTimeout(timeoutId);
       if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
@@ -186,7 +183,6 @@ export default function ProjectsSection() {
         scrollUpdateRafId.current = requestAnimationFrame(handleResize);
       }, 250);
 
-
       return () => {
         if (resizeObserver && container) resizeObserver.unobserve(container);
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
@@ -204,10 +200,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.4}px) translateX(${scrollProgress * 0.15}px) rotate(${scrollProgress * 0.018}deg) scale(1.25)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.45}px) translateX(${scrollProgress * 0.18}px) rotate(${scrollProgress * 0.020}deg) scale(1.3)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(-${scrollProgress * 0.12}px) rotate(-${scrollProgress * 0.012}deg) scale(1.2)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(-${scrollProgress * 0.14}px) rotate(-${scrollProgress * 0.014}deg) scale(1.25)`;
       }
       parallaxAnimationFrameIdRef.current = null;
     };
@@ -235,11 +231,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-30%] w-[80rem] h-[60rem] md:w-[95rem] md:h-[75rem] bg-purple-400/15 dark:bg-purple-600/20 rounded-[65%/40%] filter blur-[220px] md:blur-[280px] opacity-50 dark:opacity-30 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-25%] left-[-35%] w-[90rem] h-[70rem] md:w-[105rem] md:h-[85rem] bg-purple-400/20 dark:bg-purple-700/25 rounded-[60%/40%] filter blur-[230px] md:blur-[310px] opacity-30 dark:opacity-20 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[70rem] h-[70rem] md:w-[85rem] md:h-[85rem] bg-sky-400/10 dark:bg-sky-600/15 rounded-[45%/60%] filter blur-[210px] md:blur-[270px] opacity-60 dark:opacity-25 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-30%] right-[-40%] w-[80rem] h-[80rem] md:w-[95rem] md:h-[95rem] bg-sky-400/15 dark:bg-sky-700/20 rounded-[50%/65%] filter blur-[220px] md:blur-[300px] opacity-35 dark:opacity-15 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -250,7 +246,7 @@ export default function ProjectsSection() {
           </p>
         </AnimatedSection>
         
-        <div className="relative w-full mt-6 overflow-hidden">
+        <div className="relative w-full mt-6"> {/* Outer wrapper for buttons and scroller */}
           {projectsData.length > 1 && (
             <>
               <Button
@@ -281,86 +277,87 @@ export default function ProjectsSection() {
               </Button>
             </>
           )}
-
-          <div
-            ref={scrollContainerRef}
-            className={cn(
-              "flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2",
-              projectsData.length === 1 && "justify-center"
-            )}
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
-          >
-            {projectsData.map((project, index) => (
-              <div
-                key={project.id} 
-                ref={(el) => { cardRefs.current[index] = el; }}
-                className={cn(
-                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", 
-                  "transition-all duration-500 ease-in-out transform"
-                )}
-              >
-                <AnimatedSection 
-                  animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`} 
+          <div className="overflow-hidden w-full"> {/* Scroller Clip Wrapper */}
+            <div
+              ref={scrollContainerRef}
+              className={cn(
+                "flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2",
+                projectsData.length === 1 && "justify-center"
+              )}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
+            >
+              {projectsData.map((project, index) => (
+                <div
+                  key={project.id} 
+                  ref={(el) => { cardRefs.current[index] = el; }}
+                  className={cn(
+                    "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", 
+                    "transition-all duration-500 ease-in-out transform"
+                  )}
                 >
-                  <Card className={cn(
-                    "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 ease-out bg-card/80 backdrop-blur-md border-border/40 group",
-                     index === activeIndex 
-                       ? "opacity-100 scale-100 shadow-2xl border-accent/60" 
-                       : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
-                  )}>
-                    {project.imageUrl && (
-                      <div className="relative h-48 md:h-52 w-full overflow-hidden">
-                        <Image
-                          src={project.imageUrl}
-                          alt={project.title}
-                          fill
-                          sizes="(max-width: 640px) 90vw, (max-width: 768px) 80vw, 400px"
-                          className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
-                          data-ai-hint={project.imageHint || "technology project"}
-                        />
-                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent"></div>
-                      </div>
-                    )}
-                    <CardHeader className="pb-2 pt-4 px-4 md:px-5">
-                      <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">
-                        {project.title}
-                      </CardTitle>
-                      <CardDescription className="text-xs text-muted-foreground min-h-[3.75rem] mt-1 leading-relaxed line-clamp-3">
-                        {project.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-grow pt-2 pb-3 px-4 md:px-5">
-                      <div className="flex flex-wrap gap-1.5">
-                        {project.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs bg-secondary/70 text-secondary-foreground/80 border-secondary/50 px-1.5 py-0.5">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-start gap-2.5 pt-3 pb-4 px-4 md:px-5 border-t border-border/50">
-                      {project.repoUrl && !project.tags.includes(project.repoUrl) && ( 
-                        <Button variant="outline" size="sm" asChild className="text-xs px-2.5 py-1 h-auto hover:bg-accent/10 hover:text-accent hover:border-accent transition-all duration-200">
-                          <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
-                            <Github className="mr-1.5 h-3.5 w-3.5" />
-                            GitHub
-                          </Link>
-                        </Button>
+                  <AnimatedSection 
+                    animationType="scaleIn" 
+                    delay={`delay-${100}` as `delay-${number}`} 
+                  >
+                    <Card className={cn(
+                      "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 ease-out bg-card/80 backdrop-blur-md border-border/40 group",
+                      index === activeIndex 
+                        ? "opacity-100 scale-100 shadow-2xl border-accent/60" 
+                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
+                    )}>
+                      {project.imageUrl && (
+                        <div className="relative h-48 md:h-52 w-full overflow-hidden">
+                          <Image
+                            src={project.imageUrl}
+                            alt={project.title}
+                            fill
+                            sizes="(max-width: 640px) 90vw, (max-width: 768px) 80vw, 400px"
+                            className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+                            data-ai-hint={project.imageHint || "technology project"}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent"></div>
+                        </div>
                       )}
-                      {project.liveUrl && (
-                        <Button variant="default" size="sm" asChild className="text-xs px-2.5 py-1 h-auto bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-200">
-                          <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                            Live Demo
-                          </Link>
-                        </Button>
-                      )}
-                    </CardFooter>
-                  </Card>
-                </AnimatedSection>
-              </div>
-            ))}
+                      <CardHeader className="pb-2 pt-4 px-4 md:px-5">
+                        <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">
+                          {project.title}
+                        </CardTitle>
+                        <CardDescription className="text-xs text-muted-foreground min-h-[3.75rem] mt-1 leading-relaxed line-clamp-3">
+                          {project.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-grow pt-2 pb-3 px-4 md:px-5">
+                        <div className="flex flex-wrap gap-1.5">
+                          {project.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs bg-secondary/70 text-secondary-foreground/80 border-secondary/50 px-1.5 py-0.5">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-start gap-2.5 pt-3 pb-4 px-4 md:px-5 border-t border-border/50">
+                        {project.repoUrl && !project.tags.includes(project.repoUrl) && ( 
+                          <Button variant="outline" size="sm" asChild className="text-xs px-2.5 py-1 h-auto hover:bg-accent/10 hover:text-accent hover:border-accent transition-all duration-200">
+                            <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
+                              <Github className="mr-1.5 h-3.5 w-3.5" />
+                              GitHub
+                            </Link>
+                          </Button>
+                        )}
+                        {project.liveUrl && (
+                          <Button variant="default" size="sm" asChild className="text-xs px-2.5 py-1 h-auto bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-200">
+                            <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                              Live Demo
+                            </Link>
+                          </Button>
+                        )}
+                      </CardFooter>
+                    </Card>
+                  </AnimatedSection>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -369,4 +366,6 @@ export default function ProjectsSection() {
 }
     
  
+    
+
     
