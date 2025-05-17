@@ -84,7 +84,7 @@ export default function HeroSection() {
                 className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-teal-400 to-emerald-500" 
                 style={{backgroundSize: '200% auto'}}
               >
-                PK Singh
+                PragneshKumar Singh
               </span>
             </h1>
           </AnimatedSection>
