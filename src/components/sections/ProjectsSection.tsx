@@ -4,9 +4,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Github, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button'; // Added missing import
+import { Github, ExternalLink } from 'lucide-react';
 import type { Project } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -68,6 +68,9 @@ const projectsData: Project[] = [
   },
 ];
 
+// Duplicate projects for infinite scroll illusion
+const duplicatedProjects = [...projectsData, ...projectsData];
+
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const circle1Ref = useRef<HTMLDivElement>(null);
@@ -76,120 +79,14 @@ export default function ProjectsSection() {
   const parallaxAnimationFrameIdRef = useRef<number | null>(null);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const scrollUpdateRafId = useRef<number | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
+  const isHoveringRef = useRef(false);
+  const scrollSpeed = 0.5; // Adjust for desired speed
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
     setParallaxScrollContainer(mainElement);
-    cardRefs.current = cardRefs.current.slice(0, projectsData.length);
   }, []);
-
-  const updateScrollability = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const { scrollLeft, scrollWidth, clientWidth } = container;
-      const threshold = 5; 
-      setCanScrollLeft(scrollLeft > threshold);
-      setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
-    } else {
-      setCanScrollLeft(false);
-      setCanScrollRight(projectsData.length > 1);
-    }
-  }, [projectsData.length]); 
-
-  const scrollToCard = useCallback((index: number) => {
-    if (index < 0 || index >= projectsData.length || !scrollContainerRef.current) return;
-    
-    const cardElement = cardRefs.current[index];
-    if (cardElement) {
-      let scrollBehavior: ScrollLogicalPosition = 'center';
-      if (projectsData.length > 1) {
-        if (index === 0) {
-          scrollBehavior = 'start';
-        } else if (index === projectsData.length - 1) {
-          scrollBehavior = 'end';
-        }
-      }
-      cardElement.scrollIntoView({
-        behavior: 'smooth',
-        inline: scrollBehavior,
-        block: 'nearest'
-      });
-      setActiveIndex(index);
-    }
-  }, [projectsData.length]); 
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const handleScroll = () => {
-        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        scrollTimeoutRef.current = setTimeout(() => {
-          if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-          scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-        }, 60); 
-      };
-
-      container.addEventListener('scroll', handleScroll, { passive: true });
-      return () => {
-        container.removeEventListener('scroll', handleScroll);
-        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-      };
-    }
-  }, [updateScrollability]);
-  
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-      scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-    }, 350); 
-    return () => {
-      clearTimeout(timeoutId);
-      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-    };
-  }, [activeIndex, updateScrollability, projectsData.length]);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    let resizeObserver: ResizeObserver | null = null;
-
-    if (container) {
-       const handleResize = () => {
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        scrollUpdateRafId.current = requestAnimationFrame(() => {
-          updateScrollability();
-          if (projectsData.length > 0 && cardRefs.current[activeIndex]) {
-            scrollToCard(activeIndex);
-          } else if (projectsData.length === 0) {
-             setCanScrollLeft(false);
-             setCanScrollRight(false);
-          }
-        });
-      };
-
-      resizeObserver = new ResizeObserver(handleResize);
-      resizeObserver.observe(container);
-      
-      const initialLayoutTimeout = setTimeout(() => {
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        scrollUpdateRafId.current = requestAnimationFrame(handleResize);
-      }, 250);
-
-      return () => {
-        if (resizeObserver && container) resizeObserver.unobserve(container);
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        clearTimeout(initialLayoutTimeout);
-      };
-    }
-  }, [activeIndex, scrollToCard, updateScrollability, projectsData.length]);
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -200,10 +97,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.45}px) translateX(${scrollProgress * 0.18}px) rotate(${scrollProgress * 0.020}deg) scale(1.3)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.45}px) translateX(${scrollProgress * 0.22}px) rotate(${scrollProgress * 0.022}deg) scale(1.35)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(-${scrollProgress * 0.14}px) rotate(-${scrollProgress * 0.014}deg) scale(1.25)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(-${scrollProgress * 0.18}px) rotate(-${scrollProgress * 0.016}deg) scale(1.3)`;
       }
       parallaxAnimationFrameIdRef.current = null;
     };
@@ -223,6 +120,37 @@ export default function ProjectsSection() {
     };
   }, [parallaxScrollContainer]);
 
+  useEffect(() => {
+    const scrollElement = scrollContainerRef.current;
+    if (!scrollElement) return;
+
+    let currentScrollLeft = scrollElement.scrollLeft;
+
+    const animateScroll = () => {
+      if (!isHoveringRef.current && scrollElement) {
+        currentScrollLeft += scrollSpeed;
+        
+        const loopPoint = scrollElement.scrollWidth / 2; 
+
+        if (currentScrollLeft >= loopPoint) {
+          currentScrollLeft -= loopPoint; 
+          scrollElement.scrollLeft = currentScrollLeft;
+        }
+        scrollElement.scrollLeft = currentScrollLeft;
+      }
+      animationFrameIdRef.current = requestAnimationFrame(animateScroll);
+    };
+
+    animationFrameIdRef.current = requestAnimationFrame(animateScroll);
+
+    return () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+    };
+  }, [scrollSpeed]);
+
+
   return (
     <section
       id="projects"
@@ -231,11 +159,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-25%] left-[-35%] w-[90rem] h-[70rem] md:w-[105rem] md:h-[85rem] bg-purple-400/20 dark:bg-purple-700/25 rounded-[60%/40%] filter blur-[230px] md:blur-[310px] opacity-30 dark:opacity-20 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-500/25 dark:bg-purple-600/20 rounded-[60%/45%] filter blur-[240px] md:blur-[320px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-30%] right-[-40%] w-[80rem] h-[80rem] md:w-[95rem] md:h-[95rem] bg-sky-400/15 dark:bg-sky-700/20 rounded-[50%/65%] filter blur-[220px] md:blur-[300px] opacity-35 dark:opacity-15 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/20 dark:bg-sky-600/15 rounded-[55%/60%] filter blur-[230px] md:blur-[310px] opacity-45 dark:opacity-25 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -246,64 +174,27 @@ export default function ProjectsSection() {
           </p>
         </AnimatedSection>
         
-        <div className="relative w-full mt-6"> {/* Outer wrapper for buttons and scroller */}
-          {projectsData.length > 1 && (
-            <>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => scrollToCard(activeIndex - 1)}
-                disabled={!canScrollLeft}
-                aria-label="Scroll projects left"
-                className={cn(
-                    "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-                  )}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => scrollToCard(activeIndex + 1)}
-                disabled={!canScrollRight}
-                aria-label="Scroll projects right"
-                className={cn(
-                    "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-                  )}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            </>
-          )}
-          <div className="overflow-hidden w-full"> {/* Scroller Clip Wrapper */}
+        <div 
+          className="relative w-full mt-6"
+          onMouseEnter={() => { isHoveringRef.current = true; }}
+          onMouseLeave={() => { isHoveringRef.current = false; }}
+        >
+           <div className="overflow-hidden w-full">
             <div
               ref={scrollContainerRef}
-              className={cn(
-                "flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2",
-                projectsData.length === 1 && "justify-center"
-              )}
+              className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2" 
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
             >
-              {projectsData.map((project, index) => (
+              {duplicatedProjects.map((project, index) => ( 
                 <div
-                  key={project.id} 
-                  ref={(el) => { cardRefs.current[index] = el; }}
+                  key={`${project.id}-${index}`} 
                   className={cn(
                     "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", 
                     "transition-all duration-500 ease-in-out transform"
                   )}
                 >
-                  <AnimatedSection 
-                    animationType="scaleIn" 
-                    delay={`delay-${100}` as `delay-${number}`} 
-                  >
                     <Card className={cn(
-                      "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 ease-out bg-card/80 backdrop-blur-md border-border/40 group",
-                      index === activeIndex 
-                        ? "opacity-100 scale-100 shadow-2xl border-accent/60" 
-                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
+                      "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-300 ease-out bg-card/80 backdrop-blur-md border-border/40 group"
                     )}>
                       {project.imageUrl && (
                         <div className="relative h-48 md:h-52 w-full overflow-hidden">
@@ -354,7 +245,6 @@ export default function ProjectsSection() {
                         )}
                       </CardFooter>
                     </Card>
-                  </AnimatedSection>
                 </div>
               ))}
             </div>
@@ -364,8 +254,4 @@ export default function ProjectsSection() {
     </section>
   );
 }
-    
- 
-    
 
-    
