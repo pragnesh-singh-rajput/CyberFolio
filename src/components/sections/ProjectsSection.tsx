@@ -94,103 +94,77 @@ export default function ProjectsSection() {
     const container = scrollContainerRef.current;
     if (container) {
       const { scrollLeft, scrollWidth, clientWidth } = container;
-      const threshold = 2; 
+      const threshold = 5; 
 
       setCanScrollLeft(scrollLeft > threshold);
       setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
     } else {
       setCanScrollLeft(false);
-      setCanScrollRight(false);
+      setCanScrollRight(projectsData.length > 1);
     }
-  }, []); 
+  }, [projectsData.length]); 
 
   const scrollToCard = useCallback((index: number) => {
     if (index < 0 || index >= projectsData.length || !scrollContainerRef.current) return;
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      let inlineOption: ScrollLogicalPosition = 'center';
-      if (projectsData.length > 1) {
-         if (index === 0) {
-          inlineOption = 'start';
-        } else if (index === projectsData.length - 1) {
-          inlineOption = 'end';
-        }
-      }
-
+      // Always center the active card
       cardElement.scrollIntoView({
         behavior: 'smooth',
-        inline: inlineOption,
+        inline: 'center', 
         block: 'nearest'
       });
       setActiveIndex(index);
     }
-  }, [projectsData.length]);
+  }, [projectsData.length, setActiveIndex]);
 
-  // Effect for scroll event on the container
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
       const handleScroll = () => {
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-        if (scrollUpdateRafId.current) {
-          cancelAnimationFrame(scrollUpdateRafId.current);
-        }
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+        
         scrollTimeoutRef.current = setTimeout(() => {
-          scrollUpdateRafId.current = requestAnimationFrame(() => {
-            updateScrollability();
-          });
-        }, 60); // Debounce scroll events
+          scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
+        }, 60); 
       };
 
       container.addEventListener('scroll', handleScroll, { passive: true });
-      // Initial check
-      const initialCheckTimeout = setTimeout(handleScroll, 150);
+      const initialCheckTimeout = setTimeout(() => {
+        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+        scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
+      }, 150);
       
       return () => {
         container.removeEventListener('scroll', handleScroll);
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-        if (scrollUpdateRafId.current) {
-          cancelAnimationFrame(scrollUpdateRafId.current);
-        }
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         clearTimeout(initialCheckTimeout);
       };
     }
   }, [updateScrollability]);
   
-  // Effect for activeIndex changes (e.g., after button click or data change)
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (scrollUpdateRafId.current) {
-        cancelAnimationFrame(scrollUpdateRafId.current);
-      }
-      scrollUpdateRafId.current = requestAnimationFrame(() => {
-        updateScrollability();
-      });
-    }, 350); // Wait for smooth scroll to likely finish
+      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+      scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
+    }, 350); 
 
     return () => {
       clearTimeout(timeoutId);
-      if (scrollUpdateRafId.current) {
-        cancelAnimationFrame(scrollUpdateRafId.current);
-      }
+      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
     };
   }, [activeIndex, updateScrollability, projectsData.length]);
 
-  // Effect for resize
   useEffect(() => {
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
        const handleResize = () => {
-        if (scrollUpdateRafId.current) {
-          cancelAnimationFrame(scrollUpdateRafId.current);
-        }
+        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         scrollUpdateRafId.current = requestAnimationFrame(() => {
           updateScrollability();
           if (cardRefs.current[activeIndex]) {
@@ -202,16 +176,15 @@ export default function ProjectsSection() {
       resizeObserver = new ResizeObserver(handleResize);
       resizeObserver.observe(container);
       
-      const initialLayoutTimeout = setTimeout(handleResize, 250);
+      const initialLayoutTimeout = setTimeout(() => {
+        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+        scrollUpdateRafId.current = requestAnimationFrame(handleResize);
+      }, 250);
 
 
       return () => {
-        if (resizeObserver && container) {
-          resizeObserver.unobserve(container);
-        }
-         if (scrollUpdateRafId.current) {
-          cancelAnimationFrame(scrollUpdateRafId.current);
-        }
+        if (resizeObserver && container) resizeObserver.unobserve(container);
+        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         clearTimeout(initialLayoutTimeout);
       };
     }
@@ -226,18 +199,16 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.5}px) translateX(${scrollProgress * 0.2}px) rotate(${scrollProgress * 0.02}deg) scale(1.35)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.55}px) translateX(${scrollProgress * 0.22}px) rotate(${scrollProgress * 0.022}deg) scale(1.4)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.32}px) translateX(-${scrollProgress * 0.13}px) rotate(-${scrollProgress * 0.012}deg) scale(1.32)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(-${scrollProgress * 0.15}px) rotate(-${scrollProgress * 0.014}deg) scale(1.35)`;
       }
       parallaxAnimationFrameIdRef.current = null;
     };
 
     const handleParallaxScroll = () => {
-      if (parallaxAnimationFrameIdRef.current) {
-        cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
-      }
+      if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
       parallaxAnimationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
@@ -246,12 +217,8 @@ export default function ProjectsSection() {
         parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     }
     return () => {
-      if (parallaxScrollContainer) {
-        parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
-      }
-      if (parallaxAnimationFrameIdRef.current) {
-        cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
-      }
+      if (parallaxScrollContainer) parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
+      if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
     };
   }, [parallaxScrollContainer]);
 
@@ -263,11 +230,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-30%] w-[75rem] h-[55rem] md:w-[90rem] md:h-[70rem] bg-purple-500/40 dark:bg-purple-700/30 rounded-[65%/40%] filter blur-[230px] md:blur-[290px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-30%] w-[75rem] h-[55rem] md:w-[90rem] md:h-[70rem] bg-purple-400/30 dark:bg-purple-500/35 rounded-[65%/40%] filter blur-[240px] md:blur-[300px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[65rem] h-[65rem] md:w-[80rem] md:h-[80rem] bg-sky-500/30 dark:bg-sky-600/20 rounded-[45%/60%] filter blur-[220px] md:blur-[280px] opacity-50 dark:opacity-25 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[65rem] h-[65rem] md:w-[80rem] md:h-[80rem] bg-sky-400/25 dark:bg-sky-500/30 rounded-[45%/60%] filter blur-[230px] md:blur-[290px] opacity-60 dark:opacity-35 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -279,36 +246,32 @@ export default function ProjectsSection() {
         </AnimatedSection>
         
         <div className="relative w-full mt-6">
-          {projectsData.length > 0 && (
-            <>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => scrollToCard(activeIndex - 1)}
-                disabled={!canScrollLeft}
-                aria-label="Scroll projects left"
-                className={cn(
-                    "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-                  )}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => scrollToCard(activeIndex + 1)}
-                disabled={!canScrollRight}
-                aria-label="Scroll projects right"
-                className={cn(
-                    "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-                  )}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            </>
-          )}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => scrollToCard(activeIndex - 1)}
+            disabled={!canScrollLeft}
+            aria-label="Scroll projects left"
+            className={cn(
+                "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
+              )}
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => scrollToCard(activeIndex + 1)}
+            disabled={!canScrollRight}
+            aria-label="Scroll projects right"
+            className={cn(
+                "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
+              )}
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
 
           <div
             ref={scrollContainerRef}
@@ -396,4 +359,5 @@ export default function ProjectsSection() {
   );
 }
     
+
 
