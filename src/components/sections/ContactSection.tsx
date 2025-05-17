@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card"; 
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Linkedin, Github, Mail, Phone, Instagram } from "lucide-react"; 
+import { Linkedin, Github, Mail, Phone, Instagram } from "lucide-react";
 import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useEffect, useRef, useState } from 'react';
@@ -32,6 +32,12 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export default function ContactSection() {
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -115,11 +121,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/30 dark:bg-pink-500/25 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/40 dark:bg-pink-500/30 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-70 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/25 dark:bg-purple-600/20 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/35 dark:bg-purple-600/25 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -216,12 +222,12 @@ export default function ContactSection() {
                         </FormItem>
                       )}
                     />
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]" 
-                      disabled={form?.formState?.isSubmitting}
+                    <Button
+                      type="submit"
+                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]"
+                      disabled={!isClient || (form.formState ? form.formState.isSubmitting : true)}
                     >
-                      {form?.formState?.isSubmitting ? "Sending..." : "Send Message"}
+                      {isClient && form.formState && form.formState.isSubmitting ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </Form>
@@ -233,5 +239,3 @@ export default function ContactSection() {
     </section>
   );
 }
-
-    
