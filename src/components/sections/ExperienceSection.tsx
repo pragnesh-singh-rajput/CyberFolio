@@ -17,7 +17,7 @@ const experienceData: ExperienceItem[] = [
     company: 'Cyber Crime Cell, CID Crime',
     duration: 'November 2024 - May 2025 (Expected)',
     location: 'Gandhinagar, Gujarat (On-Site)',
-    logoUrl: 'https://placehold.co/100x100.png', // Reverted to placeholder
+    logoUrl: '/CID.jpg',
     imageHint: 'CID Crime Gujarat logo',
     description: [
       'Assisted senior analysts in monitoring network traffic and identifying potential security breaches using SIEM tools like Splunk and QRadar.',
@@ -81,7 +81,7 @@ export default function ExperienceSection() {
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isScrollable = container.scrollWidth > container.clientWidth + 1; 
+      const isScrollable = container.scrollWidth > container.clientWidth + 1; // +1 to handle subpixel rendering issues
       setCanScrollLeft(isScrollable && activeIndex > 0);
       setCanScrollRight(isScrollable && activeIndex < experienceData.length - 1);
     } else {
@@ -95,14 +95,14 @@ export default function ExperienceSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-        cardElement.scrollIntoView({
+      cardElement.scrollIntoView({
         behavior: 'smooth',
         inline: 'center',
         block: 'nearest'
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]);
+  }, [experienceData.length]); // Removed activeIndex as dependency
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -110,6 +110,7 @@ export default function ExperienceSection() {
 
     if (container) {
       const handleScrollEvent = () => {
+        // Determine activeIndex based on scroll position if needed, or rely on button clicks
         updateScrollability();
       };
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
@@ -117,7 +118,7 @@ export default function ExperienceSection() {
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
       
-      updateScrollability();
+      updateScrollability(); // Initial check
 
       return () => {
         container.removeEventListener('scroll', handleScrollEvent);
@@ -126,17 +127,17 @@ export default function ExperienceSection() {
         }
       };
     }
-  }, [updateScrollability, experienceData.length]); 
+  }, [updateScrollability, experienceData.length]); // Added experienceData.length
   
   useEffect(() => {
     updateScrollability();
-  }, [activeIndex, updateScrollability, experienceData.length]);
+  }, [activeIndex, updateScrollability, experienceData.length]); // Added experienceData.length
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
 
     const performParallaxUpdate = () => {
-      if (!sectionRef.current || !parallaxScrollContainer) return;
+      if (!sectionRef.current || !parallaxScrollContainer) return; // Guard against null refs
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
@@ -156,7 +157,7 @@ export default function ExperienceSection() {
       animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
-    handleParallaxScroll(); 
+    handleParallaxScroll(); // Initial call
     parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     
     return () => {
@@ -178,11 +179,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] right-[-25%] w-[50rem] h-[65rem] md:w-[70rem] md:h-[80rem] bg-primary/20 dark:bg-primary/25 rounded-[60%/40%] filter blur-[200px] md:blur-[250px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[5%] right-[-25%] w-[50rem] h-[65rem] md:w-[70rem] md:h-[80rem] bg-primary/25 dark:bg-blue-500/20 rounded-[60%/40%] filter blur-[180px] md:blur-[230px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] left-[-20%] w-[55rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-accent/25 dark:bg-accent/40 rounded-[40%/60%] filter blur-[190px] md:blur-[240px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[0%] left-[-20%] w-[55rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-accent/30 dark:bg-teal-500/30 rounded-[40%/60%] filter blur-[170px] md:blur-[220px] opacity-80 dark:opacity-70 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -193,8 +194,8 @@ export default function ExperienceSection() {
           </p>
         </AnimatedSection>
 
-        <div className={cn("relative w-full mt-6")}>
-          
+        <div className={cn("relative w-full mt-6", experienceData.length <= 1 && "flex justify-center")}>
+          {experienceData.length > 1 && (
             <Button
               variant="outline"
               size="icon"
@@ -202,12 +203,13 @@ export default function ExperienceSection() {
               disabled={!canScrollLeft}
               aria-label="Scroll experience left"
               className={cn(
-                  "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                  "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                )}
+                "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              )}
             >
               <ChevronLeft className="h-6 w-6" />
             </Button>
+          )}
           
           <div 
             ref={scrollContainerRef}
@@ -283,6 +285,7 @@ export default function ExperienceSection() {
               </div>
             ))}
           </div>
+          {experienceData.length > 1 && (
             <Button
               variant="outline"
               size="icon"
@@ -296,10 +299,13 @@ export default function ExperienceSection() {
             >
               <ChevronRight className="h-6 w-6" />
             </Button>
+          )}
         </div>
       </div>
     </section>
   );
 }
+
+    
 
     
