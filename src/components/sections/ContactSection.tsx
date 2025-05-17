@@ -82,12 +82,20 @@ export default function ContactSection() {
       animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
-    animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+    const initialUpdate = () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+    };
+    
+    initialUpdate();
 
-    scrollContainer.addEventListener('scroll', performParallaxUpdate, { passive: true });
+
+    scrollContainer.addEventListener('scroll', initialUpdate, { passive: true });
     return () => {
       if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', performParallaxUpdate);
+        scrollContainer.removeEventListener('scroll', initialUpdate);
       }
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
@@ -96,7 +104,7 @@ export default function ContactSection() {
   }, [scrollContainer]);
 
   async function onSubmit(data: ContactFormValues) {
-    console.log(data); 
+    // console.log(data); // Keep for debugging if needed
     toast({
       title: "Message Sent! 🎉",
       description: "Thanks for reaching out, PK Singh will get back to you soon.",
@@ -114,11 +122,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/40 dark:bg-pink-500/20 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/20 dark:bg-pink-500/25 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/35 dark:bg-purple-600/15 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/15 dark:bg-purple-600/20 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -232,5 +240,3 @@ export default function ContactSection() {
     </section>
   );
 }
-
-    
