@@ -18,7 +18,7 @@ const projectsData: Project[] = [
     title: 'CyberConnect-AI',
     description: 'An AI-powered tool for targeted cold mailing campaigns and scraping recruiter information from LinkedIn, enhancing job outreach efficiency. Built with Next.js and Python.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'ai outreach recruitment',
+    imageHint: 'ai outreach',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/CyberConnect-AI',
     tags: ['AI', 'Recruitment', 'Web Scraping', 'Next.js', 'Python', 'Automation'],
   },
@@ -27,7 +27,7 @@ const projectsData: Project[] = [
     title: 'Absconders Portal',
     description: 'A web portal designed for law enforcement or security agencies to track and manage information about absconders, enhancing operational efficiency.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'security portal law',
+    imageHint: 'security law',
     tags: ["https://github.com/pragnesh-singh-rajput/absconders-portal"],
   },
   {
@@ -35,7 +35,7 @@ const projectsData: Project[] = [
     title: 'Sharencrypt P2P File Sharing',
     description: 'A secure peer-to-peer file sharing application developed with Python, focusing on data encryption and user privacy during transit.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'p2p security encryption',
+    imageHint: 'p2p security',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Sharenrypt-p2p-file-sharing',
     tags: ['P2P', 'File Sharing', 'Python', 'Encryption', 'Networking', 'Security'],
   },
@@ -44,7 +44,7 @@ const projectsData: Project[] = [
     title: 'Twitter News Bot',
     description: 'An automated Python bot that fetches news from various sources and tweets updates, utilizing the Twitter API and web scraping techniques.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'twitter bot automation',
+    imageHint: 'twitter bot',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Twitter-News-Bot',
     tags: ['Bot', 'Python', 'Twitter API', 'Web Scraping', 'Automation'],
   },
@@ -53,7 +53,7 @@ const projectsData: Project[] = [
     title: 'Image & Video Rekognition with AWS',
     description: 'A project leveraging AWS Rekognition for advanced image and video analysis, demonstrating cloud-based computer vision capabilities.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'aws vision cloud',
+    imageHint: 'aws vision',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/image-and-video-rekognition-with-aws',
     tags: ['AWS', 'Rekognition', 'Cloud AI', 'Computer Vision', 'Python'],
   },
@@ -62,7 +62,7 @@ const projectsData: Project[] = [
     title: 'Personal Portfolio Website (This one!)',
     description: 'My personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations, parallax effects, and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'portfolio web design',
+    imageHint: 'portfolio design',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
     tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React', 'Framer Motion'],
   },
@@ -77,12 +77,13 @@ export default function ProjectsSection() {
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const scrollUpdateRafId = useRef<number | null>(null);
-  
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollUpdateRafId = useRef<number | null>(null);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
@@ -109,29 +110,30 @@ export default function ProjectsSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      // Always center the active card
-      cardElement.scrollIntoView({
+      const scrollOptions: ScrollIntoViewOptions = {
         behavior: 'smooth',
-        inline: 'center', 
+        inline: 'center',
         block: 'nearest'
-      });
+      };
+      cardElement.scrollIntoView(scrollOptions);
       setActiveIndex(index);
     }
-  }, [projectsData.length, setActiveIndex]);
+  }, [projectsData.length]); // Removed activeIndex from dependencies
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
       const handleScroll = () => {
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         
         scrollTimeoutRef.current = setTimeout(() => {
+          if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
           scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
         }, 60); 
       };
 
       container.addEventListener('scroll', handleScroll, { passive: true });
+      
       const initialCheckTimeout = setTimeout(() => {
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
@@ -167,8 +169,11 @@ export default function ProjectsSection() {
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         scrollUpdateRafId.current = requestAnimationFrame(() => {
           updateScrollability();
-          if (cardRefs.current[activeIndex]) {
+          if (projectsData.length > 0 && cardRefs.current[activeIndex]) {
             scrollToCard(activeIndex);
+          } else if (projectsData.length === 0) {
+             setCanScrollLeft(false);
+             setCanScrollRight(false);
           }
         });
       };
@@ -188,7 +193,7 @@ export default function ProjectsSection() {
         clearTimeout(initialLayoutTimeout);
       };
     }
-  }, [activeIndex, scrollToCard, updateScrollability]);
+  }, [activeIndex, scrollToCard, updateScrollability, projectsData.length]);
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -199,10 +204,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.55}px) translateX(${scrollProgress * 0.22}px) rotate(${scrollProgress * 0.022}deg) scale(1.4)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.4}px) translateX(${scrollProgress * 0.15}px) rotate(${scrollProgress * 0.018}deg) scale(1.25)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(-${scrollProgress * 0.15}px) rotate(-${scrollProgress * 0.014}deg) scale(1.35)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(-${scrollProgress * 0.12}px) rotate(-${scrollProgress * 0.012}deg) scale(1.2)`;
       }
       parallaxAnimationFrameIdRef.current = null;
     };
@@ -230,11 +235,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-30%] w-[75rem] h-[55rem] md:w-[90rem] md:h-[70rem] bg-purple-400/30 dark:bg-purple-500/35 rounded-[65%/40%] filter blur-[240px] md:blur-[300px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-30%] w-[80rem] h-[60rem] md:w-[95rem] md:h-[75rem] bg-purple-400/15 dark:bg-purple-600/20 rounded-[65%/40%] filter blur-[220px] md:blur-[280px] opacity-50 dark:opacity-30 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[65rem] h-[65rem] md:w-[80rem] md:h-[80rem] bg-sky-400/25 dark:bg-sky-500/30 rounded-[45%/60%] filter blur-[230px] md:blur-[290px] opacity-60 dark:opacity-35 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[70rem] h-[70rem] md:w-[85rem] md:h-[85rem] bg-sky-400/10 dark:bg-sky-600/15 rounded-[45%/60%] filter blur-[210px] md:blur-[270px] opacity-60 dark:opacity-25 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -245,33 +250,37 @@ export default function ProjectsSection() {
           </p>
         </AnimatedSection>
         
-        <div className="relative w-full mt-6">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex - 1)}
-            disabled={!canScrollLeft}
-            aria-label="Scroll projects left"
-            className={cn(
-                "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-              )}
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex + 1)}
-            disabled={!canScrollRight}
-            aria-label="Scroll projects right"
-            className={cn(
-                "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-              )}
-          >
-            <ChevronRight className="h-6 w-6" />
-          </Button>
+        <div className="relative w-full mt-6 overflow-hidden">
+          {projectsData.length > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scrollToCard(activeIndex - 1)}
+                disabled={!canScrollLeft}
+                aria-label="Scroll projects left"
+                className={cn(
+                    "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
+                  )}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scrollToCard(activeIndex + 1)}
+                disabled={!canScrollRight}
+                aria-label="Scroll projects right"
+                className={cn(
+                    "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
+                  )}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </>
+          )}
 
           <div
             ref={scrollContainerRef}
@@ -359,5 +368,5 @@ export default function ProjectsSection() {
   );
 }
     
-
-
+ 
+    
