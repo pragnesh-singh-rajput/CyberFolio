@@ -14,18 +14,18 @@ const experienceData: ExperienceItem[] = [
   {
     id: 'exp1',
     title: 'Cyber Security Analyst Intern',
-    company: 'Cyber Crime Cell, CID Crime',
+    company: 'Cyber Crime Cell, CID Crime', // Assuming this is the company for the logo
     duration: 'November 2024 - May 2025 (Expected)',
     location: 'Gandhinagar, Gujarat (On-Site)',
-    logoUrl: 'https://placehold.co/100x100.png',
-    imageHint: 'government security shield',
+    logoUrl: '/cid-crime-logo.png', // Updated to local path
+    imageHint: 'CID Crime Gujarat logo', // Updated hint
     description: [
-      'Assisted senior analysts in monitoring network traffic and identifying potential security breaches using SIEM tools.',
-      'Conducted vulnerability assessments and penetration testing on web applications and internal networks.',
-      'Contributed to the development and implementation of security policies and incident response procedures.',
-      'Performed digital forensics tasks on collected evidence from simulated and real-world cases under supervision.',
-      'Researched emerging cyber threats and presented findings to the team.',
-      'Gained hands-on experience with various security tools and technologies in a law enforcement environment.'
+      'Assisted senior analysts in monitoring network traffic and identifying potential security breaches using SIEM tools like Splunk and QRadar.',
+      'Conducted vulnerability assessments and penetration testing (VAPT) on web applications and internal networks, identifying and documenting critical vulnerabilities.',
+      'Contributed to the development and refinement of security policies and incident response playbooks.',
+      'Performed digital forensics tasks, including data acquisition and analysis from various devices and logs, under supervision.',
+      'Researched emerging cyber threats, attack vectors, and mitigation strategies, presenting findings to the team.',
+      'Gained hands-on experience with security tools such as Wireshark, Nmap, Metasploit, Burp Suite, and various forensic toolkits in a law enforcement context.'
     ],
   },
   // {
@@ -81,7 +81,7 @@ export default function ExperienceSection() {
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isScrollable = container.scrollWidth > container.clientWidth + 1;
+      const isScrollable = container.scrollWidth > container.clientWidth + 1; 
       setCanScrollLeft(isScrollable && activeIndex > 0);
       setCanScrollRight(isScrollable && activeIndex < experienceData.length - 1);
     } else {
@@ -102,7 +102,7 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]);
+  }, [experienceData.length]); // Removed activeIndex as a dependency
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -110,9 +110,8 @@ export default function ExperienceSection() {
 
     if (container) {
       const handleScrollEvent = () => {
-        // We might not need to call updateScrollability on every scroll event
-        // if activeIndex is the primary driver for button states.
-        // However, it's good for robustness if direct scrollbar interaction is used.
+        // No direct update to activeIndex here as scrollIntoView handles visual centering.
+        // We only update scrollability based on current activeIndex and container size.
         updateScrollability();
       };
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
@@ -120,7 +119,6 @@ export default function ExperienceSection() {
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
       
-      // Ensure scrollability is set correctly on mount
       updateScrollability();
 
       return () => {
@@ -134,7 +132,7 @@ export default function ExperienceSection() {
   
   useEffect(() => {
     updateScrollability();
-  }, [activeIndex, updateScrollability]);
+  }, [activeIndex, updateScrollability, experienceData.length]); // Added experienceData.length
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -145,16 +143,16 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.022}deg) scale(1.1)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.15}px) translateX(-${scrollProgress * 0.06}px) rotate(${scrollProgress * 0.01}deg)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(-${scrollProgress * 0.12}px) rotate(${scrollProgress * 0.015}deg) scale(1.1)`;
       }
-      animationFrameIdRef.current = null;
+      animationFrameIdRef.current = null; 
     };
 
     const handleParallaxScroll = () => {
-      if (animationFrameIdRef.current) {
+      if (animationFrameIdRef.current) { 
         cancelAnimationFrame(animationFrameIdRef.current);
       }
       animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
@@ -162,11 +160,12 @@ export default function ExperienceSection() {
     
     handleParallaxScroll(); 
     parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
+    
     return () => {
       if (parallaxScrollContainer) {
         parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
       }
-      if (animationFrameIdRef.current) {
+      if (animationFrameIdRef.current) { 
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
@@ -181,11 +180,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] right-[-25%] w-[50rem] h-[65rem] md:w-[70rem] md:h-[80rem] bg-primary/30 dark:bg-primary/40 rounded-full filter blur-[180px] md:blur-[230px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[5%] right-[-25%] w-[50rem] h-[65rem] md:w-[70rem] md:h-[80rem] bg-primary/20 dark:bg-primary/25 rounded-[60%/40%] filter blur-[200px] md:blur-[250px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] left-[-20%] w-[55rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-accent/40 dark:bg-accent/50 rounded-full filter blur-[170px] md:blur-[220px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[0%] left-[-20%] w-[55rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-accent/25 dark:bg-accent/40 rounded-[40%/60%] filter blur-[190px] md:blur-[240px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -196,20 +195,21 @@ export default function ExperienceSection() {
           </p>
         </AnimatedSection>
 
-        <div className="relative w-full mt-6">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex - 1)}
-            disabled={!canScrollLeft}
-            aria-label="Scroll experience left"
-            className={cn(
-                "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
-              )}
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
+        <div className={cn("relative w-full mt-6")}>
+          
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scrollToCard(activeIndex - 1)}
+              disabled={!canScrollLeft}
+              aria-label="Scroll experience left"
+              className={cn(
+                  "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                  "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                )}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
           
           <div 
             ref={scrollContainerRef}
@@ -230,7 +230,7 @@ export default function ExperienceSection() {
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`} 
+                  delay={`delay-${100 * (index + 1)}` as `delay-${number}`} 
                 >
                   <Card className={cn(
                     "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
@@ -286,19 +286,21 @@ export default function ExperienceSection() {
             ))}
           </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex + 1)}
-            disabled={!canScrollRight}
-            aria-label="Scroll experience right"
-            className={cn(
-                "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
-              )}
-          >
-            <ChevronRight className="h-6 w-6" />
-          </Button>
+          
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scrollToCard(activeIndex + 1)}
+              disabled={!canScrollRight}
+              aria-label="Scroll experience right"
+              className={cn(
+                  "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                  "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                )}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          
         </div>
       </div>
     </section>
