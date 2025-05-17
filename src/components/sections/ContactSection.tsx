@@ -21,6 +21,7 @@ import { Linkedin, Github, Mail, Phone, Instagram } from "lucide-react";
 import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useEffect, useRef, useState } from 'react';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }).max(50, {message: "Name cannot exceed 50 characters."}),
@@ -63,6 +64,7 @@ export default function ContactSection() {
 
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
+    let animFrameId: number;
 
     const performParallaxUpdate = () => {
       if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
@@ -79,7 +81,7 @@ export default function ContactSection() {
       const c2R = scrollProgress * 0.015;
       circle2Ref.current.style.transform = `translate3d(${c2X}px, ${c2Y}px, 0) rotate(${c2R}deg) scale(1.12)`;
       
-      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+      animFrameId = requestAnimationFrame(performParallaxUpdate);
     };
     
     const initialUpdate = () => {
@@ -100,11 +102,14 @@ export default function ContactSection() {
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
+       if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+      }
     };
   }, [scrollContainer]);
 
   async function onSubmit(data: ContactFormValues) {
-    // console.log(data); // Keep for debugging if needed
+    // console.log(data); 
     toast({
       title: "Message Sent! 🎉",
       description: "Thanks for reaching out, PK Singh will get back to you soon.",
@@ -122,11 +127,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/20 dark:bg-pink-500/25 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/20 dark:bg-pink-700/25 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-50 dark:opacity-30 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/15 dark:bg-purple-600/20 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/15 dark:bg-purple-800/20 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-40 dark:opacity-25 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -172,7 +177,7 @@ export default function ContactSection() {
                   </Link>
                 </Button>
                 <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-pink-500/10 hover:border-pink-500 hover:text-pink-500 transition-all duration-300 ease-in-out transform hover:scale-110">
-                  <Link href="https://instagram.com/pragnesh_singh_rajput" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                   <Link href="https://instagram.com/pragnesh_singh_rajput" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                     <Instagram className="h-5 w-5" />
                   </Link>
                 </Button>
@@ -182,56 +187,65 @@ export default function ContactSection() {
           <AnimatedSection animationType="fadeInRight" delay="delay-400" className="w-full">
             <Card className="p-6 md:p-8 shadow-xl bg-card/80 backdrop-blur-md border border-border/50">
               <CardContent className="p-0">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-foreground/90">Full Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Your Name" {...field} className="bg-input/70 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-foreground/90">Email Address</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="your.email@example.com" {...field} className="bg-input/70 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="message"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-foreground/90">Message</FormLabel>
-                          <FormControl>
-                            <Textarea placeholder="Your message here..." {...field} rows={5} className="bg-input/70 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button
-                      type="submit"
-                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]"
-                      disabled={!isClient || (form && form.formState ? form.formState.isSubmitting : true)}
-                    >
-                      {isClient && form && form.formState && form.formState.isSubmitting ? "Sending..." : "Send Message"}
-                    </Button>
-                  </form>
-                </Form>
+                {!isClient ? (
+                  <div className="space-y-6">
+                    <Skeleton className="h-10" />
+                    <Skeleton className="h-10" />
+                    <Skeleton className="h-20" />
+                    <Skeleton className="h-10 mt-2" />
+                  </div>
+                ) : (
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground/90">Full Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your Name" {...field} className="bg-input/70 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground/90">Email Address</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="your.email@example.com" {...field} className="bg-input/70 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="message"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground/90">Message</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Your message here..." {...field} rows={5} className="bg-input/70 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="submit"
+                        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]"
+                        disabled={form.formState.isSubmitting}
+                      >
+                        {form.formState.isSubmitting ? "Sending..." : "Send Message"}
+                      </Button>
+                    </form>
+                  </Form>
+                )}
               </CardContent>
             </Card>
           </AnimatedSection>
@@ -240,3 +254,5 @@ export default function ContactSection() {
     </section>
   );
 }
+
+    
