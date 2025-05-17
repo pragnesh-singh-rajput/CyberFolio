@@ -14,11 +14,11 @@ const experienceData: ExperienceItem[] = [
   {
     id: 'exp1',
     title: 'Cyber Security Analyst Intern',
-    company: 'Cyber Crime Cell, CID Crime', // Assuming this is the company for the logo
+    company: 'Cyber Crime Cell, CID Crime',
     duration: 'November 2024 - May 2025 (Expected)',
     location: 'Gandhinagar, Gujarat (On-Site)',
-    logoUrl: '/cid-crime-logo.png', // Updated to local path
-    imageHint: 'CID Crime Gujarat logo', // Updated hint
+    logoUrl: 'https://placehold.co/100x100.png', // Reverted to placeholder
+    imageHint: 'CID Crime Gujarat logo',
     description: [
       'Assisted senior analysts in monitoring network traffic and identifying potential security breaches using SIEM tools like Splunk and QRadar.',
       'Conducted vulnerability assessments and penetration testing (VAPT) on web applications and internal networks, identifying and documenting critical vulnerabilities.',
@@ -102,7 +102,7 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]); // Removed activeIndex as a dependency
+  }, [experienceData.length]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -110,8 +110,6 @@ export default function ExperienceSection() {
 
     if (container) {
       const handleScrollEvent = () => {
-        // No direct update to activeIndex here as scrollIntoView handles visual centering.
-        // We only update scrollability based on current activeIndex and container size.
         updateScrollability();
       };
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
@@ -132,7 +130,7 @@ export default function ExperienceSection() {
   
   useEffect(() => {
     updateScrollability();
-  }, [activeIndex, updateScrollability, experienceData.length]); // Added experienceData.length
+  }, [activeIndex, updateScrollability, experienceData.length]);
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -285,8 +283,6 @@ export default function ExperienceSection() {
               </div>
             ))}
           </div>
-
-          
             <Button
               variant="outline"
               size="icon"
@@ -300,9 +296,10 @@ export default function ExperienceSection() {
             >
               <ChevronRight className="h-6 w-6" />
             </Button>
-          
         </div>
       </div>
     </section>
   );
 }
+
+    
