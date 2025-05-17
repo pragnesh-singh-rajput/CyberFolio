@@ -39,7 +39,10 @@ export default function ContactSection() {
       email: "",
       message: "",
     },
+    mode: "onChange", // Added mode for potentially better state updates
   });
+
+  const { formState } = form; // Destructure for potentially safer access, though direct access is fine.
 
   async function onSubmit(data: ContactFormValues) {
     console.log(data); 
@@ -69,16 +72,21 @@ export default function ContactSection() {
     if (!scrollContainer || !sectionRef.current) return;
 
     const performParallaxUpdate = () => {
-      if (!sectionRef.current) return;
+      if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
-      if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(-${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.018}deg) scale(1.1)`;
-      }
-      if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(${scrollProgress * 0.11}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
-      }
+      // More distinct parallax
+      const c1X = scrollProgress * 0.18;
+      const c1Y = scrollProgress * 0.45;
+      const c1R = -scrollProgress * 0.020;
+      circle1Ref.current.style.transform = `translate3d(${c1X}px, ${c1Y}px, 0) rotate(${c1R}deg) scale(1.15)`;
+
+      const c2X = -scrollProgress * 0.15;
+      const c2Y = scrollProgress * 0.28;
+      const c2R = scrollProgress * 0.015;
+      circle2Ref.current.style.transform = `translate3d(${c2X}px, ${c2Y}px, 0) rotate(${c2R}deg) scale(1.12)`;
+      
       animationFrameIdRef.current = null;
     };
 
@@ -110,11 +118,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-20%] w-[45rem] h-[65rem] md:w-[65rem] md:h-[75rem] bg-pink-500/15 dark:bg-pink-500/25 rounded-[45%/60%] filter blur-[160px] md:blur-[230px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[50rem] h-[70rem] md:w-[70rem] md:h-[80rem] bg-pink-500/25 dark:bg-pink-600/20 rounded-[55%/40%] filter blur-[180px] md:blur-[250px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-25%] w-[55rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-purple-500/15 dark:bg-purple-600/20 rounded-[60%/45%] filter blur-[150px] md:blur-[220px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[60rem] h-[55rem] md:w-[80rem] md:h-[70rem] bg-purple-500/20 dark:bg-purple-700/15 rounded-[45%/55%] filter blur-[170px] md:blur-[240px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -211,8 +219,12 @@ export default function ContactSection() {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]" disabled={form.formState.isSubmitting}>
-                      {form.formState.isSubmitting ? "Sending..." : "Send Message"}
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]" 
+                      disabled={formState?.isSubmitting}
+                    >
+                      {formState?.isSubmitting ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </Form>
@@ -224,3 +236,5 @@ export default function ContactSection() {
     </section>
   );
 }
+
+    
