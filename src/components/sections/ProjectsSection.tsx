@@ -29,7 +29,7 @@ const projectsData: Project[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     imageHint: 'security portal',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/absconders-portal',
-    tags: ['Web App', 'PHP', 'MySQL', 'Data Management', 'Security'],
+    tags: ["https://github.com/pragnesh-singh-rajput/absconders-portal"],
   },
   {
     id: 'proj-sharencrypt',
@@ -125,8 +125,8 @@ export default function ProjectsSection() {
       
       resizeObserver = new ResizeObserver(() => {
         updateScrollability();
-        // Ensure active card remains centered after resize, if possible
         if (cardRefs.current[activeIndex]) {
+            // No smooth scroll here to avoid conflicts with button clicks
             cardRefs.current[activeIndex]?.scrollIntoView({ inline: 'center', block: 'nearest' });
         }
       });
@@ -141,7 +141,7 @@ export default function ProjectsSection() {
         }
       };
     }
-  }, [updateScrollability, projectsData.length, activeIndex, scrollToCard]); 
+  }, [updateScrollability, activeIndex, scrollToCard]); 
 
   useEffect(() => {
     updateScrollability();
@@ -156,10 +156,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.45}px) translateX(${scrollProgress * 0.20}px) rotate(${scrollProgress * 0.025}deg) scale(1.2)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.55}px) translateX(${scrollProgress * 0.25}px) rotate(${scrollProgress * 0.03}deg) scale(1.2)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(-${scrollProgress * 0.22}px) rotate(-${scrollProgress * 0.015}deg) scale(1.15)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.30}px) translateX(-${scrollProgress * 0.28}px) rotate(-${scrollProgress * 0.018}deg) scale(1.15)`;
       }
       animationFrameIdRef.current = null;
     };
@@ -193,11 +193,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] left-[-25%] w-[70rem] h-[55rem] md:w-[85rem] md:h-[70rem] bg-primary/30 dark:bg-primary/40 rounded-[60%/40%] filter blur-[210px] md:blur-[270px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-15%] left-[-30%] w-[80rem] h-[60rem] md:w-[95rem] md:h-[75rem] bg-primary/30 dark:bg-purple-600/30 rounded-[60%/40%] filter blur-[230px] md:blur-[290px] opacity-50 dark:opacity-70 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-15%] right-[-30%] w-[60rem] h-[60rem] md:w-[75rem] md:h-[75rem] bg-accent/35 dark:bg-accent/45 rounded-[40%/55%] filter blur-[200px] md:blur-[260px] opacity-60 dark:opacity-70 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] right-[-35%] w-[70rem] h-[70rem] md:w-[85rem] md:h-[85rem] bg-accent/35 dark:bg-sky-500/35 rounded-[40%/55%] filter blur-[220px] md:blur-[280px] opacity-60 dark:opacity-80 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -217,7 +217,7 @@ export default function ProjectsSection() {
             aria-label="Scroll projects left"
             className={cn(
                 "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50" 
+                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
               )}
           >
             <ChevronLeft className="h-6 w-6" />
@@ -229,7 +229,7 @@ export default function ProjectsSection() {
               "flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2",
               projectsData.length === 1 && "justify-center"
             )}
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
           >
             {projectsData.map((project, index) => (
               <div
@@ -312,7 +312,7 @@ export default function ProjectsSection() {
             aria-label="Scroll projects right"
             className={cn(
                 "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50" 
+                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
               )}
           >
             <ChevronRight className="h-6 w-6" />
@@ -322,6 +322,7 @@ export default function ProjectsSection() {
     </section>
   );
 }
+    
 
     
 
