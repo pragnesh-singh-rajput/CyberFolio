@@ -102,7 +102,7 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]);
+  }, [experienceData.length]); // Removed activeIndex as a dependency
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -110,6 +110,7 @@ export default function ExperienceSection() {
 
     if (container) {
       const handleScrollEvent = () => {
+        // Optionally, determine activeIndex based on scroll position if allowing free scroll
         updateScrollability();
       };
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
@@ -117,6 +118,10 @@ export default function ExperienceSection() {
       resizeObserver = new ResizeObserver(updateScrollability);
       resizeObserver.observe(container);
       
+      // Initial scroll to the active card, e.g., the first one, after a short delay for layout.
+      // setTimeout(() => scrollToCard(activeIndex), 100); removed to prevent scroll restoration issues
+
+      // Initial check
       updateScrollability(); 
 
       return () => {
@@ -126,11 +131,11 @@ export default function ExperienceSection() {
         }
       };
     }
-  }, [updateScrollability, experienceData.length]); 
+  }, [updateScrollability, experienceData.length, activeIndex, scrollToCard]); 
   
   useEffect(() => {
     updateScrollability();
-  }, [activeIndex, updateScrollability, experienceData.length]); 
+  }, [activeIndex, updateScrollability]); 
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -141,10 +146,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.022}deg) scale(1.1)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.1)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(-${scrollProgress * 0.12}px) rotate(${scrollProgress * 0.015}deg) scale(1.1)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
       }
       animationFrameIdRef.current = null; 
     };
@@ -178,11 +183,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-35%] w-[60rem] h-[75rem] md:w-[75rem] md:h-[90rem] bg-blue-600/20 dark:bg-blue-700/25 rounded-[60%/40%] filter blur-[190px] md:blur-[250px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[0%] right-[-35%] w-[60rem] h-[75rem] md:w-[75rem] md:h-[90rem] bg-blue-600/25 dark:bg-blue-700/30 rounded-[60%/40%] filter blur-[190px] md:blur-[250px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-30%] w-[70rem] h-[60rem] md:w-[85rem] md:h-[75rem] bg-teal-500/20 dark:bg-teal-600/25 rounded-[40%/60%] filter blur-[180px] md:blur-[240px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-10%] left-[-30%] w-[70rem] h-[60rem] md:w-[85rem] md:h-[75rem] bg-teal-500/25 dark:bg-teal-600/30 rounded-[40%/60%] filter blur-[180px] md:blur-[240px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -227,7 +232,7 @@ export default function ExperienceSection() {
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${100 * (index + 1)}` as `delay-${number}`} 
+                  delay={`delay-${100}` as `delay-${number}`} 
                 >
                   <Card className={cn(
                     "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
