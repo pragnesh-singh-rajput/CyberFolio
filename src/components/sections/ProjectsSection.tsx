@@ -28,7 +28,7 @@ const projectsData: Project[] = [
     description: 'A web portal designed for law enforcement or security agencies to track and manage information about absconders, enhancing operational efficiency.',
     imageUrl: 'https://placehold.co/600x400.png',
     imageHint: 'security portal',
-    repoUrl: 'https://github.com/pragnesh-singh-rajput/absconders-portal',
+    // repoUrl: 'https://github.com/pragnesh-singh-rajput/absconders-portal', // Repo link is in Button
     tags: ["https://github.com/pragnesh-singh-rajput/absconders-portal"],
   },
   {
@@ -75,6 +75,7 @@ export default function ProjectsSection() {
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -92,14 +93,16 @@ export default function ProjectsSection() {
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isActuallyScrollable = container.scrollWidth > container.clientWidth + 1; 
-      setCanScrollLeft(isActuallyScrollable && activeIndex > 0);
-      setCanScrollRight(isActuallyScrollable && activeIndex < projectsData.length - 1);
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const threshold = 2; // Small threshold for scroll position checks
+
+      setCanScrollLeft(scrollLeft > threshold);
+      setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
     }
-  }, [activeIndex, projectsData.length]);
+  }, []); // No dependencies, relies only on scrollContainerRef.current
 
   const scrollToCard = useCallback((index: number) => {
     if (index < 0 || index >= projectsData.length || !scrollContainerRef.current) return;
@@ -120,32 +123,50 @@ export default function ProjectsSection() {
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleScrollEvent = () => updateScrollability();
-      container.addEventListener('scroll', handleScrollEvent, { passive: true });
+      const debouncedUpdateScrollability = () => {
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        scrollTimeoutRef.current = setTimeout(() => {
+          updateScrollability();
+        }, 100); 
+      };
+      
+      container.addEventListener('scroll', debouncedUpdateScrollability, { passive: true });
       
       resizeObserver = new ResizeObserver(() => {
         updateScrollability();
         if (cardRefs.current[activeIndex]) {
-            // No smooth scroll here to avoid conflicts with button clicks
             cardRefs.current[activeIndex]?.scrollIntoView({ inline: 'center', block: 'nearest' });
         }
       });
       resizeObserver.observe(container);
       
-      updateScrollability();
+      const initialCheckTimeout = setTimeout(() => {
+        updateScrollability();
+      }, 150);
 
       return () => {
-        container.removeEventListener('scroll', handleScrollEvent);
+        container.removeEventListener('scroll', debouncedUpdateScrollability);
         if (resizeObserver) {
           resizeObserver.unobserve(container);
         }
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        clearTimeout(initialCheckTimeout);
       };
     }
-  }, [updateScrollability, activeIndex, scrollToCard]); 
-
+  }, [activeIndex, updateScrollability, projectsData.length]); 
+  
   useEffect(() => {
-    updateScrollability();
-  }, [activeIndex, updateScrollability]); 
+    // Update scrollability after activeIndex changes (e.g., after scrollToCard)
+    // Give a brief moment for smooth scroll to settle.
+    const timeoutId = setTimeout(() => {
+        updateScrollability();
+    }, 350); // Adjust if smooth scroll duration is different
+    return () => clearTimeout(timeoutId);
+  }, [activeIndex, updateScrollability]);
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -156,10 +177,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.55}px) translateX(${scrollProgress * 0.25}px) rotate(${scrollProgress * 0.03}deg) scale(1.2)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.5}px) translateX(${scrollProgress * 0.2}px) rotate(${scrollProgress * 0.025}deg) scale(1.2)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.30}px) translateX(-${scrollProgress * 0.28}px) rotate(-${scrollProgress * 0.018}deg) scale(1.15)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(-${scrollProgress * 0.23}px) rotate(-${scrollProgress * 0.015}deg) scale(1.15)`;
       }
       animationFrameIdRef.current = null;
     };
@@ -193,11 +214,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-15%] left-[-30%] w-[80rem] h-[60rem] md:w-[95rem] md:h-[75rem] bg-primary/30 dark:bg-purple-600/30 rounded-[60%/40%] filter blur-[230px] md:blur-[290px] opacity-50 dark:opacity-70 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-15%] left-[-25%] w-[70rem] h-[50rem] md:w-[85rem] md:h-[65rem] bg-purple-500/20 dark:bg-purple-600/35 rounded-[60%/40%] filter blur-[190px] md:blur-[250px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] right-[-35%] w-[70rem] h-[70rem] md:w-[85rem] md:h-[85rem] bg-accent/35 dark:bg-sky-500/35 rounded-[40%/55%] filter blur-[220px] md:blur-[280px] opacity-60 dark:opacity-80 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[60rem] h-[60rem] md:w-[75rem] md:h-[75rem] bg-sky-500/20 dark:bg-sky-600/30 rounded-[40%/55%] filter blur-[180px] md:blur-[240px] opacity-70 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -209,19 +230,36 @@ export default function ProjectsSection() {
         </AnimatedSection>
         
         <div className="relative w-full mt-6">
-           <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex - 1)}
-            disabled={!canScrollLeft}
-            aria-label="Scroll projects left"
-            className={cn(
-                "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-              )}
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
+          {projectsData.length > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scrollToCard(activeIndex - 1)}
+                disabled={!canScrollLeft}
+                aria-label="Scroll projects left"
+                className={cn(
+                    "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
+                  )}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scrollToCard(activeIndex + 1)}
+                disabled={!canScrollRight}
+                aria-label="Scroll projects right"
+                className={cn(
+                    "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
+                  )}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </>
+          )}
 
           <div
             ref={scrollContainerRef}
@@ -236,19 +274,19 @@ export default function ProjectsSection() {
                 key={project.id} 
                 ref={(el) => { cardRefs.current[index] = el; }}
                 className={cn(
-                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2",
+                  "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", // Card wrapper for centering
                   "transition-all duration-500 ease-in-out transform"
                 )}
               >
                 <AnimatedSection 
                   animationType="scaleIn" 
-                  delay={`delay-${100}` as `delay-${number}`}
+                  delay={`delay-${100}` as `delay-${number}`} // Consistent delay for all cards
                 >
                   <Card className={cn(
                     "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 ease-out bg-card/80 backdrop-blur-md border-border/40 group",
                      index === activeIndex 
                        ? "opacity-100 scale-100 shadow-2xl border-accent/60" 
-                       : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
+                       : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" // More faded and smaller for inactive
                   )}>
                     {project.imageUrl && (
                       <div className="relative h-48 md:h-52 w-full overflow-hidden">
@@ -281,7 +319,7 @@ export default function ProjectsSection() {
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-start gap-2.5 pt-3 pb-4 px-4 md:px-5 border-t border-border/50">
-                      {project.repoUrl && (
+                      {project.repoUrl && !project.tags.includes(project.repoUrl) && ( // Hide button if URL is already in tags
                         <Button variant="outline" size="sm" asChild className="text-xs px-2.5 py-1 h-auto hover:bg-accent/10 hover:text-accent hover:border-accent transition-all duration-200">
                           <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
                             <Github className="mr-1.5 h-3.5 w-3.5" />
@@ -303,27 +341,9 @@ export default function ProjectsSection() {
               </div>
             ))}
           </div>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scrollToCard(activeIndex + 1)}
-            disabled={!canScrollRight}
-            aria-label="Scroll projects right"
-            className={cn(
-                "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70" 
-              )}
-          >
-            <ChevronRight className="h-6 w-6" />
-          </Button>
         </div>
       </div>
     </section>
   );
 }
-    
-
-    
-
     
