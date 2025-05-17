@@ -108,14 +108,23 @@ export default function ProjectsSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
+      let inlineOption: ScrollLogicalPosition = 'center';
+      if (projectsData.length > 1) { // Only apply start/end if there's enough items to not be centered
+         if (index === 0) {
+          inlineOption = 'start';
+        } else if (index === projectsData.length - 1) {
+          inlineOption = 'end';
+        }
+      }
+
       cardElement.scrollIntoView({
         behavior: 'smooth',
-        inline: 'center',
+        inline: inlineOption,
         block: 'nearest'
       });
       setActiveIndex(index);
     }
-  }, []); // Removed projectsData.length, activeIndex for stability
+  }, [projectsData.length]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -136,7 +145,7 @@ export default function ProjectsSection() {
       resizeObserver = new ResizeObserver(() => {
         updateScrollability();
         if (cardRefs.current[activeIndex]) {
-            cardRefs.current[activeIndex]?.scrollIntoView({ inline: 'center', block: 'nearest' });
+            scrollToCard(activeIndex);
         }
       });
       resizeObserver.observe(container);
@@ -156,7 +165,7 @@ export default function ProjectsSection() {
         clearTimeout(initialCheckTimeout);
       };
     }
-  }, [activeIndex, updateScrollability]); // Removed projectsData.length
+  }, [activeIndex, updateScrollability, scrollToCard]);
   
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -174,10 +183,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(${scrollProgress * 0.12}px) rotate(${scrollProgress * 0.018}deg) scale(1.2)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.15}px) rotate(${scrollProgress * 0.018}deg) scale(1.25)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.2}px) translateX(-${scrollProgress * 0.15}px) rotate(-${scrollProgress * 0.01}deg) scale(1.15)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.23}px) translateX(-${scrollProgress * 0.11}px) rotate(-${scrollProgress * 0.01}deg) scale(1.22)`;
       }
       animationFrameIdRef.current = null;
     };
@@ -211,11 +220,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-15%] left-[-25%] w-[70rem] h-[50rem] md:w-[85rem] md:h-[65rem] bg-purple-500/30 dark:bg-purple-600/35 rounded-[60%/40%] filter blur-[190px] md:blur-[250px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-15%] left-[-25%] w-[70rem] h-[50rem] md:w-[85rem] md:h-[65rem] bg-purple-500/25 dark:bg-purple-600/20 rounded-[60%/40%] filter blur-[170px] md:blur-[230px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[60rem] h-[60rem] md:w-[75rem] md:h-[75rem] bg-sky-500/30 dark:bg-sky-600/30 rounded-[40%/55%] filter blur-[180px] md:blur-[240px] opacity-70 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[60rem] h-[60rem] md:w-[75rem] md:h-[75rem] bg-sky-400/20 dark:bg-sky-600/15 rounded-[40%/55%] filter blur-[160px] md:blur-[220px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">

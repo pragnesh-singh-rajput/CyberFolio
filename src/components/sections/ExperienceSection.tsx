@@ -67,6 +67,7 @@ export default function ExperienceSection() {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const [activeIndex, setActiveIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -97,52 +98,70 @@ export default function ExperienceSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
+      let inlineOption: ScrollLogicalPosition = 'center';
+      if (experienceData.length > 1) { // Only apply start/end if there's enough items to not be centered
+        if (index === 0) {
+          inlineOption = 'start';
+        } else if (index === experienceData.length - 1) {
+          inlineOption = 'end';
+        }
+      }
+      
       cardElement.scrollIntoView({
         behavior: 'smooth',
-        inline: 'center',
+        inline: inlineOption,
         block: 'nearest'
       });
       setActiveIndex(index);
     }
-  }, []); // Removed activeIndex, experienceData.length as it may cause issues if not stable
+  }, [experienceData.length]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleScrollEvent = () => {
-        // Debounce or throttle this if performance is an issue
-        updateScrollability();
+      const debouncedUpdateScrollability = () => {
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        scrollTimeoutRef.current = setTimeout(() => {
+          updateScrollability();
+        }, 100); 
       };
-      container.addEventListener('scroll', handleScrollEvent, { passive: true });
+      
+      container.addEventListener('scroll', debouncedUpdateScrollability, { passive: true });
       
       resizeObserver = new ResizeObserver(() => {
         updateScrollability();
-        // Ensure active card is still centered after resize
+        // Re-center active card on resize
         if (cardRefs.current[activeIndex]) {
-          cardRefs.current[activeIndex]?.scrollIntoView({ inline: 'center', block: 'nearest' });
+           scrollToCard(activeIndex);
         }
       });
       resizeObserver.observe(container);
       
-      updateScrollability(); // Initial check
+      const initialCheckTimeout = setTimeout(() => {
+        updateScrollability();
+      }, 150);
 
       return () => {
-        container.removeEventListener('scroll', handleScrollEvent);
+        container.removeEventListener('scroll', debouncedUpdateScrollability);
         if (resizeObserver) {
           resizeObserver.unobserve(container);
         }
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        clearTimeout(initialCheckTimeout);
       };
     }
-  }, [updateScrollability, activeIndex, scrollToCard]); 
+  }, [activeIndex, updateScrollability, scrollToCard]); 
   
   useEffect(() => {
-    // Update scrollability after activeIndex changes (e.g., after scrollToCard)
-    // Give a brief moment for smooth scroll to settle.
     const timeoutId = setTimeout(() => {
         updateScrollability();
-    }, 350); // Adjust if smooth scroll duration is different
+    }, 350); 
     return () => clearTimeout(timeoutId);
   }, [activeIndex, updateScrollability]);
   
@@ -155,10 +174,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.1)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(${scrollProgress * 0.18}px) rotate(-${scrollProgress * 0.014}deg) scale(1.25)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.13}px) rotate(${scrollProgress * 0.011}deg) scale(1.2)`;
       }
       animationFrameIdRef.current = null; 
     };
@@ -194,11 +213,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-40%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-blue-600/30 dark:bg-blue-700/35 rounded-[60%/40%] filter blur-[210px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-5%] right-[-40%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-blue-500/30 dark:bg-blue-700/25 rounded-[60%/40%] filter blur-[180px] md:blur-[250px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-15%] left-[-35%] w-[80rem] h-[65rem] md:w-[95rem] md:h-[80rem] bg-teal-500/30 dark:bg-teal-600/35 rounded-[40%/60%] filter blur-[200px] md:blur-[260px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-15%] left-[-35%] w-[80rem] h-[65rem] md:w-[95rem] md:h-[80rem] bg-teal-400/25 dark:bg-teal-600/20 rounded-[40%/60%] filter blur-[170px] md:blur-[240px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -210,7 +229,7 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className={cn("relative w-full mt-6")}>
-          {experienceData.length > 0 && (
+          {experienceData.length > 0 && ( // Show buttons always if data exists
              <>
               <Button
                 variant="outline"
