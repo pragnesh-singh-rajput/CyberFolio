@@ -81,14 +81,16 @@ export default function ExperienceSection() {
   const updateScrollability = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const isScrollable = container.scrollWidth > container.clientWidth + 1; 
-      setCanScrollLeft(isScrollable && activeIndex > 0);
-      setCanScrollRight(isScrollable && activeIndex < experienceData.length - 1);
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const threshold = 2; 
+
+      setCanScrollLeft(scrollLeft > threshold);
+      setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
     }
-  }, [activeIndex, experienceData.length]);
+  }, []);
   
   const scrollToCard = useCallback((index: number) => {
     if (index < 0 || index >= experienceData.length || !scrollContainerRef.current) return;
@@ -102,25 +104,29 @@ export default function ExperienceSection() {
       });
       setActiveIndex(index);
     }
-  }, [experienceData.length]);
+  }, []); // Removed activeIndex, experienceData.length as it may cause issues if not stable
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleScrollEvent = () => updateScrollability();
+      const handleScrollEvent = () => {
+        // Debounce or throttle this if performance is an issue
+        updateScrollability();
+      };
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       
       resizeObserver = new ResizeObserver(() => {
         updateScrollability();
+        // Ensure active card is still centered after resize
         if (cardRefs.current[activeIndex]) {
           cardRefs.current[activeIndex]?.scrollIntoView({ inline: 'center', block: 'nearest' });
         }
       });
       resizeObserver.observe(container);
       
-      updateScrollability(); 
+      updateScrollability(); // Initial check
 
       return () => {
         container.removeEventListener('scroll', handleScrollEvent);
@@ -132,8 +138,13 @@ export default function ExperienceSection() {
   }, [updateScrollability, activeIndex, scrollToCard]); 
   
   useEffect(() => {
-    updateScrollability();
-  }, [activeIndex, updateScrollability]); 
+    // Update scrollability after activeIndex changes (e.g., after scrollToCard)
+    // Give a brief moment for smooth scroll to settle.
+    const timeoutId = setTimeout(() => {
+        updateScrollability();
+    }, 350); // Adjust if smooth scroll duration is different
+    return () => clearTimeout(timeoutId);
+  }, [activeIndex, updateScrollability]);
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -144,10 +155,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.12}px) rotate(-${scrollProgress * 0.016}deg) scale(1.1)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.1)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.10}px) rotate(${scrollProgress * 0.013}deg) scale(1.1)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
       }
       animationFrameIdRef.current = null; 
     };
@@ -179,15 +190,15 @@ export default function ExperienceSection() {
     <section
       id="experience"
       ref={sectionRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/10" 
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5" 
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-40%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-blue-600/20 dark:bg-blue-700/30 rounded-[60%/40%] filter blur-[210px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-5%] right-[-40%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-blue-600/30 dark:bg-blue-700/35 rounded-[60%/40%] filter blur-[210px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-15%] left-[-35%] w-[80rem] h-[65rem] md:w-[95rem] md:h-[80rem] bg-teal-500/20 dark:bg-teal-600/35 rounded-[40%/60%] filter blur-[200px] md:blur-[260px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-15%] left-[-35%] w-[80rem] h-[65rem] md:w-[95rem] md:h-[80rem] bg-teal-500/30 dark:bg-teal-600/35 rounded-[40%/60%] filter blur-[200px] md:blur-[260px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -199,7 +210,7 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className={cn("relative w-full mt-6")}>
-          {experienceData.length > 0 && ( // Render arrows only if there's data
+          {experienceData.length > 0 && (
              <>
               <Button
                 variant="outline"
@@ -208,7 +219,7 @@ export default function ExperienceSection() {
                 disabled={!canScrollLeft}
                 aria-label="Scroll experience left"
                 className={cn(
-                  "absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                  "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
                   "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
                 )}
               >
@@ -222,7 +233,7 @@ export default function ExperienceSection() {
                 disabled={!canScrollRight}
                 aria-label="Scroll experience right"
                 className={cn(
-                    "absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                    "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
                     "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
                   )}
               >
@@ -313,5 +324,7 @@ export default function ExperienceSection() {
 }
     
 
+
+    
 
     
