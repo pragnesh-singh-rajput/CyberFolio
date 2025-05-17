@@ -39,21 +39,8 @@ export default function ContactSection() {
       email: "",
       message: "",
     },
-    mode: "onChange", // Added mode for potentially better state updates
+    mode: "onChange",
   });
-
-  const { formState } = form; // Destructure for potentially safer access, though direct access is fine.
-
-  async function onSubmit(data: ContactFormValues) {
-    console.log(data); 
-    toast({
-      title: "Message Sent! 🎉",
-      description: "Thanks for reaching out, PK Singh will get back to you soon.",
-      variant: "default", 
-      duration: 5000,
-    });
-    form.reset();
-  }
 
   const sectionRef = useRef<HTMLElement>(null);
   const circle1Ref = useRef<HTMLDivElement>(null);
@@ -76,7 +63,6 @@ export default function ContactSection() {
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
-      // More distinct parallax
       const c1X = scrollProgress * 0.18;
       const c1Y = scrollProgress * 0.45;
       const c1R = -scrollProgress * 0.020;
@@ -110,6 +96,17 @@ export default function ContactSection() {
     };
   }, [scrollContainer]);
 
+  async function onSubmit(data: ContactFormValues) {
+    console.log(data); 
+    toast({
+      title: "Message Sent! 🎉",
+      description: "Thanks for reaching out, PK Singh will get back to you soon.",
+      variant: "default", 
+      duration: 5000,
+    });
+    form.reset();
+  }
+
   return (
     <section
       id="contact"
@@ -118,11 +115,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[50rem] h-[70rem] md:w-[70rem] md:h-[80rem] bg-pink-500/25 dark:bg-pink-600/20 rounded-[55%/40%] filter blur-[180px] md:blur-[250px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/30 dark:bg-pink-500/25 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[60rem] h-[55rem] md:w-[80rem] md:h-[70rem] bg-purple-500/20 dark:bg-purple-700/15 rounded-[45%/55%] filter blur-[170px] md:blur-[240px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/25 dark:bg-purple-600/20 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -150,7 +147,7 @@ export default function ContactSection() {
             <div className="bg-card/70 backdrop-blur-md p-6 rounded-lg shadow-lg border border-border/50">
               <h3 className="text-xl font-semibold text-primary mb-6">Follow Me</h3>
               <div className="flex space-x-4">
-                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-blue-600/10 hover:border-blue-600 hover:text-blue-500 transition-all duration-300 ease-in-out transform hover:scale-110">
+                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-blue-600/10 hover:border-blue-500 hover:text-blue-500 transition-all duration-300 ease-in-out transform hover:scale-110">
                   <Link href="https://www.linkedin.com/in/pragnesh-singh-rajput/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                     <Linkedin className="h-5 w-5" />
                   </Link>
@@ -160,7 +157,7 @@ export default function ContactSection() {
                     <Github className="h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-gray-700/10 hover:border-gray-500 hover:text-gray-300 transition-all duration-300 ease-in-out transform hover:scale-110">
+                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-gray-700/10 hover:border-gray-400 hover:text-gray-300 transition-all duration-300 ease-in-out transform hover:scale-110">
                   <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
@@ -222,9 +219,9 @@ export default function ContactSection() {
                     <Button 
                       type="submit" 
                       className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]" 
-                      disabled={formState?.isSubmitting}
+                      disabled={form?.formState?.isSubmitting}
                     >
-                      {formState?.isSubmitting ? "Sending..." : "Send Message"}
+                      {form?.formState?.isSubmitting ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </Form>
