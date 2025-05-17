@@ -16,9 +16,9 @@ const projectsData: Project[] = [
   {
     id: 'proj-cyberconnect',
     title: 'CyberConnect-AI',
-    description: 'An AI-powered tool for targeted cold mailing campaigns and scraping recruiter information, enhancing job outreach. Built with Next.js and Python.',
+    description: 'An AI-powered tool for targeted cold mailing campaigns and scraping recruiter information from LinkedIn, enhancing job outreach efficiency. Built with Next.js and Python.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'ai outreach',
+    imageHint: 'ai outreach recruitment',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/CyberConnect-AI',
     tags: ['AI', 'Recruitment', 'Web Scraping', 'Next.js', 'Python', 'Automation'],
   },
@@ -27,15 +27,15 @@ const projectsData: Project[] = [
     title: 'Absconders Portal',
     description: 'A web portal designed for law enforcement or security agencies to track and manage information about absconders, enhancing operational efficiency.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'security portal',
+    imageHint: 'security portal law',
     tags: ["https://github.com/pragnesh-singh-rajput/absconders-portal"],
   },
   {
     id: 'proj-sharencrypt',
-    title: 'Sharenrypt P2P File Sharing',
+    title: 'Sharencrypt P2P File Sharing',
     description: 'A secure peer-to-peer file sharing application developed with Python, focusing on data encryption and user privacy during transit.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'p2p security',
+    imageHint: 'p2p security encryption',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Sharenrypt-p2p-file-sharing',
     tags: ['P2P', 'File Sharing', 'Python', 'Encryption', 'Networking', 'Security'],
   },
@@ -44,7 +44,7 @@ const projectsData: Project[] = [
     title: 'Twitter News Bot',
     description: 'An automated Python bot that fetches news from various sources and tweets updates, utilizing the Twitter API and web scraping techniques.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'twitter bot news',
+    imageHint: 'twitter bot automation',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Twitter-News-Bot',
     tags: ['Bot', 'Python', 'Twitter API', 'Web Scraping', 'Automation'],
   },
@@ -53,7 +53,7 @@ const projectsData: Project[] = [
     title: 'Image & Video Rekognition with AWS',
     description: 'A project leveraging AWS Rekognition for advanced image and video analysis, demonstrating cloud-based computer vision capabilities.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'aws vision analysis',
+    imageHint: 'aws vision cloud',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/image-and-video-rekognition-with-aws',
     tags: ['AWS', 'Rekognition', 'Cloud AI', 'Computer Vision', 'Python'],
   },
@@ -62,7 +62,7 @@ const projectsData: Project[] = [
     title: 'Personal Portfolio Website (This one!)',
     description: 'My personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations, parallax effects, and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'portfolio code design',
+    imageHint: 'portfolio web design',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
     tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React', 'Framer Motion'],
   },
@@ -73,11 +73,12 @@ export default function ProjectsSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
-  const animationFrameIdRef = useRef<number | null>(null);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+  const parallaxAnimationFrameIdRef = useRef<number | null>(null);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollUpdateRafId = useRef<number | null>(null);
   
   const [activeIndex, setActiveIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -109,7 +110,7 @@ export default function ProjectsSection() {
     const cardElement = cardRefs.current[index];
     if (cardElement) {
       let inlineOption: ScrollLogicalPosition = 'center';
-      if (projectsData.length > 1) { // Only apply start/end if there's enough items to not be centered
+      if (projectsData.length > 1) {
          if (index === 0) {
           inlineOption = 'start';
         } else if (index === projectsData.length - 1) {
@@ -126,53 +127,95 @@ export default function ProjectsSection() {
     }
   }, [projectsData.length]);
 
+  // Effect for scroll event on the container
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const handleScroll = () => {
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
+        }
+        scrollTimeoutRef.current = setTimeout(() => {
+          scrollUpdateRafId.current = requestAnimationFrame(() => {
+            updateScrollability();
+          });
+        }, 60); // Debounce scroll events
+      };
+
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      // Initial check
+      const initialCheckTimeout = setTimeout(handleScroll, 150);
+      
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
+        }
+        clearTimeout(initialCheckTimeout);
+      };
+    }
+  }, [updateScrollability]);
+  
+  // Effect for activeIndex changes (e.g., after button click or data change)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (scrollUpdateRafId.current) {
+        cancelAnimationFrame(scrollUpdateRafId.current);
+      }
+      scrollUpdateRafId.current = requestAnimationFrame(() => {
+        updateScrollability();
+      });
+    }, 350); // Wait for smooth scroll to likely finish
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (scrollUpdateRafId.current) {
+        cancelAnimationFrame(scrollUpdateRafId.current);
+      }
+    };
+  }, [activeIndex, updateScrollability, projectsData.length]);
+
+  // Effect for resize
   useEffect(() => {
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const debouncedUpdateScrollability = () => {
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
+       const handleResize = () => {
+        if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
         }
-        scrollTimeoutRef.current = setTimeout(() => {
+        scrollUpdateRafId.current = requestAnimationFrame(() => {
           updateScrollability();
-        }, 100); 
-      };
-      
-      container.addEventListener('scroll', debouncedUpdateScrollability, { passive: true });
-      
-      resizeObserver = new ResizeObserver(() => {
-        updateScrollability();
-        if (cardRefs.current[activeIndex]) {
+          if (cardRefs.current[activeIndex]) {
             scrollToCard(activeIndex);
-        }
-      });
+          }
+        });
+      };
+
+      resizeObserver = new ResizeObserver(handleResize);
       resizeObserver.observe(container);
       
-      const initialCheckTimeout = setTimeout(() => {
-        updateScrollability();
-      }, 150);
+      const initialLayoutTimeout = setTimeout(handleResize, 250);
+
 
       return () => {
-        container.removeEventListener('scroll', debouncedUpdateScrollability);
-        if (resizeObserver) {
+        if (resizeObserver && container) {
           resizeObserver.unobserve(container);
         }
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
+         if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
         }
-        clearTimeout(initialCheckTimeout);
+        clearTimeout(initialLayoutTimeout);
       };
     }
-  }, [activeIndex, updateScrollability, scrollToCard]);
-  
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-        updateScrollability();
-    }, 350); 
-    return () => clearTimeout(timeoutId);
-  }, [activeIndex, updateScrollability]);
+  }, [activeIndex, scrollToCard, updateScrollability]);
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -183,19 +226,19 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.38}px) translateX(${scrollProgress * 0.15}px) rotate(${scrollProgress * 0.018}deg) scale(1.25)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.5}px) translateX(${scrollProgress * 0.2}px) rotate(${scrollProgress * 0.02}deg) scale(1.35)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.23}px) translateX(-${scrollProgress * 0.11}px) rotate(-${scrollProgress * 0.01}deg) scale(1.22)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.32}px) translateX(-${scrollProgress * 0.13}px) rotate(-${scrollProgress * 0.012}deg) scale(1.32)`;
       }
-      animationFrameIdRef.current = null;
+      parallaxAnimationFrameIdRef.current = null;
     };
 
     const handleParallaxScroll = () => {
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
+      if (parallaxAnimationFrameIdRef.current) {
+        cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
       }
-      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+      parallaxAnimationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
     if (parallaxScrollContainer){
@@ -206,8 +249,8 @@ export default function ProjectsSection() {
       if (parallaxScrollContainer) {
         parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
       }
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
+      if (parallaxAnimationFrameIdRef.current) {
+        cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
       }
     };
   }, [parallaxScrollContainer]);
@@ -220,11 +263,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-15%] left-[-25%] w-[70rem] h-[50rem] md:w-[85rem] md:h-[65rem] bg-purple-500/25 dark:bg-purple-600/20 rounded-[60%/40%] filter blur-[170px] md:blur-[230px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-30%] w-[75rem] h-[55rem] md:w-[90rem] md:h-[70rem] bg-purple-500/40 dark:bg-purple-700/30 rounded-[65%/40%] filter blur-[230px] md:blur-[290px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[60rem] h-[60rem] md:w-[75rem] md:h-[75rem] bg-sky-400/20 dark:bg-sky-600/15 rounded-[40%/55%] filter blur-[160px] md:blur-[220px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[65rem] h-[65rem] md:w-[80rem] md:h-[80rem] bg-sky-500/30 dark:bg-sky-600/20 rounded-[45%/60%] filter blur-[220px] md:blur-[280px] opacity-50 dark:opacity-25 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -236,7 +279,7 @@ export default function ProjectsSection() {
         </AnimatedSection>
         
         <div className="relative w-full mt-6">
-          {projectsData.length > 1 && (
+          {projectsData.length > 0 && (
             <>
               <Button
                 variant="outline"
@@ -354,5 +397,3 @@ export default function ProjectsSection() {
 }
     
 
-
-    

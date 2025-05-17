@@ -63,11 +63,12 @@ export default function ExperienceSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
-  const animationFrameIdRef = useRef<number | null>(null);
-
+  const parallaxAnimationFrameIdRef = useRef<number | null>(null);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollUpdateRafId = useRef<number | null>(null);
   
   const [activeIndex, setActiveIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -99,7 +100,7 @@ export default function ExperienceSection() {
     const cardElement = cardRefs.current[index];
     if (cardElement) {
       let inlineOption: ScrollLogicalPosition = 'center';
-      if (experienceData.length > 1) { // Only apply start/end if there's enough items to not be centered
+      if (experienceData.length > 1) {
         if (index === 0) {
           inlineOption = 'start';
         } else if (index === experienceData.length - 1) {
@@ -116,54 +117,95 @@ export default function ExperienceSection() {
     }
   }, [experienceData.length]);
 
+  // Effect for scroll event on the container
   useEffect(() => {
     const container = scrollContainerRef.current;
-    let resizeObserver: ResizeObserver | null = null;
-
     if (container) {
-      const debouncedUpdateScrollability = () => {
+      const handleScroll = () => {
         if (scrollTimeoutRef.current) {
           clearTimeout(scrollTimeoutRef.current);
+        }
+        if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
         }
         scrollTimeoutRef.current = setTimeout(() => {
-          updateScrollability();
-        }, 100); 
+          scrollUpdateRafId.current = requestAnimationFrame(() => {
+            updateScrollability();
+          });
+        }, 60); // Debounce scroll events
       };
-      
-      container.addEventListener('scroll', debouncedUpdateScrollability, { passive: true });
-      
-      resizeObserver = new ResizeObserver(() => {
-        updateScrollability();
-        // Re-center active card on resize
-        if (cardRefs.current[activeIndex]) {
-           scrollToCard(activeIndex);
-        }
-      });
-      resizeObserver.observe(container);
-      
-      const initialCheckTimeout = setTimeout(() => {
-        updateScrollability();
-      }, 150);
+
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      // Initial check after a short delay for layout
+      const initialCheckTimeout = setTimeout(handleScroll, 150);
 
       return () => {
-        container.removeEventListener('scroll', debouncedUpdateScrollability);
-        if (resizeObserver) {
-          resizeObserver.unobserve(container);
-        }
+        container.removeEventListener('scroll', handleScroll);
         if (scrollTimeoutRef.current) {
           clearTimeout(scrollTimeoutRef.current);
+        }
+        if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
         }
         clearTimeout(initialCheckTimeout);
       };
     }
-  }, [activeIndex, updateScrollability, scrollToCard]); 
+  }, [updateScrollability]);
   
+  // Effect for activeIndex changes (e.g., after button click or data change)
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-        updateScrollability();
-    }, 350); 
-    return () => clearTimeout(timeoutId);
-  }, [activeIndex, updateScrollability]);
+      if (scrollUpdateRafId.current) {
+        cancelAnimationFrame(scrollUpdateRafId.current);
+      }
+      scrollUpdateRafId.current = requestAnimationFrame(() => {
+          updateScrollability();
+      });
+    }, 350); // Wait for smooth scroll to likely finish
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (scrollUpdateRafId.current) {
+        cancelAnimationFrame(scrollUpdateRafId.current);
+      }
+    };
+  }, [activeIndex, updateScrollability, experienceData.length]);
+  
+  // Effect for resize
+   useEffect(() => {
+    const container = scrollContainerRef.current;
+    let resizeObserver: ResizeObserver | null = null;
+
+    if (container) {
+      const handleResize = () => {
+         if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
+        }
+        scrollUpdateRafId.current = requestAnimationFrame(() => {
+          updateScrollability();
+          if (cardRefs.current[activeIndex]) {
+             scrollToCard(activeIndex);
+          }
+        });
+      };
+      
+      resizeObserver = new ResizeObserver(handleResize);
+      resizeObserver.observe(container);
+      
+      // Initial check on mount after layout
+      const initialLayoutTimeout = setTimeout(handleResize, 250); 
+
+      return () => {
+        if (resizeObserver && container) {
+          resizeObserver.unobserve(container);
+        }
+         if (scrollUpdateRafId.current) {
+          cancelAnimationFrame(scrollUpdateRafId.current);
+        }
+        clearTimeout(initialLayoutTimeout);
+      };
+    }
+  }, [activeIndex, scrollToCard, updateScrollability]); 
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -174,19 +216,19 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(${scrollProgress * 0.18}px) rotate(-${scrollProgress * 0.014}deg) scale(1.25)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.1)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.13}px) rotate(${scrollProgress * 0.011}deg) scale(1.2)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
       }
-      animationFrameIdRef.current = null; 
+      parallaxAnimationFrameIdRef.current = null; 
     };
 
     const handleParallaxScroll = () => {
-      if (animationFrameIdRef.current) { 
-        cancelAnimationFrame(animationFrameIdRef.current);
+      if (parallaxAnimationFrameIdRef.current) { 
+        cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
       }
-      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+      parallaxAnimationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
     if (parallaxScrollContainer) {
@@ -198,8 +240,8 @@ export default function ExperienceSection() {
       if (parallaxScrollContainer) {
         parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
       }
-      if (animationFrameIdRef.current) { 
-        cancelAnimationFrame(animationFrameIdRef.current);
+      if (parallaxAnimationFrameIdRef.current) { 
+        cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
       }
     };
   }, [parallaxScrollContainer]);
@@ -213,11 +255,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-40%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-blue-500/30 dark:bg-blue-700/25 rounded-[60%/40%] filter blur-[180px] md:blur-[250px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-10%] right-[-35%] w-[75rem] h-[85rem] md:w-[90rem] md:h-[100rem] bg-blue-600/20 dark:bg-blue-700/25 rounded-[65%/45%] filter blur-[220px] md:blur-[280px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-15%] left-[-35%] w-[80rem] h-[65rem] md:w-[95rem] md:h-[80rem] bg-teal-400/25 dark:bg-teal-600/20 rounded-[40%/60%] filter blur-[170px] md:blur-[240px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] left-[-40%] w-[85rem] h-[70rem] md:w-[100rem] md:h-[85rem] bg-teal-500/15 dark:bg-teal-600/20 rounded-[45%/60%] filter blur-[210px] md:blur-[270px] opacity-70 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -229,7 +271,7 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className={cn("relative w-full mt-6")}>
-          {experienceData.length > 0 && ( // Show buttons always if data exists
+          {experienceData.length > 0 && ( 
              <>
               <Button
                 variant="outline"
@@ -265,7 +307,7 @@ export default function ExperienceSection() {
             ref={scrollContainerRef}
             className={cn(
               "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
-              experienceData.length === 1 && "justify-center" 
+               experienceData.length === 1 && "justify-center" 
             )}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
           >
@@ -341,9 +383,6 @@ export default function ExperienceSection() {
     </section>
   );
 }
-    
-
-
     
 
     
