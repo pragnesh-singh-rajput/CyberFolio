@@ -79,22 +79,15 @@ export default function ContactSection() {
       const c2R = scrollProgress * 0.015;
       circle2Ref.current.style.transform = `translate3d(${c2X}px, ${c2Y}px, 0) rotate(${c2R}deg) scale(1.12)`;
       
-      animationFrameIdRef.current = null;
-    };
-
-    const handleScroll = () => {
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
-      }
       animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
+    
+    animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
 
-    handleScroll(); 
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    scrollContainer.addEventListener('scroll', performParallaxUpdate, { passive: true });
     return () => {
       if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', handleScroll);
+        scrollContainer.removeEventListener('scroll', performParallaxUpdate);
       }
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
@@ -121,11 +114,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/40 dark:bg-pink-500/30 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-70 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/40 dark:bg-pink-500/20 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/35 dark:bg-purple-600/25 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/35 dark:bg-purple-600/15 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -225,9 +218,9 @@ export default function ContactSection() {
                     <Button
                       type="submit"
                       className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]"
-                      disabled={!isClient || (form.formState ? form.formState.isSubmitting : true)}
+                      disabled={!isClient || (form && form.formState ? form.formState.isSubmitting : true)}
                     >
-                      {isClient && form.formState && form.formState.isSubmitting ? "Sending..." : "Send Message"}
+                      {isClient && form && form.formState && form.formState.isSubmitting ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </Form>
@@ -239,3 +232,5 @@ export default function ContactSection() {
     </section>
   );
 }
+
+    
