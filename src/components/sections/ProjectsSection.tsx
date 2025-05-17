@@ -16,11 +16,11 @@ const projectsData: Project[] = [
   {
     id: 'proj-cyberconnect',
     title: 'CyberConnect-AI',
-    description: 'An AI-powered platform for cybersecurity, leveraging machine learning for cold mails. Built with Next.js and Python.',
+    description: 'An AI-powered tool for targeted cold mailing campaigns and scraping recruiter information, enhancing job outreach. Built with Next.js and Python.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'ai cybersecurity',
+    imageHint: 'ai outreach',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/CyberConnect-AI',
-    tags: ['AI', 'Cybersecurity', 'Machine Learning', 'Next.js', 'Python', 'Threat Detection'],
+    tags: ['AI', 'Recruitment', 'Web Scraping', 'Next.js', 'Python', 'Automation'],
   },
   {
     id: 'proj-absconders',
@@ -45,7 +45,7 @@ const projectsData: Project[] = [
     title: 'Twitter News Bot',
     description: 'An automated Python bot that fetches news from various sources and tweets updates, utilizing the Twitter API and web scraping techniques.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'twitter bot',
+    imageHint: 'twitter bot news',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Twitter-News-Bot',
     tags: ['Bot', 'Python', 'Twitter API', 'Web Scraping', 'Automation'],
   },
@@ -54,7 +54,7 @@ const projectsData: Project[] = [
     title: 'Image & Video Rekognition with AWS',
     description: 'A project leveraging AWS Rekognition for advanced image and video analysis, demonstrating cloud-based computer vision capabilities.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'aws vision',
+    imageHint: 'aws vision analysis',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/image-and-video-rekognition-with-aws',
     tags: ['AWS', 'Rekognition', 'Cloud AI', 'Computer Vision', 'Python'],
   },
@@ -63,7 +63,7 @@ const projectsData: Project[] = [
     title: 'Personal Portfolio Website (This one!)',
     description: 'My personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations, parallax effects, and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'portfolio code',
+    imageHint: 'portfolio code design',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
     tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React', 'Framer Motion'],
   },
@@ -123,7 +123,13 @@ export default function ProjectsSection() {
       const handleScrollEvent = () => updateScrollability();
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       
-      resizeObserver = new ResizeObserver(updateScrollability);
+      resizeObserver = new ResizeObserver(() => {
+        updateScrollability();
+        // Ensure active card remains centered after resize, if possible
+        if (cardRefs.current[activeIndex]) {
+            cardRefs.current[activeIndex]?.scrollIntoView({ inline: 'center', block: 'nearest' });
+        }
+      });
       resizeObserver.observe(container);
       
       updateScrollability();
@@ -135,7 +141,7 @@ export default function ProjectsSection() {
         }
       };
     }
-  }, [updateScrollability, projectsData.length]); 
+  }, [updateScrollability, projectsData.length, activeIndex, scrollToCard]); 
 
   useEffect(() => {
     updateScrollability();
@@ -150,10 +156,10 @@ export default function ProjectsSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.12}px) rotate(${scrollProgress * 0.015}deg) scale(1.1)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.45}px) translateX(${scrollProgress * 0.20}px) rotate(${scrollProgress * 0.025}deg) scale(1.2)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.09}px) rotate(-${scrollProgress * 0.01}deg) scale(1.1)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.25}px) translateX(-${scrollProgress * 0.22}px) rotate(-${scrollProgress * 0.015}deg) scale(1.15)`;
       }
       animationFrameIdRef.current = null;
     };
@@ -165,8 +171,10 @@ export default function ProjectsSection() {
       animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
-    handleParallaxScroll(); 
-    parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
+    if (parallaxScrollContainer){
+        handleParallaxScroll(); 
+        parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
+    }
     return () => {
       if (parallaxScrollContainer) {
         parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
@@ -185,11 +193,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-15%] left-[-20%] w-[60rem] h-[50rem] md:w-[75rem] md:h-[65rem] bg-primary/25 dark:bg-primary/35 rounded-[60%/45%] filter blur-[190px] md:blur-[250px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-10%] left-[-25%] w-[70rem] h-[55rem] md:w-[85rem] md:h-[70rem] bg-primary/30 dark:bg-primary/40 rounded-[60%/40%] filter blur-[210px] md:blur-[270px] opacity-50 dark:opacity-60 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] right-[-25%] w-[50rem] h-[55rem] md:w-[65rem] md:h-[70rem] bg-accent/30 dark:bg-accent/40 rounded-[45%/60%] filter blur-[180px] md:blur-[240px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-15%] right-[-30%] w-[60rem] h-[60rem] md:w-[75rem] md:h-[75rem] bg-accent/35 dark:bg-accent/45 rounded-[40%/55%] filter blur-[200px] md:blur-[260px] opacity-60 dark:opacity-70 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -217,13 +225,16 @@ export default function ProjectsSection() {
 
           <div
             ref={scrollContainerRef}
-            className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2"
+            className={cn(
+              "flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2",
+              projectsData.length === 1 && "justify-center"
+            )}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
             {projectsData.map((project, index) => (
               <div
                 key={project.id} 
-                ref={(el) => cardRefs.current[index] = el}
+                ref={(el) => { cardRefs.current[index] = el; }}
                 className={cn(
                   "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2",
                   "transition-all duration-500 ease-in-out transform"
@@ -311,5 +322,7 @@ export default function ProjectsSection() {
     </section>
   );
 }
+
+    
 
     
