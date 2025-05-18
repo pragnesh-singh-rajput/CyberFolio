@@ -25,47 +25,41 @@ export default function EducationSection() {
   }, []);
 
   const applyTransforms = useCallback(() => {
-    if (!sectionRef.current) return;
+    if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
 
-    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
-    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
-    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
-    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
-    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
-    if (circle1Ref.current) {
-      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.15)`;
-    }
+    const scrollY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-y-1') || '0');
+    circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.15)`;
+    
 
-    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
-    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
-    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
-    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
-    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
-    if (circle2Ref.current) {
-      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.1)`;
-    }
+    const scrollY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-y-2') || '0');
+    circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.1)`;
   }, []);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current) return;
+    if (!scrollContainer || !sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
 
     const handleScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
       parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || !scrollContainer) return;
+        if (!sectionRef.current || !scrollContainer || !circle1Ref.current || !circle2Ref.current) return;
         const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
         const scrollProgress = -sectionTopInViewport;
 
-        if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.52}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * -0.11}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.023}`);
-        }
-        if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.33}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * 0.13}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.015}`);
-        }
+        circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.52}`);
+        circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * -0.11}`);
+        circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.023}`);
+        
+        circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.33}`);
+        circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * 0.13}`);
+        circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.015}`);
         applyTransforms();
       });
     };
@@ -101,14 +95,10 @@ export default function EducationSection() {
             contentWrapperRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
         }
         
-        if (circle1Ref.current) {
-            circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
-            circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
-        }
-        if (circle2Ref.current) {
-            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
-            circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
-        }
+        circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+        circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
+        circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+        circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
         applyTransforms();
     });
   }, [applyTransforms]);
@@ -149,11 +139,11 @@ export default function EducationSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] left-[-30%] w-[50rem] h-[70rem] md:w-[60rem] md:h-[80rem] bg-accent/20 dark:bg-accent/15 rounded-[55%/45%] filter blur-[170px] md:blur-[220px] opacity-60 dark:opacity-50 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[5%] left-[-30%] w-[60rem] h-[80rem] bg-accent/15 dark:bg-[hsl(50,100%,60%)]/5 rounded-[55%/45%] filter blur-[220px] opacity-30 dark:opacity-25 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] right-[-25%] w-[60rem] h-[55rem] md:w-[70rem] md:h-[65rem] bg-secondary/15 dark:bg-secondary/10 rounded-[45%/55%] filter blur-[160px] md:blur-[210px] opacity-50 dark:opacity-40 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[0%] right-[-25%] w-[70rem] h-[65rem] bg-primary/10 dark:bg-[hsl(40,70%,45%)]/10 rounded-[45%/55%] filter blur-[210px] opacity-30 dark:opacity-20 transition-transform duration-300 ease-out"
       ></div>
 
       <div 
@@ -198,7 +188,7 @@ export default function EducationSection() {
                   and secure software development. Actively participating in coding competitions, technical workshops, 
                   and cybersecurity awareness programs. Committed to continuous learning and staying updated with the latest industry trends.
                 </p>
-                 <p className="text-md text-accent font-semibold pt-2 text-center sm:text-left">CGPA: 8.1 / 10.0</p>
+                {/* <p className="text-md text-accent font-semibold pt-2 text-center sm:text-left">CGPA: 8.1 / 10.0</p> */}
               </CardContent>
             </Card>
           </AnimatedSection>
