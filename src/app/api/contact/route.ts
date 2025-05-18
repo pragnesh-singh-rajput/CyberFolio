@@ -21,162 +21,195 @@ export async function POST(request: NextRequest) {
         pass: process.env.SMTP_PASS,
       },
       tls: {
-        rejectUnauthorized: process.env.NODE_ENV === 'production',
+        rejectUnauthorized: process.env.NODE_ENV === 'production', // Stricter TLS in production
       }
     });
+
+    const websiteName = "PK Singh's Portfolio"; // Or your site name
+    const accentColor = "#2DD4BF"; // Teal accent
+    const backgroundColor = "#111827"; // Dark background
+    const cardBackgroundColor = "#1F2937"; // Slightly lighter card background
+    const textColor = "#E5E7EB"; // Light text
+    const mutedTextColor = "#9CA3AF"; // Muted text
 
     // 1. Email to Admin (styled)
     const adminMailOptions = {
       from: `"${name}" <${process.env.CONTACT_FORM_EMAIL_FROM}>`,
       replyTo: email,
       to: process.env.CONTACT_FORM_EMAIL_TO,
-      subject: `New Contact Form Submission: ${subject}`,
+      subject: `New Portfolio Contact: ${subject}`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Contact Form Submission</title>
+            <title>New Contact Form Submission</title>
             <style>
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
                     margin: 0;
                     padding: 0;
-                    background-color: #111827; /* Dark background */
-                    color: #E5E7EB; /* Light foreground */
+                    background-color: ${backgroundColor};
+                    color: ${textColor};
                 }
                 .container {
                     max-width: 600px;
                     margin: 20px auto;
-                    padding: 20px;
-                    background-color: #1F2937; /* Slightly lighter card background */
-                    border-radius: 8px;
-                    border: 1px solid #374151; /* Border color */
+                    padding: 25px;
+                    background-color: ${cardBackgroundColor};
+                    border-radius: 12px;
+                    border: 1px solid #374151;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
                 }
                 h2 {
-                    color: #2DD4BF; /* Accent color */
+                    color: ${accentColor};
                     margin-top: 0;
+                    font-size: 22px;
+                    border-bottom: 1px solid #4A5568;
+                    padding-bottom: 10px;
                 }
                 p {
-                    line-height: 1.6;
-                    margin-bottom: 10px;
+                    line-height: 1.7;
+                    margin-bottom: 12px;
+                    font-size: 15px;
                 }
                 strong {
-                    color: #9CA3AF; /* Muted text for labels */
+                    color: ${mutedTextColor};
+                    font-weight: 500;
+                }
+                .label {
+                    color: ${mutedTextColor};
+                    font-weight: 600;
+                    display: block;
+                    margin-bottom: 3px;
+                }
+                .value {
+                    margin-bottom: 15px;
                 }
                 .message-content {
-                    white-space: pre-wrap;
-                    padding: 10px;
-                    background-color: #111827;
-                    border-radius: 4px;
+                    white-space: pre-wrap; /* Preserves line breaks and spacing */
+                    padding: 15px;
+                    background-color: ${backgroundColor};
+                    border-radius: 8px;
                     border: 1px solid #374151;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 14px;
+                    line-height: 1.6;
                 }
                 .footer {
-                    margin-top: 20px;
+                    margin-top: 25px;
                     text-align: center;
-                    font-size: 0.9em;
+                    font-size: 0.85em;
                     color: #6B7280;
+                }
+                a {
+                    color: ${accentColor};
+                    text-decoration: none;
+                }
+                a:hover {
+                    text-decoration: underline;
                 }
             </style>
         </head>
         <body>
             <div class="container">
-                <h2>New Contact Form Submission</h2>
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Email:</strong> <a href="mailto:${email}" style="color: #2DD4BF;">${email}</a></p>
-                <p><strong>Subject:</strong> ${subject}</p>
-                <p><strong>Message:</strong></p>
+                <h2>📬 New Contact Form Submission</h2>
+                <p><span class="label">From:</span> <span class="value">${name}</span></p>
+                <p><span class="label">Email:</span> <span class="value"><a href="mailto:${email}">${email}</a></span></p>
+                <p><span class="label">Subject:</span> <span class="value">${subject}</span></p>
+                <p><span class="label">Message:</span></p>
                 <div class="message-content">${message.replace(/\n/g, '<br>')}</div>
             </div>
             <div class="footer">
-                <p>This email was sent from your portfolio contact form.</p>
+                <p>This email was sent from the contact form on ${websiteName}.</p>
             </div>
         </body>
         </html>
       `,
     };
 
-    // Send the email to admin
     await transporter.sendMail(adminMailOptions);
 
-    // 2. Thank You Email to User (styled)
+    // 2. Thank You Email to User (styled, consistent dark theme)
     const userMailOptions = {
-      from: `PK Singh <${process.env.CONTACT_FORM_EMAIL_FROM}>`, // Use your name and verified sending email
-      to: email, // User's email address
-      subject: `Thank You for Your Message, ${name}!`,
+      from: `PK Singh <${process.env.CONTACT_FORM_EMAIL_FROM}>`,
+      to: email,
+      subject: `Thank you for your message, ${name}!`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Thank You for Contacting Us!</title>
+            <title>Thank You For Your Message!</title>
             <style>
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
                     margin: 0;
                     padding: 0;
-                    background-color: #f4f4f9; /* Light grey background for user email */
-                    color: #333333; /* Dark text */
+                    background-color: ${backgroundColor};
+                    color: ${textColor};
                 }
                 .container {
                     max-width: 600px;
                     margin: 20px auto;
-                    padding: 20px;
-                    background-color: #ffffff; /* White card background */
-                    border-radius: 8px;
-                    border: 1px solid #dddddd;
+                    padding: 25px;
+                    background-color: ${cardBackgroundColor};
+                    border-radius: 12px;
+                    border: 1px solid #374151;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
                 }
                 h2 {
-                    color: #174A3A; /* Darker accent for light theme */
+                    color: ${accentColor};
                     margin-top: 0;
+                    font-size: 22px;
                 }
                 p {
-                    line-height: 1.6;
-                    margin-bottom: 10px;
+                    line-height: 1.7;
+                    margin-bottom: 12px;
+                    font-size: 15px;
                 }
                 strong {
-                    color: #174A3A;
+                    color: ${accentColor}; /* Make subject stand out more */
+                    font-weight: 600;
                 }
                 .footer {
-                    margin-top: 20px;
+                    margin-top: 25px;
                     text-align: center;
-                    font-size: 0.9em;
-                    color: #777777;
+                    font-size: 0.85em;
+                    color: #6B7280;
                 }
                 .signature {
-                    margin-top: 15px;
+                    margin-top: 20px;
+                    line-height: 1.5;
                 }
             </style>
         </head>
         <body>
             <div class="container">
-                <h2>Thank You for Reaching Out, ${name}!</h2>
-                <p>I've received your message regarding: "<strong>${subject}</strong>".</p>
-                <p>I'll review your inquiry and get back to you as soon as possible.</p>
+                <h2>👋 Hello ${name},</h2>
+                <p>Thank you for reaching out! I've received your message regarding: "<strong>${subject}</strong>".</p>
+                <p>I appreciate you taking the time to contact me. I'll review your inquiry and aim to get back to you as soon as possible.</p>
                 <div class="signature">
                     <p>Best regards,</p>
                     <p>PK Singh</p>
+                    <p><a href="https://your-portfolio-url.com" style="color: ${mutedTextColor}; text-decoration: none;">${websiteName}</a></p> 
                 </div>
             </div>
             <div class="footer">
-                <p>This is an automated response from PK Singh's Portfolio.</p>
+                <p>This is an automated response. You're receiving this email because you submitted the contact form on ${websiteName}.</p>
             </div>
         </body>
         </html>
       `,
     };
 
-    // Send the thank you email to user
-    // We'll try to send it, but won't fail the whole request if this specific email fails,
-    // as the primary goal (admin notification) might have succeeded.
     try {
       await transporter.sendMail(userMailOptions);
     } catch (userEmailError) {
       console.error("Failed to send thank you email to user:", userEmailError);
-      // Optionally, you could log this error more formally or handle it,
-      // but for now, we won't let it make the API call fail if the admin email succeeded.
+      // Not failing the whole request if only user email fails
     }
 
     return NextResponse.json({ success: true, message: "Message sent successfully! You should receive a confirmation email shortly." }, { status: 200 });
@@ -187,6 +220,8 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    return NextResponse.json({ success: false, error: "Failed to send your message. Please try again later.", details: process.env.NODE_ENV !== 'production' ? errorMessage : undefined }, { status: 500 });
+    // Provide more specific error details in non-production environments for easier debugging
+    const details = process.env.NODE_ENV !== 'production' ? errorMessage : undefined;
+    return NextResponse.json({ success: false, error: "Failed to send your message. Please try again later.", details }, { status: 500 });
   }
 }
