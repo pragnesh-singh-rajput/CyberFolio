@@ -22,10 +22,12 @@ import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useEffect, useRef, useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from '@/lib/supabaseClient';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }).max(50, {message: "Name cannot exceed 50 characters."}),
   email: z.string().email({ message: "Please enter a valid email address." }),
+  subject: z.string().min(5, { message: "Subject must be at least 5 characters." }).max(100, {message: "Subject cannot exceed 100 characters."}),
   message: z.string().min(10, { message: "Message must be at least 10 characters." }).max(500, {message: "Message cannot exceed 500 characters."}),
 });
 
@@ -44,6 +46,7 @@ export default function ContactSection() {
     defaultValues: {
       name: "",
       email: "",
+      subject: "",
       message: "",
     },
     mode: "onChange",
@@ -64,10 +67,13 @@ export default function ContactSection() {
 
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
-    let animFrameId: number;
+    let animFrameId: number | null = null;
 
     const performParallaxUpdate = () => {
-      if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
+      if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) {
+        animFrameId = requestAnimationFrame(performParallaxUpdate);
+        return;
+      }
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
@@ -109,14 +115,47 @@ export default function ContactSection() {
   }, [scrollContainer]);
 
   async function onSubmit(data: ContactFormValues) {
-    // console.log(data); 
-    toast({
-      title: "Message Sent! 🎉",
-      description: "Thanks for reaching out, PK Singh will get back to you soon.",
-      variant: "default", 
-      duration: 5000,
-    });
-    form.reset();
+    const { name, email, subject, message } = data;
+    try {
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('contact', {
+        body: { name, email, subject, message },
+      });
+
+      if (functionError) {
+        console.error('Supabase function error:', JSON.stringify(functionError, null, 2));
+        toast({
+          title: 'Uh oh! Something went wrong.',
+          description: functionError.message || 'There was a problem sending your message. Please try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (functionData && functionData.error) {
+         console.error('Function returned an error:', JSON.stringify(functionData.error, null, 2));
+         toast({
+          title: 'Error Sending Message',
+          description: functionData.error || 'Failed to process your request. Please check the details.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      toast({
+        title: 'Message Sent! 🎉',
+        description: "Thanks for reaching out, PK Singh will get back to you soon.",
+        variant: 'default',
+        duration: 5000,
+      });
+      form.reset();
+    } catch (error) {
+      console.error('Client-side error submitting form:', error);
+      toast({
+        title: 'Uh oh! Something went wrong.',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      });
+    }
   }
 
   return (
@@ -127,11 +166,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/20 dark:bg-pink-700/25 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-50 dark:opacity-30 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/30 dark:bg-pink-700/35 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-40 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/15 dark:bg-purple-800/20 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-40 dark:opacity-25 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/25 dark:bg-purple-800/30 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-55 dark:opacity-35 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -191,6 +230,7 @@ export default function ContactSection() {
                   <div className="space-y-6">
                     <Skeleton className="h-10" />
                     <Skeleton className="h-10" />
+                    <Skeleton className="h-10" />
                     <Skeleton className="h-20" />
                     <Skeleton className="h-10 mt-2" />
                   </div>
@@ -225,6 +265,19 @@ export default function ContactSection() {
                       />
                       <FormField
                         control={form.control}
+                        name="subject"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground/90">Subject</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Subject of your message" {...field} className="bg-input/70 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
                         name="message"
                         render={({ field }) => (
                           <FormItem>
@@ -239,9 +292,9 @@ export default function ContactSection() {
                       <Button
                         type="submit"
                         className="w-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-[1.02]"
-                        disabled={form.formState.isSubmitting}
+                        disabled={!isClient || (form && form.formState ? form.formState.isSubmitting : true)}
                       >
-                        {form.formState.isSubmitting ? "Sending..." : "Send Message"}
+                        {isClient && form && form.formState && form.formState.isSubmitting ? "Sending..." : "Send Message"}
                       </Button>
                     </form>
                   </Form>
@@ -254,5 +307,4 @@ export default function ContactSection() {
     </section>
   );
 }
-
     
