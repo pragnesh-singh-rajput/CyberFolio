@@ -28,7 +28,8 @@ const projectsData: Project[] = [
     description: 'A web portal designed for law enforcement or security agencies to track and manage information about absconders, enhancing operational efficiency.',
     imageUrl: 'https://placehold.co/600x400.png',
     imageHint: 'security law',
-    tags: ["https://github.com/pragnesh-singh-rajput/absconders-portal"],
+    repoUrl: "https://github.com/pragnesh-singh-rajput/absconders-portal",
+    tags: ['Web App', 'PHP', 'MySQL', 'Data Management', 'Security'],
   },
   {
     id: 'proj-sharencrypt',
@@ -71,7 +72,7 @@ const projectsData: Project[] = [
 const duplicatedProjects = [...projectsData, ...projectsData];
 
 const baseAutoScrollSpeed = 1.0; 
-const hoverInducedSpeed = 2.0; // Speed when hovering (magnitude)
+const hoverInducedSpeed = 2.0;
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -81,9 +82,9 @@ export default function ProjectsSection() {
   const parallaxAnimationFrameIdRef = useRef<number | null>(null);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const animationFrameIdRef = useRef<number | null>(null); // For marquee scroll
+  const animationFrameIdRef = useRef<number | null>(null);
   const isHoveringRef = useRef(false);
-  const scrollSpeedRef = useRef(baseAutoScrollSpeed); // Current speed, can be base or hover-induced
+  const scrollSpeedRef = useRef(baseAutoScrollSpeed); 
   const currentScrollLeftRef = useRef(0);
 
   useEffect(() => {
@@ -93,7 +94,7 @@ export default function ProjectsSection() {
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
-    const parallaxUpdateRef = parallaxAnimationFrameIdRef; // To avoid closure issues
+    const parallaxUpdateRef = parallaxAnimationFrameIdRef; 
 
     const performParallaxUpdate = () => {
       if (!sectionRef.current || !parallaxScrollContainer) return;
@@ -142,7 +143,6 @@ export default function ProjectsSection() {
       if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth) {
         currentScrollLeftRef.current -= singleSetWidth;
       } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0) {
-        // If scrolling left and hit the beginning, wrap around to the end of the first set
         currentScrollLeftRef.current += singleSetWidth;
       }
       
@@ -157,31 +157,28 @@ export default function ProjectsSection() {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [duplicatedProjects.length]); // Rerun if project data changes (though duplication handles static set)
+  }, [duplicatedProjects.length]); 
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!scrollContainerRef.current) return; // No need to set isHoveringRef here as mouse enter handles it
+    if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
     const rect = container.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const midpoint = rect.width / 2;
 
     if (mouseX < midpoint) {
-      scrollSpeedRef.current = -hoverInducedSpeed; // Scroll left
+      scrollSpeedRef.current = -hoverInducedSpeed; 
     } else {
-      scrollSpeedRef.current = hoverInducedSpeed; // Scroll right
+      scrollSpeedRef.current = hoverInducedSpeed; 
     }
   };
 
   const handleMouseEnter = () => {
     isHoveringRef.current = true;
-    // Initial speed set by mouseMove, but if mouse enters without moving, this might be needed.
-    // For simplicity, mouseMove will set the initial hover speed.
   };
   
   const handleMouseLeave = () => {
     isHoveringRef.current = false;
-    // scrollSpeedRef.current is not reset here; animateScroll will pick baseAutoScrollSpeed
   };
 
   return (
@@ -192,11 +189,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-600/20 dark:bg-purple-700/25 rounded-[60%/45%] filter blur-[270px] md:blur-[340px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-600/25 dark:bg-purple-700/30 rounded-[60%/45%] filter blur-[270px] md:blur-[340px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/15 dark:bg-sky-700/20 rounded-[55%/60%] filter blur-[260px] md:blur-[330px] opacity-45 dark:opacity-35 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/20 dark:bg-sky-700/25 rounded-[55%/60%] filter blur-[260px] md:blur-[330px] opacity-55 dark:opacity-45 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -224,12 +221,11 @@ export default function ProjectsSection() {
                   key={`${project.id}-${index}`} 
                   className={cn(
                     "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", 
-                    "transition-all duration-500 ease-in-out transform" // Keep for potential future non-marquee use
+                    "transition-all duration-500 ease-in-out transform"
                   )}
                 >
                     <Card className={cn(
                       "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-300 ease-out bg-card/80 backdrop-blur-md border-border/40 group"
-                      // Removed active/inactive styling as it's a marquee now
                     )}>
                       {project.imageUrl && (
                         <div className="relative h-48 md:h-52 w-full overflow-hidden">
@@ -262,7 +258,7 @@ export default function ProjectsSection() {
                         </div>
                       </CardContent>
                       <CardFooter className="flex justify-start gap-2.5 pt-3 pb-4 px-4 md:px-5 border-t border-border/50">
-                        {project.repoUrl && !project.tags.includes(project.repoUrl) && ( 
+                        {project.repoUrl && ( 
                           <Button variant="outline" size="sm" asChild className="text-xs px-2.5 py-1 h-auto hover:bg-accent/10 hover:text-accent hover:border-accent transition-all duration-200">
                             <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
                               <Github className="mr-1.5 h-3.5 w-3.5" />
@@ -289,3 +285,4 @@ export default function ProjectsSection() {
     </section>
   );
 }
+
