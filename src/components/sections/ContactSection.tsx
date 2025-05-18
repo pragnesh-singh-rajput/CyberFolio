@@ -69,47 +69,42 @@ export default function ContactSection() {
   }, []);
 
   const applyTransforms = useCallback(() => {
-    if (!sectionRef.current) return;
+    if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
 
-    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
-    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
-    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
-    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
-    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
-    if (circle1Ref.current) {
-      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.15)`;
-    }
+    const scrollY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-y-1') || '0');
+    circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.15)`;
+    
 
-    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
-    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
-    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
-    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
-    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
-    if (circle2Ref.current) {
-      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.12)`;
-    }
+    const scrollY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-y-2') || '0');
+    circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.12)`;
   }, []);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current) return;
+    if (!scrollContainer || !sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
     const handleScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
       parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || !scrollContainer) return;
+        if (!sectionRef.current || !scrollContainer || !circle1Ref.current || !circle2Ref.current) return;
         const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
         const scrollProgress = -sectionTopInViewport;
 
-        if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.55}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.20}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.023}`);
-        }
-        if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.33}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.18}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.018}`);
-        }
+        circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.55}`);
+        circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.20}`);
+        circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.023}`);
+        
+        circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.33}`);
+        circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.18}`);
+        circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.018}`);
+        
         applyTransforms();
       });
     };
@@ -145,14 +140,13 @@ export default function ContactSection() {
             contentWrapperRef.current.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
         }
         
-        if (circle1Ref.current) {
-            circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
-            circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
-        }
-        if (circle2Ref.current) {
-            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
-            circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
-        }
+      
+        circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+        circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
+      
+        circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+        circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+        
         applyTransforms();
     });
   }, [applyTransforms]);
@@ -162,6 +156,7 @@ export default function ContactSection() {
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
+    
     if (circle1Ref.current) {
         circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
         circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
@@ -198,9 +193,38 @@ export default function ContactSection() {
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      if (!response.ok) {
+        console.error("API Request Failed with Status:", response.status, response.statusText);
+        let errorData = { error: `Request failed with status ${response.status}. Please try again.` }; // Default error
+        try {
+          const parsedError = await response.json();
+          console.error("API Error Data (parsed from JSON):", parsedError);
+          if (parsedError && parsedError.error) {
+            errorData = parsedError;
+          }
+        } catch (e) {
+          // If response body is not JSON, try to read as text
+          try {
+            const textError = await response.text();
+            console.error("API Error Raw Text:", textError);
+            errorData = { error: `Server responded with ${response.status}. Response: ${textError.substring(0, 150)}...` };
+          } catch (textE) {
+            console.error("Failed to read API error response as text:", textE);
+            // Keep the default errorData
+          }
+        }
+        toast({
+          title: 'Error Sending Message 😥',
+          description: errorData.error,
+          variant: 'destructive',
+          duration: 7000, 
+        });
+        return; 
+      }
 
-      if (response.ok && result.success) {
+      // If response.ok is true
+      const result = await response.json();
+      if (result.success) {
         toast({
           title: 'Message Sent! ✅',
           description: result.message || "Thanks for reaching out! I'll get back to you soon.",
@@ -209,21 +233,22 @@ export default function ContactSection() {
         });
         form.reset();
       } else {
+        // response.ok was true, but the application logic in API returned success: false
+        console.error("API Logical Error (success: false):", result);
         toast({
           title: 'Error Sending Message 😥',
-          description: result.error || "Something went wrong. Please try again.",
+          description: result.error || "Something went wrong on the server. Please try again.",
           variant: 'destructive',
-          duration: 5000,
+          duration: 7000,
         });
-        console.error("API Error:", result);
       }
-    } catch (error) {
+    } catch (error) { // Network error or other fetch-related issue (e.g., DNS, CORS not handled by preflight)
       console.error("Fetch Error:", error);
       toast({
         title: 'Network Error 🌐',
         description: "Could not reach the server. Please check your connection and try again.",
         variant: 'destructive',
-        duration: 5000,
+        duration: 7000,
       });
     }
   }
@@ -385,4 +410,6 @@ export default function ContactSection() {
     </section>
   );
 }
+    
+
     
