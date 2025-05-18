@@ -4,8 +4,8 @@
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-const MAX_CONTENT_ROTATION = 4;
-const MAX_CIRCLE_MOUSE_OFFSET = 10;
+const MAX_CONTENT_ROTATION = 3;
+const MAX_CIRCLE_MOUSE_OFFSET = 8;
 
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -14,6 +14,14 @@ export default function AboutSection() {
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
   const parallaxFrameIdRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -78,7 +86,7 @@ export default function AboutSection() {
   }, [scrollContainer, applyTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
@@ -109,9 +117,10 @@ export default function AboutSection() {
         }
         applyTransforms();
     });
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -125,7 +134,7 @@ export default function AboutSection() {
         circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
@@ -141,17 +150,17 @@ export default function AboutSection() {
     <section
       id="about"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8 [transform-style:preserve-3d]"
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-25%] w-[50rem] h-[40rem] md:w-[65rem] md:h-[50rem] bg-primary/20 dark:bg-primary/15 rounded-[50%/40%] filter blur-[160px] md:blur-[210px] opacity-50 dark:opacity-40 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[0%] right-[-25%] w-[50rem] h-[40rem] md:w-[65rem] md:h-[50rem] bg-primary/10 dark:bg-primary/5 rounded-[50%/40%] filter blur-[210px] md:blur-[280px] opacity-50 dark:opacity-60 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[35rem] h-[45rem] md:w-[45rem] md:h-[60rem] bg-[hsl(220_70%_60%_/_0.15)] dark:bg-[hsl(220_70%_60%_/_0.1)] rounded-[60%/50%] filter blur-[150px] md:blur-[200px] opacity-40 dark:opacity-30 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[35rem] h-[45rem] md:w-[45rem] md:h-[60rem] bg-[hsl(220_70%_60%_/_0.1)] dark:bg-[hsl(220_70%_60%_/_0.05)] rounded-[60%/50%] filter blur-[200px] md:blur-[270px] opacity-40 dark:opacity-50 transition-transform duration-300 ease-out"
       ></div>
       
       <div 
@@ -164,11 +173,13 @@ export default function AboutSection() {
         </AnimatedSection>
         <AnimatedSection animationType="fadeInRight" delay="delay-300" className="w-full">
           <p className="max-w-3xl mx-auto text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            A highly motivated and detail-oriented B.Tech Computer Science student specializing in Cybersecurity, 
-            with a strong foundation in network security, ethical hacking, and digital forensics. 
-            Passionate about leveraging technical skills to develop robust security solutions and mitigate cyber threats. 
-            Eager to contribute to a dynamic organization where I can apply my knowledge and continue to grow in the cybersecurity field.
-            Actively seeking opportunities to expand practical experience in threat intelligence, incident response, and secure software development.
+            A highly motivated and detail-oriented B.Tech Computer Science student specializing in Cybersecurity.
+            My academic journey and hands-on projects have equipped me with a strong foundation in network security, 
+            ethical hacking, digital forensics, and secure software development principles. 
+            Passionate about leveraging technical skills to develop robust security solutions and mitigate emerging cyber threats. 
+            I am eager to contribute to a dynamic organization where I can apply my knowledge, gain practical experience, 
+            and continue to grow in the ever-evolving cybersecurity field. Actively seeking opportunities to expand 
+            my expertise in threat intelligence, incident response, and cloud security.
           </p>
         </AnimatedSection>
       </div>

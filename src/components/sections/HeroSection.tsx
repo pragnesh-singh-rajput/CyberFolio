@@ -8,8 +8,8 @@ import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
-const MAX_CONTENT_ROTATION = 4; 
-const MAX_CIRCLE_MOUSE_OFFSET = 10; 
+const MAX_CONTENT_ROTATION = 3; 
+const MAX_CIRCLE_MOUSE_OFFSET = 8; 
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -17,8 +17,15 @@ export default function HeroSection() {
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
-  
   const parallaxFrameIdRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -84,9 +91,9 @@ export default function HeroSection() {
   }, [scrollContainer, applyTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
-    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current); // Cancel existing frame to avoid race conditions
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
         if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
@@ -115,9 +122,10 @@ export default function HeroSection() {
         }
         applyTransforms();
     });
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -131,16 +139,17 @@ export default function HeroSection() {
         circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms(); 
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
   
   useEffect(() => {
+    // Initialize CSS variables for mouse offsets to 0
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
         circle1Ref.current?.style.setProperty(prop, '0')
     );
     ['--mouse-x-2', '--mouse-y-2', '--scroll-x-2', '--scroll-y-2', '--scroll-rotate-2'].forEach(prop => 
         circle2Ref.current?.style.setProperty(prop, '0')
     );
-    applyTransforms(); 
+    applyTransforms(); // Apply initial transforms which should be neutral for mouse
   }, [applyTransforms]);
 
 
@@ -148,17 +157,17 @@ export default function HeroSection() {
     <section
       id="home"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8 [transform-style:preserve-3d] bg-background"
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-25%] left-[-30%] w-[80rem] h-[70rem] md:w-[90rem] md:h-[80rem] bg-accent/20 dark:bg-accent/15 rounded-[60%/45%] filter blur-[200px] md:blur-[270px] opacity-70 dark:opacity-60 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[-25%] left-[-30%] w-[80rem] h-[70rem] md:w-[90rem] md:h-[80rem] bg-accent/15 dark:bg-accent/10 rounded-[60%/45%] filter blur-[270px] md:blur-[330px] opacity-80 dark:opacity-70 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[70rem] h-[80rem] md:w-[80rem] md:h-[90rem] bg-[hsl(270_60%_50%_/_0.2)] dark:bg-[hsl(270_60%_50%_/_0.15)] rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-65 dark:opacity-55 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[70rem] h-[80rem] md:w-[80rem] md:h-[90rem] bg-[hsl(270_60%_50%_/_0.2)] dark:bg-[hsl(270_60%_55%_/_0.2)] rounded-[45%/55%] filter blur-[260px] md:blur-[320px] opacity-75 dark:opacity-65 transition-transform duration-300 ease-out"
       ></div>
 
       <div
@@ -171,9 +180,9 @@ export default function HeroSection() {
             <h1 className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="inline-block group-hover:animate-pulse-subtle">👋</span> Hello, I&apos;m{' '}
               <span 
-                className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-400 bg-[length:200%_auto] animate-gradient-x"
+                className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 bg-[length:200%_auto] animate-gradient-x"
               >
-                PragneshKumar Singh
+                PK Singh
               </span>
             </h1>
           </AnimatedSection>
@@ -188,7 +197,7 @@ export default function HeroSection() {
              <Button 
               asChild 
               size="lg" 
-              className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-400 text-accent-foreground group bg-[length:200%_auto] animate-gradient-x"
+              className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-accent-foreground group bg-[length:200%_auto] animate-gradient-x"
             >
               <Link href="#contact">
                 🚀 Get In Touch

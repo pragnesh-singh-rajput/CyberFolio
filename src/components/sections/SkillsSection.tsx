@@ -1,12 +1,11 @@
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import type { OtherSkill } from '@/types';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Lightbulb, Network, ShieldAlert, Users, BrainCog, ShieldCheck, Shield } from 'lucide-react'; // Example icons
+import { Lightbulb, Network, ShieldAlert, Users, BrainCog, ShieldCheck, Shield } from 'lucide-react';
 
 const skillsData: OtherSkill[] = [
   { id: 'os1', name: 'Network Security', description: 'Implementing and managing security measures for computer networks.' },
@@ -21,16 +20,16 @@ const skillsData: OtherSkill[] = [
   { id: 'os10', name: 'Vulnerability Assessment', description: 'Identifying and quantifying security weaknesses.' },
 ];
 
-const MAX_CONTENT_ROTATION = 4;
-const MAX_CIRCLE_MOUSE_OFFSET = 10;
+const MAX_CONTENT_ROTATION = 3;
+const MAX_CIRCLE_MOUSE_OFFSET = 8;
 
 const skillIcons: { [key: string]: React.ComponentType<{ className?: string }> } = {
   'Network Security': Network,
   'Ethical Hacking & Penetration Testing': ShieldAlert,
   'Incident Response': ShieldCheck,
-  'Cryptography': Shield, // Using generic shield
+  'Cryptography': Shield, 
   'Risk Assessment & Management': BrainCog,
-  'Digital Forensics': Lightbulb, // Placeholder
+  'Digital Forensics': Lightbulb, 
   'Security Auditing & Compliance': ShieldCheck,
   'Problem Solving': Lightbulb,
   'Team Collaboration': Users,
@@ -45,6 +44,14 @@ export default function SkillsSection() {
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
   const parallaxFrameIdRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -106,7 +113,7 @@ export default function SkillsSection() {
   }, [scrollContainer, applyTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
 
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
@@ -131,9 +138,10 @@ export default function SkillsSection() {
       circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`);
       applyTransforms();
     });
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -147,7 +155,7 @@ export default function SkillsSection() {
       circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop =>
@@ -163,17 +171,17 @@ export default function SkillsSection() {
     <section
       id="skills"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
       <div
         ref={circle1Ref}
-        className="absolute -z-10 top-[5%] right-[-20%] w-[55rem] h-[70rem] md:w-[70rem] md:h-[85rem] bg-primary/15 dark:bg-primary/10 rounded-[45%/55%] filter blur-[220px] md:blur-[290px] opacity-40 dark:opacity-30"
+        className="absolute -z-10 top-[5%] right-[-20%] w-[55rem] h-[70rem] md:w-[70rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[45%/55%] filter blur-[290px] md:blur-[360px] opacity-40 dark:opacity-30"
       ></div>
       <div
         ref={circle2Ref}
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[65rem] h-[60rem] md:w-[80rem] md:h-[75rem] bg-accent/10 dark:bg-accent/5 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-50 dark:opacity-40"
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[65rem] h-[60rem] md:w-[80rem] md:h-[75rem] bg-accent/5 dark:bg-accent/5 rounded-[55%/40%] filter blur-[270px] md:blur-[340px] opacity-50 dark:opacity-40"
       ></div>
 
       <div

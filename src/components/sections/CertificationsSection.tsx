@@ -43,8 +43,8 @@ const certificationsData: Certification[] = [
   },
 ];
 
-const MAX_CONTENT_ROTATION = 4;
-const MAX_CIRCLE_MOUSE_OFFSET = 10;
+const MAX_CONTENT_ROTATION = 3;
+const MAX_CIRCLE_MOUSE_OFFSET = 8;
 
 export default function CertificationsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -53,6 +53,14 @@ export default function CertificationsSection() {
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
   const parallaxFrameIdRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -110,7 +118,7 @@ export default function CertificationsSection() {
   }, [scrollContainer, applyTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
 
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
@@ -135,9 +143,10 @@ export default function CertificationsSection() {
       circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
       applyTransforms();
     });
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if(isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -151,7 +160,7 @@ export default function CertificationsSection() {
       circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop =>
@@ -167,17 +176,17 @@ export default function CertificationsSection() {
     <section
       id="certifications"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
       <div
         ref={circle1Ref}
-        className="absolute -z-10 top-[-5%] left-[-30%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-[hsl(290_60%_50%_/_0.15)] dark:bg-[hsl(290_60%_50%_/_0.1)] rounded-[50%/60%] filter blur-[230px] md:blur-[300px] opacity-50 dark:opacity-40"
+        className="absolute -z-10 top-[-5%] left-[-30%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-[hsl(290_60%_50%_/_0.1)] dark:bg-[hsl(290_60%_50%_/_0.05)] rounded-[50%/60%] filter blur-[300px] md:blur-[370px] opacity-50 dark:opacity-40"
       ></div>
       <div
         ref={circle2Ref}
-        className="absolute -z-10 bottom-[0%] right-[-25%] w-[60rem] h-[70rem] md:w-[75rem] md:h-[85rem] bg-primary/15 dark:bg-primary/10 rounded-[60%/50%] filter blur-[220px] md:blur-[290px] opacity-45 dark:opacity-35"
+        className="absolute -z-10 bottom-[0%] right-[-25%] w-[60rem] h-[70rem] md:w-[75rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[60%/50%] filter blur-[290px] md:blur-[360px] opacity-45 dark:opacity-35"
       ></div>
 
       <div

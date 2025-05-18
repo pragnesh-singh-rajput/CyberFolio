@@ -33,30 +33,30 @@
   }
 
   .dark {
-    --background: 240 60% 10%; /* Deep Royal Blue/Indigo */
-    --foreground: 60 30% 95%; /* Cream/Silver */
-    --card: 230 50% 15%; /* Slightly Lighter Deep Blue / Dark Slate Blue */
-    --card-foreground: 60 30% 95%; /* Cream/Silver */
-    --popover: 230 45% 12%; /* Darker popover */
-    --popover-foreground: 60 30% 95%; /* Cream/Silver */
-    --primary: 40 70% 45%; /* Muted Gold/Bronze */
-    --primary-foreground: 240 60% 10%; /* Dark Royal Blue (for text on primary) */
-    --secondary: 240 40% 20%; /* Desaturated Mid-Dark Blue */
-    --secondary-foreground: 60 20% 85%; /* Light Grayish Cream */
-    --muted: 240 30% 25%; /* Darker Desaturated Blue */
-    --muted-foreground: 240 20% 60%; /* Mid-Grayish Blue */
-    --accent: 50 100% 60%; /* Rich Gold/Bright Yellow */
-    --accent-foreground: 240 60% 10%; /* Dark Royal Blue (for text on accent) */
+    --background: 230 60% 8%; /* Deep Royal Blue/Indigo - slightly darker */
+    --foreground: 50 30% 96%; /* Cream/Silver - slightly brighter */
+    --card: 230 50% 13%; /* Slightly Lighter Deep Blue / Dark Slate Blue - slightly darker card */
+    --card-foreground: 50 30% 96%; /* Cream/Silver */
+    --popover: 230 45% 10%; /* Darker popover - even darker */
+    --popover-foreground: 50 30% 96%; /* Cream/Silver */
+    --primary: 45 80% 55%; /* Muted Gold/Bronze - slightly more saturated */
+    --primary-foreground: 230 60% 8%; /* Dark Royal Blue (for text on primary) */
+    --secondary: 230 40% 18%; /* Desaturated Mid-Dark Blue - slightly adjusted */
+    --secondary-foreground: 50 25% 88%; /* Light Grayish Cream - slightly adjusted */
+    --muted: 230 30% 22%; /* Darker Desaturated Blue - slightly adjusted */
+    --muted-foreground: 230 25% 65%; /* Mid-Grayish Blue - slightly adjusted */
+    --accent: 50 100% 55%; /* Rich Gold/Bright Yellow - slightly less intense */
+    --accent-foreground: 230 60% 8%; /* Dark Royal Blue (for text on accent) */
     --destructive: 0 70% 50%; 
     --destructive-foreground: 0 0% 98%;
-    --border: 240 30% 20%; /* Dark Desaturated Blue Border */
-    --input: 240 50% 12%; /* Darker Royal Blue Input */
-    --ring: 50 100% 60%; /* Rich Gold for focus rings */
-    --chart-1: 50 100% 60%; /* Rich Gold */
-    --chart-2: 270 60% 55%; /* Royal Purple */
-    --chart-3: 220 70% 65%; /* Bright Royal Blue */
-    --chart-4: 35 80% 50%; /* Bronze/Darker Gold */
-    --chart-5: 300 50% 45%; /* Deep Magenta/Purple */
+    --border: 230 30% 18%; /* Dark Desaturated Blue Border - slightly adjusted */
+    --input: 230 50% 11%; /* Darker Royal Blue Input - slightly adjusted */
+    --ring: 50 100% 55%; /* Rich Gold for focus rings */
+    --chart-1: 50 100% 55%; /* Rich Gold */
+    --chart-2: 270 60% 60%; /* Royal Purple - slightly brighter */
+    --chart-3: 220 70% 70%; /* Bright Royal Blue - slightly brighter */
+    --chart-4: 35 80% 55%; /* Bronze/Darker Gold - slightly adjusted */
+    --chart-5: 300 50% 50%; /* Deep Magenta/Purple - slightly adjusted */
   }
 }
 
@@ -69,7 +69,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    cursor: none !important; /* Hide default system cursor */
+    /* cursor: none !important; removed for default handling on touch devices */
   }
   
   h1, h2, h3 {
@@ -86,6 +86,7 @@
   /* Custom scrollbar for webkit browsers */
   .scrollbar-thin::-webkit-scrollbar {
     width: 8px;
+    height: 8px; /* Added for horizontal scrollbars */
   }
   .scrollbar-thin::-webkit-scrollbar-track {
     @apply bg-transparent;
@@ -106,3 +107,4 @@
     scrollbar-color: hsl(var(--accent) / 0.7) transparent;
   }
 }
+

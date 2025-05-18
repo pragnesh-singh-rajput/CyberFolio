@@ -11,13 +11,25 @@ export default function CustomCursor() {
   const [isPointer, setIsPointer] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    if (typeof window !== 'undefined') {
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+      if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+        document.body.style.cursor = 'none';
+      }
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+         document.body.style.cursor = 'auto';
+      }
+    }
   }, []);
 
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || isTouchDevice) return;
 
     const updateMousePositionDirect = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
@@ -27,31 +39,29 @@ export default function CustomCursor() {
     };
     document.addEventListener('mousemove', updateMousePositionDirect, { passive: true });
     return () => document.removeEventListener('mousemove', updateMousePositionDirect);
-  }, [isVisible, isClient]);
+  }, [isVisible, isClient, isTouchDevice]);
 
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || isTouchDevice) return;
 
     let animationFrameId: number;
     const lerp = (start: number, end: number, t: number) => start * (1 - t) + end * t;
 
     const animateOutline = () => {
       setOutlinePosition(prev => ({
-        x: lerp(prev.x, mousePosition.x, 0.15), // Slightly slower lerp for smoother trail
+        x: lerp(prev.x, mousePosition.x, 0.15),
         y: lerp(prev.y, mousePosition.y, 0.15),
       }));
       animationFrameId = requestAnimationFrame(animateOutline);
     };
 
-    if (isClient) {
-      animationFrameId = requestAnimationFrame(animateOutline);
-    }
+    animationFrameId = requestAnimationFrame(animateOutline);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [mousePosition, isClient]);
+  }, [mousePosition, isClient, isTouchDevice]);
 
 
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || isTouchDevice) return;
 
     const handleMouseEnterDoc = () => {
         if(document.pointerLockElement === null) setIsVisible(true);
@@ -93,27 +103,27 @@ export default function CustomCursor() {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
     };
-  }, [isClient]);
+  }, [isClient, isTouchDevice]);
 
-  if (!isClient) {
+  if (!isClient || isTouchDevice) {
     return null;
   }
 
-  const outlineBaseSize = 36; // Slightly larger outline
-  const dotBaseSize = 6; // Slightly smaller dot
+  const outlineBaseSize = 38; 
+  const dotBaseSize = 8; 
 
   const outlineStyle = {
-    width: `${isPointer ? outlineBaseSize * 1.5 : outlineBaseSize}px`, // More pronounced interactive scale
-    height: `${isPointer ? outlineBaseSize * 1.5 : outlineBaseSize}px`,
-    transform: `translate(-50%, -50%) translate3d(${outlinePosition.x}px, ${outlinePosition.y}px, 0) scale(${isMouseDown ? 0.8 : 1})`, // Slightly more shrink on click
+    width: `${isPointer ? outlineBaseSize * 1.6 : outlineBaseSize}px`, 
+    height: `${isPointer ? outlineBaseSize * 1.6 : outlineBaseSize}px`,
+    transform: `translate(-50%, -50%) translate3d(${outlinePosition.x}px, ${outlinePosition.y}px, 0) scale(${isMouseDown ? 0.75 : 1})`, 
     borderColor: 'hsl(var(--accent))',
-    borderWidth: '1.5px', // Thinner border for a sleeker look
+    borderWidth: '1.5px',
   };
 
   const dotStyle = {
     width: `${dotBaseSize}px`,
     height: `${dotBaseSize}px`,
-    transform: `translate(-50%, -50%) translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0) scale(${isMouseDown ? 1.2 : 1})`,
+    transform: `translate(-50%, -50%) translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0) scale(${isMouseDown ? 1.3 : 1})`,
     backgroundColor: 'hsl(var(--accent))',
   };
 
@@ -123,14 +133,14 @@ export default function CustomCursor() {
         className={cn(
           'fixed top-0 left-0 rounded-full border-2 pointer-events-none z-[9998]',
           'transition-all duration-100 ease-out', 
-          isVisible ? 'opacity-75' : 'opacity-0' // Slightly less opacity for the outline
+          isVisible ? 'opacity-60' : 'opacity-0' 
         )}
         style={outlineStyle}
       />
       <div
         className={cn(
           'fixed top-0 left-0 rounded-full pointer-events-none z-[9999]',
-          'transition-opacity duration-50 ease-out', // Faster opacity transition for dot
+          'transition-opacity duration-50 ease-out',
           isVisible ? 'opacity-100' : 'opacity-0'
         )}
         style={dotStyle}

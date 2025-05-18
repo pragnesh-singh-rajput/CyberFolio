@@ -32,12 +32,20 @@ const contactFormSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
-const MAX_CONTENT_ROTATION = 4;
-const MAX_CIRCLE_MOUSE_OFFSET = 10;
+const MAX_CONTENT_ROTATION = 3;
+const MAX_CIRCLE_MOUSE_OFFSET = 8;
 
 export default function ContactSection() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     setIsClient(true);
@@ -119,7 +127,7 @@ export default function ContactSection() {
   }, [scrollContainer, applyTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
@@ -149,9 +157,10 @@ export default function ContactSection() {
         
         applyTransforms();
     });
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -166,7 +175,7 @@ export default function ContactSection() {
         circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
@@ -195,7 +204,7 @@ export default function ContactSection() {
 
       if (!response.ok) {
         console.error("API Request Failed with Status:", response.status, response.statusText);
-        let errorData = { error: `Request failed with status ${response.status}. Please try again.` }; // Default error
+        let errorData = { error: `Request failed with status ${response.status}. Please try again.` }; 
         try {
           const parsedError = await response.json();
           console.error("API Error Data (parsed from JSON):", parsedError);
@@ -203,14 +212,12 @@ export default function ContactSection() {
             errorData = parsedError;
           }
         } catch (e) {
-          // If response body is not JSON, try to read as text
           try {
             const textError = await response.text();
             console.error("API Error Raw Text:", textError);
             errorData = { error: `Server responded with ${response.status}. Response: ${textError.substring(0, 150)}...` };
           } catch (textE) {
             console.error("Failed to read API error response as text:", textE);
-            // Keep the default errorData
           }
         }
         toast({
@@ -222,7 +229,6 @@ export default function ContactSection() {
         return; 
       }
 
-      // If response.ok is true
       const result = await response.json();
       if (result.success) {
         toast({
@@ -233,7 +239,6 @@ export default function ContactSection() {
         });
         form.reset();
       } else {
-        // response.ok was true, but the application logic in API returned success: false
         console.error("API Logical Error (success: false):", result);
         toast({
           title: 'Error Sending Message 😥',
@@ -242,7 +247,7 @@ export default function ContactSection() {
           duration: 7000,
         });
       }
-    } catch (error) { // Network error or other fetch-related issue (e.g., DNS, CORS not handled by preflight)
+    } catch (error) { 
       console.error("Fetch Error:", error);
       toast({
         title: 'Network Error 🌐',
@@ -257,17 +262,17 @@ export default function ContactSection() {
     <section
       id="contact"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5 [transform-style:preserve-3d]"
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-primary/25 dark:bg-primary/20 rounded-[55%/40%] filter blur-[220px] md:blur-[290px] opacity-70 dark:opacity-50 transition-transform duration-300 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-primary/15 dark:bg-primary/10 rounded-[55%/40%] filter blur-[290px] md:blur-[360px] opacity-70 dark:opacity-60 transition-transform duration-300 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-[hsl(280_60%_60%_/_0.2)] dark:bg-[hsl(280_60%_60%_/_0.15)] rounded-[45%/55%] filter blur-[210px] md:blur-[280px] opacity-65 dark:opacity-45 transition-transform duration-300 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-[hsl(280_60%_60%_/_0.15)] dark:bg-[hsl(280_60%_60%_/_0.1)] rounded-[45%/55%] filter blur-[280px] md:blur-[350px] opacity-65 dark:opacity-55 transition-transform duration-300 ease-out" 
       ></div>
 
       <div 
@@ -411,5 +416,4 @@ export default function ContactSection() {
   );
 }
     
-
     

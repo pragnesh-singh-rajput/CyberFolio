@@ -58,8 +58,8 @@ const experienceData: ExperienceItem[] = [
   // },
 ];
 
-const MAX_CONTENT_ROTATION = 4; 
-const MAX_CIRCLE_MOUSE_OFFSET = 10;
+const MAX_CONTENT_ROTATION = 3; 
+const MAX_CIRCLE_MOUSE_OFFSET = 8;
 
 export default function ExperienceSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -79,6 +79,14 @@ export default function ExperienceSection() {
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollUpdateRafId = useRef<number | null>(null);
   const isMountedRef = useRef(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -143,11 +151,12 @@ export default function ExperienceSection() {
   }, [experienceData.length]); 
 
   useEffect(() => {
-     if (isMountedRef.current && experienceData.length > 0) {
-      const timeoutId = setTimeout(() => updateScrollability(), 360); 
-      return () => clearTimeout(timeoutId);
-    }
-  }, [activeIndex, experienceData.length, updateScrollability]);
+     if (isMountedRef.current && experienceData.length > 0 && activeIndex !== 0) {
+       // Only scroll if not the initial active index (0) to prevent overriding page load scroll
+       const timeoutId = setTimeout(() => scrollToCard(activeIndex), 360); 
+       return () => clearTimeout(timeoutId);
+     }
+   }, [activeIndex, experienceData.length, scrollToCard]);
 
 
   useEffect(() => {
@@ -180,7 +189,6 @@ export default function ExperienceSection() {
       if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
       scrollUpdateRafId.current = requestAnimationFrame(() => {
         updateScrollability();
-        // No auto-scroll on resize to prevent jumpiness
       });
     };
 
@@ -196,7 +204,7 @@ export default function ExperienceSection() {
         clearTimeout(initialLayoutTimeout);
       };
     }
-  }, [updateScrollability, experienceData.length]);
+  }, [updateScrollability, experienceData.length]); // Added experienceData.length
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -234,7 +242,7 @@ export default function ExperienceSection() {
   }, [parallaxScrollContainer, applyParallaxTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
@@ -265,9 +273,10 @@ export default function ExperienceSection() {
         }
         applyParallaxTransforms();
     });
-  }, [applyParallaxTransforms]);
+  }, [applyParallaxTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -281,7 +290,7 @@ export default function ExperienceSection() {
         circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyParallaxTransforms();
-  }, [applyParallaxTransforms]);
+  }, [applyParallaxTransforms, isMobile]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
@@ -298,17 +307,17 @@ export default function ExperienceSection() {
     <section
       id="experience"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5 [transform-style:preserve-3d]" 
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-[hsl(220_70%_50%_/_0.2)] dark:bg-[hsl(220_70%_50%_/_0.15)] rounded-[60%/45%] filter blur-[220px] md:blur-[290px] opacity-50 dark:opacity-45 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-[hsl(220_70%_50%_/_0.15)] dark:bg-[hsl(220_70%_50%_/_0.1)] rounded-[60%/45%] filter blur-[290px] md:blur-[350px] opacity-60 dark:opacity-55 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-primary/20 dark:bg-primary/15 rounded-[50%/65%] filter blur-[210px] md:blur-[280px] opacity-45 dark:opacity-40 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-primary/10 dark:bg-primary/5 rounded-[50%/65%] filter blur-[280px] md:blur-[340px] opacity-55 dark:opacity-50 transition-transform duration-300 ease-out"
       ></div>
       
       <div 
@@ -324,9 +333,9 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className="relative w-full mt-6">
-           <div className="overflow-hidden w-full"> {/* Outer wrapper for button positioning */}
-             {experienceData.length > 1 && (
-               <>
+           <div className="overflow-hidden w-full"> 
+            {experienceData.length > 0 && (
+              <>
                 <Button
                   variant="outline"
                   size="icon"
@@ -354,17 +363,17 @@ export default function ExperienceSection() {
                 >
                   <ChevronRight className="h-6 w-6" />
                 </Button>
-               </>
+              </>
              )}
           
             <div className="overflow-hidden w-full [transform-style:preserve-3d] [perspective:1200px]"> 
               <div 
                 ref={scrollContainerRef}
                 className={cn(
-                  "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
+                  "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto scrollbar-thin",
                    experienceData.length === 1 && "justify-center" 
                 )}
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
+                style={{ WebkitOverflowScrolling: 'touch' }} 
               >
                 {experienceData.map((exp, index) => (
                   <div
@@ -384,7 +393,7 @@ export default function ExperienceSection() {
                         index === activeIndex 
                           ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
                           : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]",
-                        "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-4 group-hover:shadow-2xl"
+                        !isMobile && "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-4 group-hover:shadow-2xl"
                       )}>
                         <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
                           {exp.logoUrl && (

@@ -6,8 +6,8 @@ import { GraduationCap, CalendarDays, MapPin, ShieldCheck } from 'lucide-react';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-const MAX_CONTENT_ROTATION = 4;
-const MAX_CIRCLE_MOUSE_OFFSET = 10;
+const MAX_CONTENT_ROTATION = 3;
+const MAX_CIRCLE_MOUSE_OFFSET = 8;
 
 export default function EducationSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -16,6 +16,14 @@ export default function EducationSection() {
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
   const parallaxFrameIdRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -74,7 +82,7 @@ export default function EducationSection() {
   }, [scrollContainer, applyTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
@@ -101,9 +109,10 @@ export default function EducationSection() {
         circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
         applyTransforms();
     });
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -117,7 +126,7 @@ export default function EducationSection() {
         circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
@@ -133,17 +142,17 @@ export default function EducationSection() {
     <section
       id="education"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] left-[-30%] w-[60rem] h-[80rem] bg-accent/15 dark:bg-[hsl(50,100%,60%)]/5 rounded-[55%/45%] filter blur-[220px] opacity-30 dark:opacity-25 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[5%] left-[-30%] w-[60rem] h-[80rem] bg-accent/10 dark:bg-[hsl(50,100%,60%)]/5 rounded-[55%/45%] filter blur-[280px] opacity-40 dark:opacity-35 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] right-[-25%] w-[70rem] h-[65rem] bg-primary/10 dark:bg-[hsl(40,70%,45%)]/10 rounded-[45%/55%] filter blur-[210px] opacity-30 dark:opacity-20 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[0%] right-[-25%] w-[70rem] h-[65rem] bg-primary/5 dark:bg-[hsl(40,70%,45%)]/5 rounded-[45%/55%] filter blur-[270px] opacity-40 dark:opacity-30 transition-transform duration-300 ease-out"
       ></div>
 
       <div 

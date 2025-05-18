@@ -2,12 +2,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import type { TechSkill } from '@/types';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Code, Database, Settings, Shield, Brain, Construction } from 'lucide-react'; // Example icons
+import { Code, Database, Settings, Shield, Brain } from 'lucide-react'; 
 
 const techSkillsData: TechSkill[] = [
   // Languages
@@ -42,8 +41,8 @@ const techSkillsData: TechSkill[] = [
   { id: 'ts21', name: 'SIEM Tools (Splunk basics)', category: 'Cybersecurity', icon: Shield, proficiency: 60 },
 ];
 
-const MAX_CONTENT_ROTATION = 4;
-const MAX_CIRCLE_MOUSE_OFFSET = 10;
+const MAX_CONTENT_ROTATION = 3;
+const MAX_CIRCLE_MOUSE_OFFSET = 8;
 
 export default function TechStackSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -52,6 +51,14 @@ export default function TechStackSection() {
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
   const parallaxFrameIdRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -116,7 +123,7 @@ export default function TechStackSection() {
   }, [scrollContainer, applyTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
 
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
@@ -145,9 +152,10 @@ export default function TechStackSection() {
       }
       applyTransforms();
     });
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isMobile) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
@@ -161,7 +169,7 @@ export default function TechStackSection() {
       circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop =>
@@ -179,17 +187,17 @@ export default function TechStackSection() {
     <section
       id="tech-stack"
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
       <div
         ref={circle1Ref}
-        className="absolute -z-10 top-[10%] left-[-25%] w-[80rem] h-[70rem] md:w-[85rem] md:h-[75rem] bg-accent/10 dark:bg-accent/5 rounded-[60%/40%] filter blur-[230px] md:blur-[300px] opacity-70 dark:opacity-60"
+        className="absolute -z-10 top-[10%] left-[-25%] w-[80rem] h-[70rem] md:w-[85rem] md:h-[75rem] bg-accent/5 dark:bg-accent/5 rounded-[60%/40%] filter blur-[300px] md:blur-[370px] opacity-70 dark:opacity-60"
       ></div>
       <div
         ref={circle2Ref}
-        className="absolute -z-10 bottom-[5%] right-[-30%] w-[75rem] h-[80rem] md:w-[80rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[40%/55%] filter blur-[220px] md:blur-[290px] opacity-65 dark:opacity-55"
+        className="absolute -z-10 bottom-[5%] right-[-30%] w-[75rem] h-[80rem] md:w-[80rem] md:h-[85rem] bg-primary/5 dark:bg-primary/5 rounded-[40%/55%] filter blur-[290px] md:blur-[360px] opacity-65 dark:opacity-55"
       ></div>
 
       <div
@@ -220,7 +228,7 @@ export default function TechStackSection() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {techSkillsData.filter(skill => skill.category === category).map(skill => {
-                    const IconComponent = skill.icon || Code; // Default to Code icon if specific one is missing
+                    const IconComponent = skill.icon || Code; 
                     return (
                     <div key={skill.id} className="text-sm">
                       <div className="flex justify-between items-center mb-1">
