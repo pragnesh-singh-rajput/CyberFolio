@@ -74,7 +74,7 @@ export default function Header() {
         <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2 text-xl font-bold text-primary">
             <ShieldCheck className="h-7 w-7 text-accent" />
-            <span>PK Singh</span>
+            <span>CyberFolio</span>
           </div>
           <div> 
             <Button variant="ghost" size="icon" disabled>
