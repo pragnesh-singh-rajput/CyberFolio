@@ -117,14 +117,10 @@ export default function ExperienceSection() {
   }, [experienceData.length]); 
 
   useEffect(() => {
-    // This effect handles scrolling to the active card when activeIndex changes
-    // (e.g., due to button clicks), but NOT on initial mount for activeIndex === 0.
     if (isMountedRef.current && activeIndex !== 0 && experienceData.length > 0 && cardRefs.current[activeIndex]) {
-      const timeoutId = setTimeout(() => scrollToCard(activeIndex), 50); // Small delay for UI to catch up
+      const timeoutId = setTimeout(() => scrollToCard(activeIndex), 50); 
       return () => clearTimeout(timeoutId);
     }
-    // If activeIndex is 0 on mount, we don't scroll. HomePage handles initial page scroll.
-    // updateScrollability is handled by the ResizeObserver effect.
   }, [activeIndex, experienceData.length, scrollToCard]);
 
 
@@ -149,24 +145,28 @@ export default function ExperienceSection() {
   }, [updateScrollability]);
   
    useEffect(() => {
-    // Effect for ResizeObserver and initial scrollability update
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
+    const debouncedUpdate = () => {
+      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+      scrollUpdateRafId.current = requestAnimationFrame(() => {
+        updateScrollability();
+         // Only scroll if there's more than one card, to prevent error on single card.
+        if (experienceData.length > 1 && cardRefs.current[activeIndex]) {
+           scrollToCard(activeIndex); // Re-center active card on resize
+        } else if (experienceData.length === 1) {
+           // For single card, ensure it's simply visible if container resizes
+           if(cardRefs.current[0]) cardRefs.current[0]?.scrollIntoView({inline: 'center', block: 'nearest'});
+        }
+      });
+    };
+
     if (container) {
-      const handleResize = () => { // Simplified: only updates scrollability
-        if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-      };
-      
-      resizeObserver = new ResizeObserver(handleResize);
+      resizeObserver = new ResizeObserver(debouncedUpdate);
       resizeObserver.observe(container);
       
-      // Initial scrollability check after mount
-      const initialLayoutTimeout = setTimeout(() => {
-         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-         scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-      }, 350); 
+      const initialLayoutTimeout = setTimeout(debouncedUpdate, 350); 
 
       return () => {
         if (resizeObserver && container) resizeObserver.unobserve(container);
@@ -174,21 +174,21 @@ export default function ExperienceSection() {
         clearTimeout(initialLayoutTimeout);
       };
     }
-  }, [updateScrollability, experienceData.length]); // Removed activeIndex and scrollToCard as dependencies
+  }, [updateScrollability, activeIndex, scrollToCard, experienceData.length]);
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
 
     const performParallaxUpdate = () => {
-      if (!sectionRef.current || !parallaxScrollContainer) return; 
+      if (!sectionRef.current || !parallaxScrollContainer || !parallaxAnimationFrameIdRef) return; 
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.1)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.3)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.3)`;
       }
       parallaxAnimationFrameIdRef.current = null; 
     };
@@ -217,11 +217,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] right-[-30%] w-[60rem] h-[70rem] md:w-[80rem] md:h-[90rem] bg-blue-600/25 dark:bg-blue-700/30 rounded-[60%/45%] filter blur-[200px] md:blur-[280px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-blue-700/30 rounded-[60%/45%] filter blur-[280px] opacity-40 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[70rem] h-[65rem] md:w-[90rem] md:h-[80rem] bg-teal-500/20 dark:bg-teal-600/25 rounded-[50%/65%] filter blur-[190px] md:blur-[270px] opacity-45 dark:opacity-35 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-teal-600/25 rounded-[50%/65%] filter blur-[270px] opacity-35 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -233,61 +233,35 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className="relative w-full mt-6">
-           {experienceData.length > 1 && (
-            <>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => scrollToCard(activeIndex - 1)}
-                disabled={!canScrollLeft}
-                aria-label="Scroll experience left"
-                className={cn(
-                  "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+           <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scrollToCard(activeIndex - 1)}
+              disabled={!canScrollLeft || experienceData.length <= 1}
+              aria-label="Scroll experience left"
+              className={cn(
+                "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
+              )}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+          
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scrollToCard(activeIndex + 1)}
+              disabled={!canScrollRight || experienceData.length <= 1}
+              aria-label="Scroll experience right"
+              className={cn(
+                  "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
                   "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
                 )}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-            
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => scrollToCard(activeIndex + 1)}
-                disabled={!canScrollRight}
-                aria-label="Scroll experience right"
-                className={cn(
-                    "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
-                  )}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            </>
-          )}
-           {experienceData.length === 1 && (
-            <>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={true}
-                aria-label="Scroll experience left"
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-muted text-foreground/60 bg-background/50 h-10 w-10 sm:h-12 sm:w-12 opacity-70 cursor-not-allowed"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={true}
-                aria-label="Scroll experience right"
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-muted text-foreground/60 bg-background/50 h-10 w-10 sm:h-12 sm:w-12 opacity-70 cursor-not-allowed"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            </>
-          )}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
           
-          <div className="overflow-hidden w-full"> 
+          <div className="overflow-hidden w-full [transform-style:preserve-3d] [perspective:1000px]"> {/* Added perspective */}
             <div 
               ref={scrollContainerRef}
               className={cn(
@@ -301,8 +275,7 @@ export default function ExperienceSection() {
                   key={exp.id}
                   ref={(el) => { cardRefs.current[index] = el; }}
                   className={cn(
-                    "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
-                    "transition-all duration-500 ease-in-out transform"
+                    "group flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
                   )}
                 >
                   <AnimatedSection 
@@ -310,10 +283,12 @@ export default function ExperienceSection() {
                     delay={`delay-${100}` as `delay-${number}`} 
                   >
                     <Card className={cn(
-                      "flex flex-col h-full shadow-xl transition-all duration-500 ease-out overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30 group",
+                      "flex flex-col h-full shadow-xl overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30",
+                      "transition-all duration-500 ease-out",
                       index === activeIndex 
                         ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]" 
+                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]",
+                      "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-4 group-hover:shadow-2xl" // 3D tilt
                     )}>
                       <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
                         {exp.logoUrl && (
@@ -368,6 +343,5 @@ export default function ExperienceSection() {
     </section>
   );
 }
-    
 
     

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'; // Added missing import
 import { Github, ExternalLink } from 'lucide-react';
 import type { Project } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
@@ -71,9 +71,9 @@ const projectsData: Project[] = [
 
 const duplicatedProjects = [...projectsData, ...projectsData];
 
-const baseAutoScrollSpeed = 1.0; 
-const hoverInducedSpeed = 2.0; 
-const neutralZonePercentage = 0.2; 
+const baseAutoScrollSpeed = 1.0;
+const hoverInducedSpeed = 2.0;
+const neutralZonePercentage = 0.2; // 20% of the container width
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -83,9 +83,9 @@ export default function ProjectsSection() {
   const parallaxAnimationFrameIdRef = useRef<number | null>(null);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const animationFrameIdRef = useRef<number | null>(null);
+  const autoScrollFrameIdRef = useRef<number | null>(null);
   const isHoveringRef = useRef(false);
-  const scrollSpeedRef = useRef(baseAutoScrollSpeed); 
+  const scrollSpeedRef = useRef(baseAutoScrollSpeed);
   const currentScrollLeftRef = useRef(0);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function ProjectsSection() {
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
-    const parallaxUpdateRef = parallaxAnimationFrameIdRef; 
+    const parallaxUpdateRef = parallaxAnimationFrameIdRef;
 
     const performParallaxUpdate = () => {
       if (!sectionRef.current || !parallaxScrollContainer) return;
@@ -115,7 +115,7 @@ export default function ProjectsSection() {
       parallaxUpdateRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     if (parallaxScrollContainer){
-        handleParallaxScroll(); 
+        handleParallaxScroll();
         parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     }
     return () => {
@@ -131,8 +131,9 @@ export default function ProjectsSection() {
     currentScrollLeftRef.current = scrollElement.scrollLeft;
 
     const animateScroll = () => {
-      if (!scrollElement) { 
-        animationFrameIdRef.current = requestAnimationFrame(animateScroll);
+      if (!scrollElement) {
+        if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current);
+        autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll);
         return;
       }
       
@@ -141,27 +142,30 @@ export default function ProjectsSection() {
       
       const singleSetWidth = scrollElement.scrollWidth / 2;
 
-      if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth) {
+      if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth && singleSetWidth > 0) {
         currentScrollLeftRef.current -= singleSetWidth;
-      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0 && singleSetWidth > 0) { 
+      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0 && singleSetWidth > 0) {
         currentScrollLeftRef.current += singleSetWidth;
       }
       
       scrollElement.scrollLeft = currentScrollLeftRef.current;
-      animationFrameIdRef.current = requestAnimationFrame(animateScroll);
+      if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current);
+      autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll);
     };
 
-    animationFrameIdRef.current = requestAnimationFrame(animateScroll);
+    if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current);
+    autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll);
 
     return () => {
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
+      if (autoScrollFrameIdRef.current) {
+        cancelAnimationFrame(autoScrollFrameIdRef.current);
       }
     };
-  }, [duplicatedProjects.length]); 
+  }, [duplicatedProjects.length]);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!scrollContainerRef.current) return;
+    isHoveringRef.current = true;
     const container = scrollContainerRef.current;
     const rect = container.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
@@ -174,7 +178,7 @@ export default function ProjectsSection() {
       scrollSpeedRef.current = 0; // Stop in the neutral zone
     } else if (mouseX < neutralZoneStart) {
       scrollSpeedRef.current = -hoverInducedSpeed; // Scroll left
-    } else { // mouseX > neutralZoneEnd
+    } else {
       scrollSpeedRef.current = hoverInducedSpeed; // Scroll right
     }
   };
@@ -185,22 +189,22 @@ export default function ProjectsSection() {
   
   const handleMouseLeave = () => {
     isHoveringRef.current = false;
-    scrollSpeedRef.current = baseAutoScrollSpeed; 
+    scrollSpeedRef.current = baseAutoScrollSpeed; // Revert to base speed
   };
 
   return (
     <section
       id="projects"
       ref={sectionRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background" 
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background"
     >
-      <div 
-        ref={circle1Ref} 
-        className="absolute -z-10 top-[-15%] left-[-25%] w-[70rem] h-[90rem] md:w-[90rem] md:h-[110rem] bg-purple-500/30 dark:bg-purple-600/35 rounded-[60%/45%] filter blur-[250px] md:blur-[320px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+      <div
+        ref={circle1Ref}
+        className="absolute -z-10 top-[-15%] left-[-25%] w-[90rem] h-[110rem] bg-purple-600/35 dark:bg-purple-800/30 rounded-[60%/45%] filter blur-[320px] opacity-50 transition-transform duration-500 ease-out"
       ></div>
-      <div 
-        ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[80rem] h-[80rem] md:w-[100rem] md:h-[95rem] bg-sky-600/25 dark:bg-sky-700/30 rounded-[55%/60%] filter blur-[240px] md:blur-[310px] opacity-55 dark:opacity-45 transition-transform duration-500 ease-out"
+      <div
+        ref={circle2Ref}
+        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[100rem] h-[95rem] bg-sky-700/30 dark:bg-sky-900/25 rounded-[55%/60%] filter blur-[310px] opacity-45 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -211,8 +215,8 @@ export default function ProjectsSection() {
           </p>
         </AnimatedSection>
         
-        <div 
-          className="relative w-full mt-6"
+        <div
+          className="relative w-full mt-6 [transform-style:preserve-3d] [perspective:1200px]"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onMouseMove={handleMouseMove}
@@ -220,19 +224,20 @@ export default function ProjectsSection() {
            <div className="overflow-hidden w-full">
             <div
               ref={scrollContainerRef}
-              className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2" 
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
+              className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
             >
-              {duplicatedProjects.map((project, index) => ( 
+              {duplicatedProjects.map((project, index) => (
                 <div
-                  key={`${project.id}-${index}`} 
+                  key={`${project.id}-${index}`}
                   className={cn(
-                    "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", 
-                    "transition-all duration-500 ease-in-out transform" // Keep existing transitions
+                    "group flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2" 
                   )}
                 >
                     <Card className={cn(
-                      "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-300 ease-out bg-card/80 backdrop-blur-md border-border/40 group"
+                      "flex flex-col h-full overflow-hidden shadow-xl bg-card/80 backdrop-blur-md border-border/40",
+                      "transition-all duration-300 ease-out",
+                      "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-8 group-hover:shadow-2xl"
                     )}>
                       {project.imageUrl && (
                         <div className="relative h-48 md:h-52 w-full overflow-hidden">
@@ -265,7 +270,7 @@ export default function ProjectsSection() {
                         </div>
                       </CardContent>
                       <CardFooter className="flex justify-start gap-2.5 pt-3 pb-4 px-4 md:px-5 border-t border-border/50">
-                        {project.repoUrl && ( 
+                        {project.repoUrl && (
                           <Button variant="outline" size="sm" asChild className="text-xs px-2.5 py-1 h-auto hover:bg-accent/10 hover:text-accent hover:border-accent transition-all duration-200">
                             <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
                               <Github className="mr-1.5 h-3.5 w-3.5" />
@@ -292,5 +297,6 @@ export default function ProjectsSection() {
     </section>
   );
 }
+    
 
     
