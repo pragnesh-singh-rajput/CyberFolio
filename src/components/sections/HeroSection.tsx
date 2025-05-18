@@ -159,11 +159,11 @@ export default function HeroSection() {
         <>
           <div
             ref={circle1Ref}
-            className="absolute -z-10 top-[-25%] left-[-30%] w-[80rem] h-[70rem] md:w-[90rem] md:h-[80rem] bg-[hsl(45,80%,60%)]/15 dark:bg-[hsl(50,100%,55%)]/10 rounded-[60%/45%] filter blur-[270px] md:blur-[330px] opacity-80 dark:opacity-70 transition-transform duration-300 ease-out"
+            className="absolute -z-10 top-[-25%] left-[-30%] w-[80rem] h-[70rem] md:w-[90rem] md:h-[80rem] bg-[hsl(50,100%,55%)]/25 dark:bg-[hsl(50,100%,55%)]/20 rounded-[60%/45%] filter blur-[270px] md:blur-[330px] opacity-80 dark:opacity-70 transition-transform duration-300 ease-out"
           ></div>
           <div
             ref={circle2Ref}
-            className="absolute -z-10 bottom-[-30%] right-[-25%] w-[70rem] h-[80rem] md:w-[80rem] md:h-[90rem] bg-[hsl(270_60%_50%_/_0.2)] dark:bg-[hsl(270_60%_65%_/_0.2)] rounded-[45%/55%] filter blur-[260px] md:blur-[320px] opacity-75 dark:opacity-65 transition-transform duration-300 ease-out"
+            className="absolute -z-10 bottom-[-30%] right-[-25%] w-[70rem] h-[80rem] md:w-[80rem] md:h-[90rem] bg-[hsl(270,60%,65%)]/30 dark:bg-[hsl(270,60%,65%)]/25 rounded-[45%/55%] filter blur-[260px] md:blur-[320px] opacity-75 dark:opacity-65 transition-transform duration-300 ease-out"
           ></div>
         </>
       )}
@@ -181,9 +181,9 @@ export default function HeroSection() {
             <h1 className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="inline-block group-hover:animate-pulse-subtle">👋</span> Hello, I&apos;m{' '}
               <span
-                className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-400 bg-[length:200%_auto] animate-gradient-x"
+                className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 bg-[length:200%_auto] animate-gradient-x"
               >
-                PK Singh
+                PragneshKumar Singh
               </span>
             </h1>
           </AnimatedSection>
@@ -198,7 +198,7 @@ export default function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-400 text-accent-foreground group bg-[length:200%_auto] animate-gradient-x"
+              className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 text-accent-foreground group bg-[length:200%_auto] animate-gradient-x"
             >
               <Link href="#contact">
                 🚀 Get In Touch
