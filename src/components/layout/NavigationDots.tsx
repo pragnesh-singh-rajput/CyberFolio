@@ -35,25 +35,21 @@ export default function NavigationDots() {
     sectionRefs.current = navItems.map(item => document.getElementById(item.id));
     
     const callback: IntersectionObserverCallback = (entries) => {
-      let currentMostVisibleId: string | null = null;
-      let maxRatio = 0;
+      let newActiveSectionId: string | null = null;
+      let highestIntersectionRatio = 0;
 
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          // Consider the section that has the largest intersection area
-          if (entry.intersectionRatio > maxRatio) {
-            maxRatio = entry.intersectionRatio;
-            currentMostVisibleId = entry.target.id;
+          if (entry.intersectionRatio > highestIntersectionRatio) {
+            highestIntersectionRatio = entry.intersectionRatio;
+            newActiveSectionId = entry.target.id;
           }
         }
       });
 
-      // Only update if a section is significantly visible (e.g., >= 40% of it is in the "detection zone")
-      // and it's different from the current active section
-      if (currentMostVisibleId && maxRatio >= 0.4) { 
-        // Directly update activeSection without checking against previous state in the callback
-        // This avoids potential stale closure issues if activeSection was in deps array.
-        setActiveSection(currentMostVisibleId);
+      // If we found an intersecting section with the highest ratio, and that ratio is significant enough
+      if (newActiveSectionId && highestIntersectionRatio >= 0.1) { // Activate if at least 10% visible in the rootMargin-defined area
+        setActiveSection(newActiveSectionId);
       }
     };
 
@@ -64,8 +60,8 @@ export default function NavigationDots() {
 
     observerRef.current = new IntersectionObserver(callback, {
       root: scrollContainer, // Use the found scroll container as the root
-      threshold: [0.4, 0.5, 0.6, 0.7, 0.8], // Array of thresholds for more granular updates
-      rootMargin: "-40% 0px -40% 0px" // Observe a central band of the viewport
+      threshold: 0.1, // Trigger when 10% of the section is visible within the rootMargin
+      rootMargin: "-20% 0px -20% 0px" // Observe a central band (middle 60%) of the viewport
     });
 
     const currentObserver = observerRef.current;
@@ -86,9 +82,6 @@ export default function NavigationDots() {
         currentObserver.disconnect();
       }
     };
-  // The dependency array should only include 'scrollContainer' and 'navItems' (or 'navItems.length')
-  // as the observer setup depends on these. 'activeSection' should not be here.
-  // Since navItems is imported and static, we primarily depend on scrollContainer.
   }, [scrollContainer]); 
 
   const handleDotClick = (sectionId: string) => {
