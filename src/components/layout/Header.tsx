@@ -76,7 +76,7 @@ export default function Header() {
             <ShieldCheck className="h-7 w-7 text-accent" />
             <span>PK Singh</span>
           </div>
-          <div className="md:hidden">
+          <div> {/* Removed md:hidden to show on all sizes when not mounted */}
             <Button variant="ghost" size="icon" disabled>
               <Menu className="h-6 w-6" />
             </Button>
@@ -94,17 +94,9 @@ export default function Header() {
           <span>PK Singh</span>
         </Link>
 
-        <nav className="hidden md:flex gap-0.5">
-          {navItems.map((item) => (
-            <Button key={item.label} variant="ghost" asChild size="sm">
-              <Link href={item.href} className="text-xs font-medium text-foreground hover:text-accent hover:bg-accent/10 px-2.5 py-2 rounded-md transition-all duration-200 ease-in-out">
-                {item.label}
-              </Link>
-            </Button>
-          ))}
-        </nav>
+        {/* Removed the inline desktop navigation block */}
 
-        <div className="md:hidden">
+        <div> {/* Removed md:hidden to make sheet trigger visible on all screen sizes */}
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="hover:bg-accent/10 focus:ring-2 focus:ring-accent">
