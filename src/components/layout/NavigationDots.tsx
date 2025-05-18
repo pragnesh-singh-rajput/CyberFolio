@@ -51,11 +51,16 @@ export default function NavigationDots() {
       // Only update if a section is significantly visible (e.g., >= 40% of it is in the "detection zone")
       // and it's different from the current active section
       if (currentMostVisibleId && maxRatio >= 0.4) { 
-        if (activeSection !== currentMostVisibleId) {
-          setActiveSection(currentMostVisibleId);
-        }
+        // Directly update activeSection without checking against previous state in the callback
+        // This avoids potential stale closure issues if activeSection was in deps array.
+        setActiveSection(currentMostVisibleId);
       }
     };
+
+    // Disconnect previous observer if it exists
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
 
     observerRef.current = new IntersectionObserver(callback, {
       root: scrollContainer, // Use the found scroll container as the root
@@ -81,7 +86,10 @@ export default function NavigationDots() {
         currentObserver.disconnect();
       }
     };
-  }, [scrollContainer]); // Rerun when scrollContainer is found. navItems is static.
+  // The dependency array should only include 'scrollContainer' and 'navItems' (or 'navItems.length')
+  // as the observer setup depends on these. 'activeSection' should not be here.
+  // Since navItems is imported and static, we primarily depend on scrollContainer.
+  }, [scrollContainer]); 
 
   const handleDotClick = (sectionId: string) => {
     const element = document.getElementById(sectionId);
