@@ -173,7 +173,7 @@ export default function HeroSection() {
               <span 
                 className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-400 bg-[length:200%_auto] animate-gradient-x"
               >
-                PK Singh
+                PragneshKumar Singh
               </span>
             </h1>
           </AnimatedSection>
