@@ -72,7 +72,8 @@ const projectsData: Project[] = [
 const duplicatedProjects = [...projectsData, ...projectsData];
 
 const baseAutoScrollSpeed = 1.0; 
-const hoverInducedSpeed = 2.0;
+const hoverInducedSpeed = 2.0; // Speed when hovering left or right
+const neutralZonePercentage = 0.2; // 20% of the carousel width in the center will be a dead zone
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -142,7 +143,7 @@ export default function ProjectsSection() {
 
       if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth) {
         currentScrollLeftRef.current -= singleSetWidth;
-      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0) {
+      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0 && singleSetWidth > 0) { // Ensure singleSetWidth is positive
         currentScrollLeftRef.current += singleSetWidth;
       }
       
@@ -164,12 +165,17 @@ export default function ProjectsSection() {
     const container = scrollContainerRef.current;
     const rect = container.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
-    const midpoint = rect.width / 2;
+    
+    const neutralZoneWidth = rect.width * neutralZonePercentage;
+    const neutralZoneStart = (rect.width - neutralZoneWidth) / 2;
+    const neutralZoneEnd = neutralZoneStart + neutralZoneWidth;
 
-    if (mouseX < midpoint) {
-      scrollSpeedRef.current = -hoverInducedSpeed; 
-    } else {
-      scrollSpeedRef.current = hoverInducedSpeed; 
+    if (mouseX >= neutralZoneStart && mouseX <= neutralZoneEnd) {
+      scrollSpeedRef.current = 0; // Stop in the neutral zone
+    } else if (mouseX < neutralZoneStart) {
+      scrollSpeedRef.current = -hoverInducedSpeed; // Scroll left
+    } else { // mouseX > neutralZoneEnd
+      scrollSpeedRef.current = hoverInducedSpeed; // Scroll right
     }
   };
 
@@ -179,6 +185,7 @@ export default function ProjectsSection() {
   
   const handleMouseLeave = () => {
     isHoveringRef.current = false;
+    scrollSpeedRef.current = baseAutoScrollSpeed; // Reset to base speed when mouse leaves
   };
 
   return (
