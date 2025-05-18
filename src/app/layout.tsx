@@ -14,6 +14,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Pragnesh Singh Rajput | Cyber Security Professional',
   description: 'Portfolio of Pragnesh Singh Rajput, a Cyber Security Professional and B.Tech CSE student.',
+  icons: {
+    icon: '/favicon.ico', // Next.js will look for favicon.ico in src/app/
+  },
 };
 
 export default function RootLayout({
