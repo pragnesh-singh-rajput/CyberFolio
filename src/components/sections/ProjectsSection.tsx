@@ -5,11 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button'; // Added missing import
+import { Button } from '@/components/ui/button';
 import { Github, ExternalLink } from 'lucide-react';
 import type { Project } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const projectsData: Project[] = [
@@ -44,7 +44,7 @@ const projectsData: Project[] = [
     title: 'Twitter News Bot',
     description: 'An automated Python bot that fetches news from various sources and tweets updates, utilizing the Twitter API and web scraping techniques.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'twitter bot',
+    imageHint: 'twitter news bot',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Twitter-News-Bot',
     tags: ['Bot', 'Python', 'Twitter API', 'Web Scraping', 'Automation'],
   },
@@ -53,7 +53,7 @@ const projectsData: Project[] = [
     title: 'Image & Video Rekognition with AWS',
     description: 'A project leveraging AWS Rekognition for advanced image and video analysis, demonstrating cloud-based computer vision capabilities.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'aws vision',
+    imageHint: 'aws computer vision cloud',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/image-and-video-rekognition-with-aws',
     tags: ['AWS', 'Rekognition', 'Cloud AI', 'Computer Vision', 'Python'],
   },
@@ -62,14 +62,16 @@ const projectsData: Project[] = [
     title: 'Personal Portfolio Website (This one!)',
     description: 'My personal portfolio built with Next.js, TypeScript, Tailwind CSS, and ShadCN UI, featuring smooth animations, parallax effects, and a custom cursor.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'portfolio design',
+    imageHint: 'portfolio web design',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/Portfolio',
     tags: ['Next.js', 'TypeScript', 'TailwindCSS', 'ShadCN UI', 'React', 'Framer Motion'],
   },
 ];
 
-// Duplicate projects for infinite scroll illusion
 const duplicatedProjects = [...projectsData, ...projectsData];
+
+const baseScrollSpeed = 1.0; 
+const hoverSpeedFactor = 1.5; 
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -81,7 +83,8 @@ export default function ProjectsSection() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const animationFrameIdRef = useRef<number | null>(null);
   const isHoveringRef = useRef(false);
-  const scrollSpeed = 0.5; // Adjust for desired speed
+  const scrollSpeedRef = useRef(baseScrollSpeed);
+  const currentScrollLeftRef = useRef(0);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
@@ -90,7 +93,6 @@ export default function ProjectsSection() {
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
-
     const performParallaxUpdate = () => {
       if (!sectionRef.current || !parallaxScrollContainer) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
@@ -104,12 +106,10 @@ export default function ProjectsSection() {
       }
       parallaxAnimationFrameIdRef.current = null;
     };
-
     const handleParallaxScroll = () => {
       if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
       parallaxAnimationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
-    
     if (parallaxScrollContainer){
         handleParallaxScroll(); 
         parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
@@ -122,22 +122,27 @@ export default function ProjectsSection() {
 
   useEffect(() => {
     const scrollElement = scrollContainerRef.current;
-    if (!scrollElement) return;
+    if (!scrollElement || duplicatedProjects.length === 0) return;
 
-    let currentScrollLeft = scrollElement.scrollLeft;
+    currentScrollLeftRef.current = scrollElement.scrollLeft;
 
     const animateScroll = () => {
-      if (!isHoveringRef.current && scrollElement) {
-        currentScrollLeft += scrollSpeed;
-        
-        const loopPoint = scrollElement.scrollWidth / 2; 
-
-        if (currentScrollLeft >= loopPoint) {
-          currentScrollLeft -= loopPoint; 
-          scrollElement.scrollLeft = currentScrollLeft;
-        }
-        scrollElement.scrollLeft = currentScrollLeft;
+      if (!scrollElement) { 
+        animationFrameIdRef.current = requestAnimationFrame(animateScroll);
+        return;
       }
+      
+      const currentAppliedSpeed = isHoveringRef.current ? scrollSpeedRef.current : baseScrollSpeed;
+      currentScrollLeftRef.current += currentAppliedSpeed;
+      
+      const singleSetWidth = scrollElement.scrollWidth / 2;
+      if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth) {
+        currentScrollLeftRef.current -= singleSetWidth;
+      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0) {
+        currentScrollLeftRef.current += singleSetWidth;
+      }
+      
+      scrollElement.scrollLeft = currentScrollLeftRef.current;
       animationFrameIdRef.current = requestAnimationFrame(animateScroll);
     };
 
@@ -148,8 +153,30 @@ export default function ProjectsSection() {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [scrollSpeed]);
+  }, [duplicatedProjects.length]);
 
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isHoveringRef.current || !scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const rect = container.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const midpoint = rect.width / 2;
+
+    if (mouseX < midpoint) {
+      scrollSpeedRef.current = baseScrollSpeed - hoverSpeedFactor; 
+    } else {
+      scrollSpeedRef.current = baseScrollSpeed + hoverSpeedFactor; 
+    }
+  };
+
+  const handleMouseEnter = () => {
+    isHoveringRef.current = true;
+  };
+  
+  const handleMouseLeave = () => {
+    isHoveringRef.current = false;
+    scrollSpeedRef.current = baseScrollSpeed; 
+  };
 
   return (
     <section
@@ -159,11 +186,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-500/25 dark:bg-purple-600/20 rounded-[60%/45%] filter blur-[240px] md:blur-[320px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-600/30 dark:bg-purple-700/35 rounded-[60%/45%] filter blur-[270px] md:blur-[340px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/20 dark:bg-sky-600/15 rounded-[55%/60%] filter blur-[230px] md:blur-[310px] opacity-45 dark:opacity-25 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/25 dark:bg-sky-700/30 rounded-[55%/60%] filter blur-[260px] md:blur-[330px] opacity-45 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -176,8 +203,9 @@ export default function ProjectsSection() {
         
         <div 
           className="relative w-full mt-6"
-          onMouseEnter={() => { isHoveringRef.current = true; }}
-          onMouseLeave={() => { isHoveringRef.current = false; }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseMove={handleMouseMove}
         >
            <div className="overflow-hidden w-full">
             <div
