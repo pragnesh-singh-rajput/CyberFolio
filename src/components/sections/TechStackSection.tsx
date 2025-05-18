@@ -7,33 +7,25 @@ import AnimatedSection from '@/components/ui/AnimatedSection';
 import type { TechSkill } from '@/types';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Code, Database, Settings, Shield, Brain } from 'lucide-react'; 
+import { cn } from '@/lib/utils';
 
 const techSkillsData: TechSkill[] = [
-  // Languages
   { id: 'ts1', name: 'Python', category: 'Languages', icon: Code, proficiency: 90 },
   { id: 'ts2', name: 'JavaScript', category: 'Languages', icon: Code, proficiency: 85 },
   { id: 'ts3', name: 'Java', category: 'Languages', icon: Code, proficiency: 75 },
   { id: 'ts4', name: 'C/C++', category: 'Languages', icon: Code, proficiency: 70 },
   { id: 'ts5', name: 'Bash', category: 'Languages', icon: Code, proficiency: 80 },
-
-  // Frameworks & Libraries
   { id: 'ts6', name: 'React', category: 'Frameworks & Libraries', icon: Brain, proficiency: 80 },
   { id: 'ts7', name: 'Next.js', category: 'Frameworks & Libraries', icon: Brain, proficiency: 78 },
   { id: 'ts8', name: 'Node.js', category: 'Frameworks & Libraries', icon: Brain, proficiency: 70 },
   { id: 'ts9', name: 'Flask/Django', category: 'Frameworks & Libraries', icon: Brain, proficiency: 75 },
   { id: 'ts10', name: 'Tailwind CSS', category: 'Frameworks & Libraries', icon: Brain, proficiency: 85 },
-
-  // Databases
   { id: 'ts11', name: 'SQL (MySQL, PostgreSQL)', category: 'Databases', icon: Database, proficiency: 80 },
   { id: 'ts12', name: 'MongoDB', category: 'Databases', icon: Database, proficiency: 70 },
-
-  // Tools & Platforms
   { id: 'ts13', name: 'Git & GitHub', category: 'Tools & Platforms', icon: Settings, proficiency: 90 },
   { id: 'ts14', name: 'Docker', category: 'Tools & Platforms', icon: Settings, proficiency: 70 },
   { id: 'ts15', name: 'AWS (EC2, S3, Lambda)', category: 'Tools & Platforms', icon: Settings, proficiency: 65 },
   { id: 'ts16', name: 'Linux OS', category: 'Tools & Platforms', icon: Settings, proficiency: 85 },
-
-  // Cybersecurity
   { id: 'ts17', name: 'Nmap', category: 'Cybersecurity', icon: Shield, proficiency: 80 },
   { id: 'ts18', name: 'Wireshark', category: 'Cybersecurity', icon: Shield, proficiency: 75 },
   { id: 'ts19', name: 'Metasploit', category: 'Cybersecurity', icon: Shield, proficiency: 70 },
@@ -68,7 +60,7 @@ export default function TechStackSection() {
   }, []);
 
   const applyTransforms = useCallback(() => {
-    if (!sectionRef.current) return;
+    if (isMobile || !sectionRef.current) return;
 
     const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
     const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
@@ -87,10 +79,10 @@ export default function TechStackSection() {
     if (circle2Ref.current) {
       circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.15)`;
     }
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current) return;
+    if (isMobile || !scrollContainer || !sectionRef.current) return;
 
     const handleScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
@@ -120,14 +112,14 @@ export default function TechStackSection() {
       if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll);
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [scrollContainer, applyTransforms]);
+  }, [scrollContainer, applyTransforms, isMobile]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current) return;
 
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-      if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+      if (!sectionRef.current || !contentWrapperRef.current) return;
       const rect = sectionRef.current.getBoundingClientRect();
       const mouseXInSection = event.clientX - rect.left;
       const mouseYInSection = event.clientY - rect.top;
@@ -155,23 +147,24 @@ export default function TechStackSection() {
   }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
-    if (isMobile) return;
+    if (isMobile || !contentWrapperRef.current) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
-      circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
-      circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+      circle1Ref.current.style.setProperty('--mouse-x-1', '0');
+      circle1Ref.current.style.setProperty('--mouse-y-1', '0');
     }
     if (circle2Ref.current) {
-      circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
-      circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+      circle2Ref.current.style.setProperty('--mouse-x-2', '0');
+      circle2Ref.current.style.setProperty('--mouse-y-2', '0');
     }
     applyTransforms();
   }, [applyTransforms, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return;
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop =>
         circle1Ref.current?.style.setProperty(prop, '0')
     );
@@ -179,7 +172,7 @@ export default function TechStackSection() {
         circle2Ref.current?.style.setProperty(prop, '0')
     );
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
   
   const categories = Array.from(new Set(techSkillsData.map(skill => skill.category)));
 
@@ -191,19 +184,26 @@ export default function TechStackSection() {
       onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
-      <div
-        ref={circle1Ref}
-        className="absolute -z-10 top-[10%] left-[-25%] w-[80rem] h-[70rem] md:w-[85rem] md:h-[75rem] bg-accent/5 dark:bg-accent/5 rounded-[60%/40%] filter blur-[300px] md:blur-[370px] opacity-70 dark:opacity-60"
-      ></div>
-      <div
-        ref={circle2Ref}
-        className="absolute -z-10 bottom-[5%] right-[-30%] w-[75rem] h-[80rem] md:w-[80rem] md:h-[85rem] bg-primary/5 dark:bg-primary/5 rounded-[40%/55%] filter blur-[290px] md:blur-[360px] opacity-65 dark:opacity-55"
-      ></div>
+      {!isMobile && (
+        <>
+          <div
+            ref={circle1Ref}
+            className="absolute -z-10 top-[10%] left-[-25%] w-[80rem] h-[70rem] md:w-[85rem] md:h-[75rem] bg-accent/15 dark:bg-accent/10 rounded-[60%/40%] filter blur-[300px] md:blur-[370px] opacity-70 dark:opacity-60"
+          ></div>
+          <div
+            ref={circle2Ref}
+            className="absolute -z-10 bottom-[5%] right-[-30%] w-[75rem] h-[80rem] md:w-[80rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[40%/55%] filter blur-[290px] md:blur-[360px] opacity-65 dark:opacity-55"
+          ></div>
+        </>
+      )}
 
       <div
         ref={contentWrapperRef}
-        className="container mx-auto px-4 md:px-6 py-16 transition-transform duration-150 ease-out"
-        style={{ transformStyle: "preserve-3d" }}
+        className={cn(
+          "container mx-auto px-4 md:px-6 py-16",
+          !isMobile && "transition-transform duration-150 ease-out"
+        )}
+        style={!isMobile ? { transformStyle: "preserve-3d" } : {}}
       >
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💻 My Tech Arsenal</h2>
@@ -249,3 +249,5 @@ export default function TechStackSection() {
     </section>
   );
 }
+
+    

@@ -69,7 +69,7 @@ const projectsData: Project[] = [
   },
 ];
 
-const duplicatedProjects = [...projectsData, ...projectsData, ...projectsData]; 
+const duplicatedProjectsForDesktop = [...projectsData, ...projectsData, ...projectsData]; 
 
 const baseAutoScrollSpeed = 1.0; 
 const hoverInducedSpeed = 2.0; 
@@ -106,7 +106,7 @@ export default function ProjectsSection() {
   }, []);
 
   const applyParallaxTransforms = useCallback(() => {
-    if (!sectionRef.current) return;
+    if (isMobile || !sectionRef.current) return;
 
     const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
     const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
@@ -125,28 +125,25 @@ export default function ProjectsSection() {
     if (circle2Ref.current) {
       circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.3)`;
     }
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
-    if (!parallaxScrollContainer || !sectionRef.current) return;
+    if (isMobile || !parallaxScrollContainer || !sectionRef.current) return;
 
     const handleParallaxScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
       parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || !parallaxScrollContainer) return;
+        if (!sectionRef.current || !parallaxScrollContainer || !circle1Ref.current || !circle2Ref.current) return;
         const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
         const scrollProgress = -sectionTopInViewport;
 
-        if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.55}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.25}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.025}`);
-        }
-        if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.32}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.20}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.019}`);
-        }
+        circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.55}`);
+        circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.25}`);
+        circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.025}`);
+        
+        circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.32}`);
+        circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.20}`);
+        circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.019}`);
         applyParallaxTransforms();
       });
     };
@@ -159,11 +156,19 @@ export default function ProjectsSection() {
       if (parallaxScrollContainer) parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [parallaxScrollContainer, applyParallaxTransforms]);
+  }, [parallaxScrollContainer, applyParallaxTransforms, isMobile]);
 
   useEffect(() => {
+    if (isMobile) { // If mobile, disable auto-scroll and clean up any existing animation frame
+        if (autoScrollFrameIdRef.current) {
+            cancelAnimationFrame(autoScrollFrameIdRef.current);
+            autoScrollFrameIdRef.current = null;
+        }
+        return;
+    }
+
     const scrollElement = scrollContainerRef.current;
-    if (!scrollElement || duplicatedProjects.length === 0) return;
+    if (!scrollElement || duplicatedProjectsForDesktop.length === 0) return;
 
     currentScrollLeftRef.current = scrollElement.scrollLeft;
 
@@ -174,7 +179,7 @@ export default function ProjectsSection() {
         return;
       }
       
-      const currentAppliedSpeed = isHoveringRef.current && !isMobile ? scrollSpeedRef.current : baseAutoScrollSpeed;
+      const currentAppliedSpeed = isHoveringRef.current ? scrollSpeedRef.current : baseAutoScrollSpeed;
       currentScrollLeftRef.current += currentAppliedSpeed;
       
       const singleSetWidth = scrollElement.scrollWidth / 3; 
@@ -197,7 +202,6 @@ export default function ProjectsSection() {
         scrollElement.scrollLeft = currentScrollLeftRef.current;
     }
 
-
     if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current); 
     autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll);
 
@@ -206,21 +210,19 @@ export default function ProjectsSection() {
         cancelAnimationFrame(autoScrollFrameIdRef.current);
       }
     };
-  }, [duplicatedProjects.length, isMobile]); // Added isMobile dependency
+  }, [duplicatedProjectsForDesktop.length, isMobile]); // Added isMobile dependency
 
   const handleMouseMoveSection = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (isMobile ||!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile ||!sectionRef.current || !contentWrapperRef.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+        if (!sectionRef.current || !contentWrapperRef.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
         const mouseXInSection = event.clientX - rect.left;
         const mouseYInSection = event.clientY - rect.top;
-
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
@@ -258,9 +260,8 @@ export default function ProjectsSection() {
     const carouselRect = scrollContainerRef.current.getBoundingClientRect();
     const mouseXInCarousel = event.clientX - carouselRect.left;
     
-    const neutralZoneWidth = carouselRect.width * neutralZonePercentage;
-    const neutralZoneStart = (carouselRect.width - neutralZoneWidth) / 2;
-    const neutralZoneEnd = neutralZoneStart + neutralZoneWidth;
+    const neutralZoneStart = carouselRect.width * (0.5 - neutralZonePercentage / 2);
+    const neutralZoneEnd = carouselRect.width * (0.5 + neutralZonePercentage / 2);
 
     if (mouseXInCarousel >= neutralZoneStart && mouseXInCarousel <= neutralZoneEnd) {
       scrollSpeedRef.current = 0; 
@@ -271,28 +272,28 @@ export default function ProjectsSection() {
     }
   }, [isMobile]);
 
-
   const handleMouseLeaveSection = useCallback(() => {
-    if (isMobile) return;
+    if (isMobile || !contentWrapperRef.current) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
-        circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
-        circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+        circle1Ref.current.style.setProperty('--mouse-x-1', '0');
+        circle1Ref.current.style.setProperty('--mouse-y-1', '0');
     }
     if (circle2Ref.current) {
-        circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
-        circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+        circle2Ref.current.style.setProperty('--mouse-x-2', '0');
+        circle2Ref.current.style.setProperty('--mouse-y-2', '0');
     }
     applyParallaxTransforms();
     
-    isHoveringRef.current = false;
+    isHoveringRef.current = false; // Ensure this is also reset for the carousel
     scrollSpeedRef.current = baseAutoScrollSpeed; 
   }, [applyParallaxTransforms, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return;
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
         circle1Ref.current?.style.setProperty(prop, '0')
     );
@@ -300,7 +301,9 @@ export default function ProjectsSection() {
         circle2Ref.current?.style.setProperty(prop, '0')
     );
     applyParallaxTransforms();
-  }, [applyParallaxTransforms]);
+  }, [applyParallaxTransforms, isMobile]);
+
+  const projectsToRender = isMobile ? projectsData : duplicatedProjectsForDesktop;
 
   return (
     <section
@@ -310,19 +313,26 @@ export default function ProjectsSection() {
       onMouseLeave={!isMobile ? handleMouseLeaveSection : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
-      <div
-        ref={circle1Ref}
-        className="absolute -z-10 top-[-15%] left-[-25%] w-[90rem] h-[110rem] bg-purple-600/15 dark:bg-[hsl(270_60%_55%_/_0.1)] rounded-[60%/45%] filter blur-[330px] md:blur-[400px] opacity-70 dark:opacity-60 transition-transform duration-300 ease-out"
-      ></div>
-      <div
-        ref={circle2Ref}
-        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[100rem] h-[95rem] bg-accent/10 dark:bg-accent/5 rounded-[55%/60%] filter blur-[320px] md:blur-[390px] opacity-65 dark:opacity-55 transition-transform duration-300 ease-out"
-      ></div>
+      {!isMobile && (
+        <>
+          <div
+            ref={circle1Ref}
+            className="absolute -z-10 top-[-15%] left-[-25%] w-[90rem] h-[110rem] bg-primary/15 dark:bg-primary/10 rounded-[60%/45%] filter blur-[330px] md:blur-[400px] opacity-70 dark:opacity-60 transition-transform duration-300 ease-out"
+          ></div>
+          <div
+            ref={circle2Ref}
+            className="absolute -z-10 bottom-[-20%] right-[-30%] w-[100rem] h-[95rem] bg-accent/15 dark:bg-accent/10 rounded-[55%/60%] filter blur-[320px] md:blur-[390px] opacity-65 dark:opacity-55 transition-transform duration-300 ease-out"
+          ></div>
+        </>
+      )}
 
       <div 
         ref={contentWrapperRef}
-        className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full transition-transform duration-150 ease-out"
-        style={{ transformStyle: "preserve-3d" }}
+        className={cn(
+          "container mx-auto px-0 md:px-6 py-16 flex flex-col w-full",
+          !isMobile && "transition-transform duration-150 ease-out"
+        )}
+        style={!isMobile ? { transformStyle: "preserve-3d" } : {}}
       >
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💡 My Projects</h2>
@@ -332,7 +342,10 @@ export default function ProjectsSection() {
         </AnimatedSection>
         
         <div
-          className="relative w-full mt-6 [transform-style:preserve-3d] [perspective:1200px]"
+          className={cn(
+            "relative w-full mt-6",
+            !isMobile && "[transform-style:preserve-3d] [perspective:1200px]"
+          )}
           onMouseEnter={!isMobile ? handleMouseEnterCarousel : undefined}
           onMouseLeave={!isMobile ? handleMouseLeaveCarousel : undefined}
           onMouseMove={!isMobile ? handleMouseMoveCarousel : undefined}
@@ -340,16 +353,20 @@ export default function ProjectsSection() {
            <div className="overflow-hidden w-full">
             <div
               ref={scrollContainerRef}
-              className="flex flex-row gap-4 md:gap-6 overflow-x-auto py-4 px-2 -mx-2 scrollbar-thin"
+              className={cn(
+                "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 scrollbar-thin",
+                isMobile ? "overflow-x-auto" : "overflow-hidden" 
+              )}
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
-              {duplicatedProjects.map((project, index) => (
+              {projectsToRender.map((project, index) => (
                 <div
-                  key={`${project.id}-${index}`} // Unique key for duplicated items
+                  key={`${project.id}-${index}`} 
                   className={cn(
                     "group flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2" 
                   )}
                 >
+                  <AnimatedSection animationType="scaleIn" delay="delay-100">
                     <Card className={cn(
                       "flex flex-col h-full overflow-hidden shadow-xl bg-card/80 backdrop-blur-md border-border/40",
                       "transition-all duration-300 ease-out",
@@ -369,7 +386,7 @@ export default function ProjectsSection() {
                         </div>
                       )}
                       <CardHeader className="pb-2 pt-4 px-4 md:px-5">
-                        <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">
+                        <CardTitle className={cn("text-lg md:text-xl font-semibold text-primary", !isMobile && "group-hover:text-accent transition-colors")}>
                           {project.title}
                         </CardTitle>
                         <CardDescription className="text-xs text-muted-foreground min-h-[3.75rem] mt-1 leading-relaxed line-clamp-3">
@@ -404,6 +421,7 @@ export default function ProjectsSection() {
                         )}
                       </CardFooter>
                     </Card>
+                  </AnimatedSection>
                 </div>
               ))}
             </div>
@@ -413,4 +431,6 @@ export default function ProjectsSection() {
     </section>
   );
 }
+    
+
     

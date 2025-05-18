@@ -6,6 +6,7 @@ import AnimatedSection from '@/components/ui/AnimatedSection';
 import type { OtherSkill } from '@/types';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Lightbulb, Network, ShieldAlert, Users, BrainCog, ShieldCheck, Shield } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const skillsData: OtherSkill[] = [
   { id: 'os1', name: 'Network Security', description: 'Implementing and managing security measures for computer networks.' },
@@ -61,7 +62,7 @@ export default function SkillsSection() {
   }, []);
 
   const applyTransforms = useCallback(() => {
-    if (!sectionRef.current) return;
+    if (isMobile || !sectionRef.current) return;
 
     const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
     const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
@@ -80,10 +81,10 @@ export default function SkillsSection() {
     if (circle2Ref.current) {
       circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.2)`;
     }
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current) return;
+    if (isMobile || !scrollContainer || !sectionRef.current) return;
 
     const handleScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
@@ -110,14 +111,14 @@ export default function SkillsSection() {
       if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll);
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [scrollContainer, applyTransforms]);
+  }, [scrollContainer, applyTransforms, isMobile]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current) return;
 
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-      if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+      if (!sectionRef.current || !contentWrapperRef.current) return;
       const rect = sectionRef.current.getBoundingClientRect();
       const mouseXInSection = event.clientX - rect.left;
       const mouseYInSection = event.clientY - rect.top;
@@ -132,32 +133,37 @@ export default function SkillsSection() {
         contentWrapperRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
       }
       
-      circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
-      circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
-      circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`);
-      circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`);
+      if (circle1Ref.current) {
+        circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+        circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
+      }
+      if (circle2Ref.current) {
+        circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`);
+        circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`);
+      }
       applyTransforms();
     });
   }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
-    if (isMobile) return;
+    if (isMobile || !contentWrapperRef.current) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
-      circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
-      circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+      circle1Ref.current.style.setProperty('--mouse-x-1', '0');
+      circle1Ref.current.style.setProperty('--mouse-y-1', '0');
     }
     if (circle2Ref.current) {
-      circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
-      circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+      circle2Ref.current.style.setProperty('--mouse-x-2', '0');
+      circle2Ref.current.style.setProperty('--mouse-y-2', '0');
     }
     applyTransforms();
   }, [applyTransforms, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return;
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop =>
         circle1Ref.current?.style.setProperty(prop, '0')
     );
@@ -165,7 +171,7 @@ export default function SkillsSection() {
         circle2Ref.current?.style.setProperty(prop, '0')
     );
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   return (
     <section
@@ -175,19 +181,26 @@ export default function SkillsSection() {
       onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
-      <div
-        ref={circle1Ref}
-        className="absolute -z-10 top-[5%] right-[-20%] w-[55rem] h-[70rem] md:w-[70rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[45%/55%] filter blur-[290px] md:blur-[360px] opacity-40 dark:opacity-30"
-      ></div>
-      <div
-        ref={circle2Ref}
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[65rem] h-[60rem] md:w-[80rem] md:h-[75rem] bg-accent/5 dark:bg-accent/5 rounded-[55%/40%] filter blur-[270px] md:blur-[340px] opacity-50 dark:opacity-40"
-      ></div>
+      {!isMobile && (
+        <>
+          <div
+            ref={circle1Ref}
+            className="absolute -z-10 top-[5%] right-[-20%] w-[55rem] h-[70rem] md:w-[70rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[45%/55%] filter blur-[290px] md:blur-[360px] opacity-40 dark:opacity-30"
+          ></div>
+          <div
+            ref={circle2Ref}
+            className="absolute -z-10 bottom-[-10%] left-[-25%] w-[65rem] h-[60rem] md:w-[80rem] md:h-[75rem] bg-accent/10 dark:bg-accent/5 rounded-[55%/40%] filter blur-[270px] md:blur-[340px] opacity-50 dark:opacity-40"
+          ></div>
+        </>
+      )}
 
       <div
         ref={contentWrapperRef}
-        className="container mx-auto px-4 md:px-6 py-16 transition-transform duration-150 ease-out"
-        style={{ transformStyle: "preserve-3d" }}
+        className={cn(
+          "container mx-auto px-4 md:px-6 py-16",
+          !isMobile && "transition-transform duration-150 ease-out"
+        )}
+        style={!isMobile ? { transformStyle: "preserve-3d" } : {}}
       >
         <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">🌟 Core Competencies</h2>
@@ -218,3 +231,5 @@ export default function SkillsSection() {
     </section>
   );
 }
+
+    

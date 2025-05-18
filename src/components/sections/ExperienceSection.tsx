@@ -102,7 +102,7 @@ export default function ExperienceSection() {
   }, []);
   
   const applyParallaxTransforms = useCallback(() => {
-    if (!sectionRef.current) return;
+    if (isMobile || !sectionRef.current) return;
 
     const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
     const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
@@ -121,19 +121,22 @@ export default function ExperienceSection() {
     if (circle2Ref.current) {
       circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.3)`;
     }
-  }, []);
+  }, [isMobile]);
   
   const updateScrollability = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const { scrollLeft, scrollWidth, clientWidth } = container;
-      const threshold = 5; 
-      setCanScrollLeft(scrollLeft > threshold);
-      setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
-    } else {
-      setCanScrollLeft(false);
-      setCanScrollRight(experienceData.length > 1); 
-    }
+    if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+    scrollUpdateRafId.current = requestAnimationFrame(() => {
+      const container = scrollContainerRef.current;
+      if (container) {
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        const threshold = 5; 
+        setCanScrollLeft(scrollLeft > threshold);
+        setCanScrollRight(scrollWidth - clientWidth - scrollLeft > threshold);
+      } else {
+        setCanScrollLeft(false);
+        setCanScrollRight(experienceData.length > 1); 
+      }
+    });
   }, [experienceData.length]);
   
   const scrollToCard = useCallback((index: number) => {
@@ -141,35 +144,37 @@ export default function ExperienceSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      cardElement.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center', 
-        block: 'nearest'
-      });
+      let scrollOptions: ScrollIntoViewOptions = { behavior: 'smooth', block: 'nearest' };
+      if (index === 0) {
+        scrollOptions.inline = 'start';
+      } else if (index === experienceData.length - 1) {
+        scrollOptions.inline = 'end';
+      } else {
+        scrollOptions.inline = 'center';
+      }
+      cardElement.scrollIntoView(scrollOptions);
       setActiveIndex(index);
     }
   }, [experienceData.length]); 
 
-  useEffect(() => {
-     if (isMountedRef.current && experienceData.length > 0 && activeIndex !== 0) {
+ useEffect(() => {
+    if (isMountedRef.current && experienceData.length > 0 && activeIndex !== 0) {
        // Only scroll if not the initial active index (0) to prevent overriding page load scroll
-       const timeoutId = setTimeout(() => scrollToCard(activeIndex), 360); 
-       return () => clearTimeout(timeoutId);
-     }
-   }, [activeIndex, experienceData.length, scrollToCard]);
-
+       // and only if it's not mobile (as mobile has a simplified layout)
+      if (!isMobile) {
+        const timeoutId = setTimeout(() => scrollToCard(activeIndex), 360); 
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [activeIndex, experienceData.length, scrollToCard, isMobile]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (container) {
+    if (container && !isMobile) {
       const handleScrollEvent = () => {
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-        scrollTimeoutRef.current = setTimeout(() => {
-          if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-          scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-        }, 60); 
+        scrollTimeoutRef.current = setTimeout(updateScrollability, 60); 
       };
-
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
       const initialScrollUpdate = setTimeout(updateScrollability, 350);
       return () => {
@@ -179,35 +184,27 @@ export default function ExperienceSection() {
         clearTimeout(initialScrollUpdate);
       };
     }
-  }, [updateScrollability]);
+  }, [updateScrollability, isMobile]);
   
    useEffect(() => {
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
-
-    const debouncedUpdate = () => {
-      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-      scrollUpdateRafId.current = requestAnimationFrame(() => {
+    if (container && !isMobile) {
+      resizeObserver = new ResizeObserver(() => {
         updateScrollability();
       });
-    };
-
-    if (container) {
-      resizeObserver = new ResizeObserver(debouncedUpdate);
       resizeObserver.observe(container);
-      
-      const initialLayoutTimeout = setTimeout(debouncedUpdate, 350); 
-
+      const initialLayoutTimeout = setTimeout(updateScrollability, 350); 
       return () => {
         if (resizeObserver && container) resizeObserver.unobserve(container);
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
         clearTimeout(initialLayoutTimeout);
       };
     }
-  }, [updateScrollability, experienceData.length]); // Added experienceData.length
+  }, [updateScrollability, experienceData.length, isMobile]);
   
   useEffect(() => {
-    if (!parallaxScrollContainer || !sectionRef.current) return;
+    if (isMobile || !parallaxScrollContainer || !sectionRef.current) return;
 
     const handleParallaxScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
@@ -239,21 +236,19 @@ export default function ExperienceSection() {
       if (parallaxScrollContainer) parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [parallaxScrollContainer, applyParallaxTransforms]);
+  }, [parallaxScrollContainer, applyParallaxTransforms, isMobile]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+        if (!sectionRef.current || !contentWrapperRef.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
         const mouseXInSection = event.clientX - rect.left;
         const mouseYInSection = event.clientY - rect.top;
-
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
@@ -276,23 +271,24 @@ export default function ExperienceSection() {
   }, [applyParallaxTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
-    if (isMobile) return;
+    if (isMobile || !contentWrapperRef.current) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
-        circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
-        circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+        circle1Ref.current.style.setProperty('--mouse-x-1', '0');
+        circle1Ref.current.style.setProperty('--mouse-y-1', '0');
     }
     if (circle2Ref.current) {
-        circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
-        circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+        circle2Ref.current.style.setProperty('--mouse-x-2', '0');
+        circle2Ref.current.style.setProperty('--mouse-y-2', '0');
     }
     applyParallaxTransforms();
   }, [applyParallaxTransforms, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return;
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
         circle1Ref.current?.style.setProperty(prop, '0')
     );
@@ -300,8 +296,7 @@ export default function ExperienceSection() {
         circle2Ref.current?.style.setProperty(prop, '0')
     );
     applyParallaxTransforms();
-  }, [applyParallaxTransforms]);
-
+  }, [applyParallaxTransforms, isMobile]);
 
   return (
     <section
@@ -311,19 +306,26 @@ export default function ExperienceSection() {
       onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5 [transform-style:preserve-3d]" 
     >
-      <div 
-        ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-[hsl(220_70%_50%_/_0.15)] dark:bg-[hsl(220_70%_50%_/_0.1)] rounded-[60%/45%] filter blur-[290px] md:blur-[350px] opacity-60 dark:opacity-55 transition-transform duration-300 ease-out"
-      ></div>
-      <div 
-        ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-primary/10 dark:bg-primary/5 rounded-[50%/65%] filter blur-[280px] md:blur-[340px] opacity-55 dark:opacity-50 transition-transform duration-300 ease-out"
-      ></div>
+      {!isMobile && (
+        <>
+          <div 
+            ref={circle1Ref} 
+            className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-[hsl(230,60%,20%)]/15 dark:bg-[hsl(230,50%,25%)]/10 rounded-[60%/45%] filter blur-[290px] md:blur-[350px] opacity-60 dark:opacity-55 transition-transform duration-300 ease-out"
+          ></div>
+          <div 
+            ref={circle2Ref} 
+            className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-primary/10 dark:bg-primary/5 rounded-[50%/65%] filter blur-[280px] md:blur-[340px] opacity-55 dark:opacity-50 transition-transform duration-300 ease-out"
+          ></div>
+        </>
+      )}
       
       <div 
         ref={contentWrapperRef}
-        className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full transition-transform duration-150 ease-out"
-        style={{ transformStyle: "preserve-3d" }}
+        className={cn(
+          "container mx-auto px-0 md:px-6 py-16 flex flex-col w-full",
+          !isMobile && "transition-transform duration-150 ease-out"
+        )}
+        style={!isMobile ? { transformStyle: "preserve-3d" } : {}}
       >
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💼 Professional Experience</h2>
@@ -332,9 +334,9 @@ export default function ExperienceSection() {
           </p>
         </AnimatedSection>
 
-        <div className="relative w-full mt-6">
-           <div className="overflow-hidden w-full"> 
-            {experienceData.length > 0 && (
+        <div className={cn("relative w-full mt-6", isMobile && "overflow-x-auto scrollbar-thin")}>
+          <div className={cn("overflow-hidden w-full", !isMobile && "[transform-style:preserve-3d] [perspective:1200px]")}> 
+            {!isMobile && experienceData.length > 0 && (
               <>
                 <Button
                   variant="outline"
@@ -366,82 +368,81 @@ export default function ExperienceSection() {
               </>
              )}
           
-            <div className="overflow-hidden w-full [transform-style:preserve-3d] [perspective:1200px]"> 
-              <div 
-                ref={scrollContainerRef}
-                className={cn(
-                  "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto scrollbar-thin",
-                   experienceData.length === 1 && "justify-center" 
-                )}
-                style={{ WebkitOverflowScrolling: 'touch' }} 
-              >
-                {experienceData.map((exp, index) => (
-                  <div
-                    key={exp.id}
-                    ref={(el) => { cardRefs.current[index] = el; }}
-                    className={cn(
-                      "group flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
-                    )}
+            <div 
+              ref={scrollContainerRef}
+              className={cn(
+                "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2",
+                 experienceData.length === 1 && !isMobile && "justify-center",
+                 isMobile ? "overflow-x-auto scrollbar-thin" : "overflow-hidden"
+              )}
+              style={isMobile ? { WebkitOverflowScrolling: 'touch' } : {}} 
+            >
+              {experienceData.map((exp, index) => (
+                <div
+                  key={exp.id}
+                  ref={(el) => { cardRefs.current[index] = el; }}
+                  className={cn(
+                    "group flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
+                  )}
+                >
+                  <AnimatedSection 
+                    animationType="scaleIn" 
+                    delay={`delay-${100}` as `delay-${number}`} 
                   >
-                    <AnimatedSection 
-                      animationType="scaleIn" 
-                      delay={`delay-${100}` as `delay-${number}`} 
-                    >
-                      <Card className={cn(
-                        "flex flex-col h-full shadow-xl overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30",
-                        "transition-all duration-500 ease-out",
-                        index === activeIndex 
-                          ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                          : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]",
-                        !isMobile && "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-4 group-hover:shadow-2xl"
-                      )}>
-                        <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
-                          {exp.logoUrl && (
-                            <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-1.5">
-                              <Image
-                                src={exp.logoUrl}
-                                alt={`${exp.company} logo`}
-                                fill
-                                sizes="(max-width: 768px) 4rem, 5rem"
-                                className="object-contain"
-                                data-ai-hint={exp.imageHint || "company logo"}
-                              />
+                    <Card className={cn(
+                      "flex flex-col h-full shadow-xl overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30",
+                      "transition-all duration-500 ease-out",
+                      !isMobile && (index === activeIndex 
+                        ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
+                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]"),
+                      !isMobile && "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-4 group-hover:shadow-2xl"
+                    )}>
+                      <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
+                        {exp.logoUrl && (
+                          <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-1.5">
+                            <Image
+                              src={exp.logoUrl}
+                              alt={`${exp.company} logo`}
+                              fill
+                              sizes="(max-width: 768px) 4rem, 5rem"
+                              className="object-contain"
+                              data-ai-hint={exp.imageHint || "company logo"}
+                            />
+                          </div>
+                        )}
+                        <div className="flex-grow pt-1 md:pt-0">
+                          <CardTitle className={cn("text-lg md:text-xl font-semibold text-primary", !isMobile && "group-hover:text-accent transition-colors")}>{exp.title}</CardTitle>
+                          <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                            <Building2 className="h-4 w-4 text-accent" />
+                            <span className="font-medium text-foreground/90 text-sm">{exp.company}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                            <CalendarDays className="h-3 w-3 text-accent" />
+                            <span>{exp.duration}</span>
+                          </div>
+                          {exp.location && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              <MapPin className="h-3 w-3 text-accent" />
+                              <span>{exp.location}</span>
                             </div>
                           )}
-                          <div className="flex-grow pt-1 md:pt-0">
-                            <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">{exp.title}</CardTitle>
-                            <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                              <Building2 className="h-4 w-4 text-accent" />
-                              <span className="font-medium text-foreground/90 text-sm">{exp.company}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                              <CalendarDays className="h-3 w-3 text-accent" />
-                              <span>{exp.duration}</span>
-                            </div>
-                            {exp.location && (
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                                <MapPin className="h-3 w-3 text-accent" />
-                                <span>{exp.location}</span>
-                              </div>
-                            )}
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-5 md:p-6 pt-0 space-y-2.5 flex-grow">
-                          <h4 className="text-sm font-semibold text-foreground/90 mb-1.5">Key Responsibilities & Achievements:</h4>
-                          <ul className="space-y-2 list-inside">
-                            {exp.description.map((item, idx) => (
-                              <li key={idx} className="flex items-start">
-                                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
-                                <span className="text-foreground/80 text-xs leading-relaxed">{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    </AnimatedSection>
-                  </div>
-                ))}
-              </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-5 md:p-6 pt-0 space-y-2.5 flex-grow">
+                        <h4 className="text-sm font-semibold text-foreground/90 mb-1.5">Key Responsibilities & Achievements:</h4>
+                        <ul className="space-y-2 list-inside">
+                          {exp.description.map((item, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                              <span className="text-foreground/80 text-xs leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </AnimatedSection>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -449,4 +450,6 @@ export default function ExperienceSection() {
     </section>
   );
 }
+    
+
     

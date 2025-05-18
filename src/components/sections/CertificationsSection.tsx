@@ -9,6 +9,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { Award, CalendarDays, ExternalLink, Building } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 const certificationsData: Certification[] = [
   {
@@ -16,7 +17,7 @@ const certificationsData: Certification[] = [
     name: 'Certified Ethical Hacker (CEH) - Mock',
     issuingOrganization: 'EC-Council (Example)',
     issueDate: 'Jan 2024',
-    credentialUrl: '#', // Replace with actual URL
+    credentialUrl: '#', 
     logoUrl: 'https://placehold.co/100x50.png',
     imageHint: 'EC-Council logo',
     description: 'Demonstrates knowledge of assessing the security of computer systems by looking for weaknesses and vulnerabilities.'
@@ -70,25 +71,29 @@ export default function CertificationsSection() {
   }, []);
 
   const applyTransforms = useCallback(() => {
-    if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current) return;
 
-    const scrollY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-y-1') || '0');
-    const scrollX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-x-1') || '0');
-    const scrollRotate1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-rotate-1') || '0');
-    const mouseX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-x-1') || '0');
-    const mouseY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-y-1') || '0');
-    circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.3)`;
+    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
+    if (circle1Ref.current) {
+      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.3)`;
+    }
 
-    const scrollY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-y-2') || '0');
-    const scrollX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-x-2') || '0');
-    const scrollRotate2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-rotate-2') || '0');
-    const mouseX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-x-2') || '0');
-    const mouseY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-y-2') || '0');
-    circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.25)`;
-  }, []);
+    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
+    if (circle2Ref.current) {
+      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.25)`;
+    }
+  }, [isMobile]);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current) return;
+    if (isMobile || !scrollContainer || !sectionRef.current) return;
 
     const handleScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
@@ -115,14 +120,14 @@ export default function CertificationsSection() {
       if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll);
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [scrollContainer, applyTransforms]);
+  }, [scrollContainer, applyTransforms, isMobile]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current) return;
 
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-      if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+      if (!sectionRef.current || !contentWrapperRef.current) return;
       const rect = sectionRef.current.getBoundingClientRect();
       const mouseXInSection = event.clientX - rect.left;
       const mouseYInSection = event.clientY - rect.top;
@@ -137,32 +142,37 @@ export default function CertificationsSection() {
         contentWrapperRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
       }
       
-      circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
-      circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
-      circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
-      circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+      if (circle1Ref.current) {
+        circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+        circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
+      }
+      if (circle2Ref.current) {
+        circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+        circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+      }
       applyTransforms();
     });
   }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
-    if(isMobile) return;
+    if(isMobile || !contentWrapperRef.current) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
-      circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
-      circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+      circle1Ref.current.style.setProperty('--mouse-x-1', '0');
+      circle1Ref.current.style.setProperty('--mouse-y-1', '0');
     }
     if (circle2Ref.current) {
-      circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
-      circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+      circle2Ref.current.style.setProperty('--mouse-x-2', '0');
+      circle2Ref.current.style.setProperty('--mouse-y-2', '0');
     }
     applyTransforms();
   }, [applyTransforms, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return;
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop =>
         circle1Ref.current?.style.setProperty(prop, '0')
     );
@@ -170,7 +180,7 @@ export default function CertificationsSection() {
         circle2Ref.current?.style.setProperty(prop, '0')
     );
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   return (
     <section
@@ -180,19 +190,26 @@ export default function CertificationsSection() {
       onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
-      <div
-        ref={circle1Ref}
-        className="absolute -z-10 top-[-5%] left-[-30%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-[hsl(290_60%_50%_/_0.1)] dark:bg-[hsl(290_60%_50%_/_0.05)] rounded-[50%/60%] filter blur-[300px] md:blur-[370px] opacity-50 dark:opacity-40"
-      ></div>
-      <div
-        ref={circle2Ref}
-        className="absolute -z-10 bottom-[0%] right-[-25%] w-[60rem] h-[70rem] md:w-[75rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[60%/50%] filter blur-[290px] md:blur-[360px] opacity-45 dark:opacity-35"
-      ></div>
+      {!isMobile && (
+        <>
+          <div
+            ref={circle1Ref}
+            className="absolute -z-10 top-[-5%] left-[-30%] w-[70rem] h-[80rem] md:w-[85rem] md:h-[95rem] bg-[hsl(270_60%_65%_/_0.15)] dark:bg-[hsl(270_60%_70%_/_0.1)] rounded-[50%/60%] filter blur-[300px] md:blur-[370px] opacity-50 dark:opacity-40"
+          ></div>
+          <div
+            ref={circle2Ref}
+            className="absolute -z-10 bottom-[0%] right-[-25%] w-[60rem] h-[70rem] md:w-[75rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[60%/50%] filter blur-[290px] md:blur-[360px] opacity-45 dark:opacity-35"
+          ></div>
+        </>
+      )}
 
       <div
         ref={contentWrapperRef}
-        className="container mx-auto px-4 md:px-6 py-16 transition-transform duration-150 ease-out"
-        style={{ transformStyle: "preserve-3d" }}
+        className={cn(
+          "container mx-auto px-4 md:px-6 py-16",
+          !isMobile && "transition-transform duration-150 ease-out"
+        )}
+        style={!isMobile ? { transformStyle: "preserve-3d" } : {}}
       >
         <AnimatedSection animationType="fadeInRight" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">📜 Licenses & Certifications</h2>
@@ -209,7 +226,7 @@ export default function CertificationsSection() {
                     <div className="flex items-start gap-4">
                         {cert.logoUrl && (
                             <div className="relative h-12 w-24 flex-shrink-0 bg-muted/30 p-1 rounded overflow-hidden border border-border/30">
-                                <Image src={cert.logoUrl} alt={`${cert.issuingOrganization} logo`} layout="fill" objectFit="contain" data-ai-hint={cert.imageHint}/>
+                                <Image src={cert.logoUrl} alt={`${cert.issuingOrganization} logo`} layout="fill" objectFit="contain" data-ai-hint={cert.imageHint || 'logo certification'}/>
                             </div>
                         )}
                         <div className="flex-grow">
@@ -252,3 +269,6 @@ export default function CertificationsSection() {
     </section>
   );
 }
+
+
+    

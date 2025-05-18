@@ -22,6 +22,7 @@ import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }).max(50, {message: "Name cannot exceed 50 characters."}),
@@ -77,26 +78,29 @@ export default function ContactSection() {
   }, []);
 
   const applyTransforms = useCallback(() => {
-    if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current) return;
 
-    const scrollY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-y-1') || '0');
-    const scrollX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-x-1') || '0');
-    const scrollRotate1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-rotate-1') || '0');
-    const mouseX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-x-1') || '0');
-    const mouseY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-y-1') || '0');
-    circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.15)`;
-    
+    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
+    if (circle1Ref.current) {
+      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.15)`;
+    }
 
-    const scrollY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-y-2') || '0');
-    const scrollX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-x-2') || '0');
-    const scrollRotate2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-rotate-2') || '0');
-    const mouseX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-x-2') || '0');
-    const mouseY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-y-2') || '0');
-    circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.12)`;
-  }, []);
+    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
+    if (circle2Ref.current) {
+      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.12)`;
+    }
+  }, [isMobile]);
 
   useEffect(() => {
-    if (!scrollContainer || !sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !scrollContainer || !sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
     const handleScroll = () => {
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
@@ -124,21 +128,19 @@ export default function ContactSection() {
       if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll);
       if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [scrollContainer, applyTransforms]);
+  }, [scrollContainer, applyTransforms, isMobile]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (isMobile || !sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (isMobile || !sectionRef.current || !contentWrapperRef.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+        if (!sectionRef.current || !contentWrapperRef.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
         const mouseXInSection = event.clientX - rect.left;
         const mouseYInSection = event.clientY - rect.top;
-
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
@@ -148,36 +150,38 @@ export default function ContactSection() {
             contentWrapperRef.current.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
         }
         
-      
-        circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
-        circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
-      
-        circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
-        circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
-        
+        if (circle1Ref.current) {
+          circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+          circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
+        }
+        if (circle2Ref.current) {
+          circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+          circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+        }
         applyTransforms();
     });
   }, [applyTransforms, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
-    if (isMobile) return;
+    if (isMobile || !contentWrapperRef.current) return;
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     
     if (circle1Ref.current) {
-        circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
-        circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+        circle1Ref.current.style.setProperty('--mouse-x-1', '0');
+        circle1Ref.current.style.setProperty('--mouse-y-1', '0');
     }
     if (circle2Ref.current) {
-        circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
-        circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+        circle2Ref.current.style.setProperty('--mouse-x-2', '0');
+        circle2Ref.current.style.setProperty('--mouse-y-2', '0');
     }
     applyTransforms();
   }, [applyTransforms, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return;
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
         circle1Ref.current?.style.setProperty(prop, '0')
     );
@@ -185,7 +189,7 @@ export default function ContactSection() {
         circle2Ref.current?.style.setProperty(prop, '0')
     );
     applyTransforms();
-  }, [applyTransforms]);
+  }, [applyTransforms, isMobile]);
 
   async function onSubmit(data: ContactFormValues) {
     form.setValue('name', data.name.trim());
@@ -239,7 +243,7 @@ export default function ContactSection() {
         });
         form.reset();
       } else {
-        console.error("API Logical Error (success: false):", result);
+        console.error("API Error:", result);
         toast({
           title: 'Error Sending Message 😥',
           description: result.error || "Something went wrong on the server. Please try again.",
@@ -266,19 +270,26 @@ export default function ContactSection() {
       onMouseLeave={!isMobile ? handleMouseLeave : undefined}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5 [transform-style:preserve-3d]"
     >
-      <div 
-        ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-primary/15 dark:bg-primary/10 rounded-[55%/40%] filter blur-[290px] md:blur-[360px] opacity-70 dark:opacity-60 transition-transform duration-300 ease-out" 
-      ></div>
-      <div 
-        ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-[hsl(280_60%_60%_/_0.15)] dark:bg-[hsl(280_60%_60%_/_0.1)] rounded-[45%/55%] filter blur-[280px] md:blur-[350px] opacity-65 dark:opacity-55 transition-transform duration-300 ease-out" 
-      ></div>
+      {!isMobile && (
+        <>
+          <div 
+            ref={circle1Ref} 
+            className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-primary/15 dark:bg-primary/10 rounded-[55%/40%] filter blur-[290px] md:blur-[360px] opacity-70 dark:opacity-60 transition-transform duration-300 ease-out" 
+          ></div>
+          <div 
+            ref={circle2Ref} 
+            className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-[hsl(270_60%_65%_/_0.2)] dark:bg-[hsl(270_60%_70%_/_0.2)] rounded-[45%/55%] filter blur-[280px] md:blur-[350px] opacity-65 dark:opacity-55 transition-transform duration-300 ease-out" 
+          ></div>
+        </>
+      )}
 
       <div 
         ref={contentWrapperRef}
-        className="container mx-auto px-4 md:px-6 py-16 transition-transform duration-150 ease-out"
-        style={{ transformStyle: "preserve-3d" }}
+        className={cn(
+          "container mx-auto px-4 md:px-6 py-16",
+          !isMobile && "transition-transform duration-150 ease-out"
+        )}
+        style={!isMobile ? { transformStyle: "preserve-3d" } : {}}
       >
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">📬 Get In Touch</h2>
@@ -306,7 +317,7 @@ export default function ContactSection() {
             <div className="bg-card/70 backdrop-blur-md p-6 rounded-lg shadow-lg border border-border/50">
               <h3 className="text-xl font-semibold text-primary mb-6">Follow Me</h3>
               <div className="flex space-x-4">
-                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-blue-600/10 hover:border-blue-500 hover:text-blue-500 transition-all duration-300 ease-in-out transform hover:scale-110">
+                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-blue-700/10 hover:border-blue-600 hover:text-blue-600 transition-all duration-300 ease-in-out transform hover:scale-110">
                   <Link href="https://www.linkedin.com/in/pragnesh-singh-rajput/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                     <Linkedin className="h-5 w-5" />
                   </Link>
@@ -316,14 +327,14 @@ export default function ContactSection() {
                     <Github className="h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-gray-700/10 hover:border-gray-400 hover:text-gray-300 transition-all duration-300 ease-in-out transform hover:scale-110">
+                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-foreground/10 hover:border-foreground/50 hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-110">
                    <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
                     </svg>
                   </Link>
                 </Button>
-                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-pink-500/10 hover:border-pink-500 hover:text-pink-500 transition-all duration-300 ease-in-out transform hover:scale-110">
+                <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-pink-600/10 hover:border-pink-500 hover:text-pink-500 transition-all duration-300 ease-in-out transform hover:scale-110">
                    <Link href="https://instagram.com/pragnesh_singh_rajput" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                     <Instagram className="h-5 w-5" />
                   </Link>
@@ -416,4 +427,6 @@ export default function ContactSection() {
   );
 }
     
+    
+
     
