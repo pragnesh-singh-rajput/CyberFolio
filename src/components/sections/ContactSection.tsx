@@ -66,13 +66,10 @@ export default function ContactSection() {
 
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
-    let animFrameId: number | null = null;
-
+    
     const performParallaxUpdate = () => {
       if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) {
-        if (typeof requestAnimationFrame === 'function') {
-            animFrameId = requestAnimationFrame(performParallaxUpdate);
-        }
+         animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
         return;
       }
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
@@ -88,49 +85,71 @@ export default function ContactSection() {
       const c2R = scrollProgress * 0.015;
       circle2Ref.current.style.transform = `translate3d(${c2X}px, ${c2Y}px, 0) rotate(${c2R}deg) scale(1.12)`;
       
-      if (typeof requestAnimationFrame === 'function') {
-        animFrameId = requestAnimationFrame(performParallaxUpdate);
-      }
+      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
-    const initialUpdate = () => {
-      if (animationFrameIdRef.current && typeof cancelAnimationFrame === 'function') {
-        cancelAnimationFrame(animationFrameIdRef.current);
-      }
-      if (typeof requestAnimationFrame === 'function') {
-        animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
-      }
+    animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+
+    const handleScroll = () => {
+       // The requestAnimationFrame logic is now inside performParallaxUpdate for continuous animation
     };
-    
-    initialUpdate();
 
-
-    scrollContainer.addEventListener('scroll', initialUpdate, { passive: true });
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', initialUpdate);
+        scrollContainer.removeEventListener('scroll', handleScroll);
       }
       if (animationFrameIdRef.current && typeof cancelAnimationFrame === 'function') {
         cancelAnimationFrame(animationFrameIdRef.current);
-      }
-       if (animFrameId && typeof cancelAnimationFrame === 'function') {
-        cancelAnimationFrame(animFrameId);
       }
     };
   }, [scrollContainer]);
 
   async function onSubmit(data: ContactFormValues) {
-    console.log("Contact form submitted:", data);
-    // Simulate backend call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    form.setValue('name', data.name.trim());
+    form.setValue('email', data.email.trim());
+    form.setValue('subject', data.subject.trim());
+    form.setValue('message', data.message.trim());
+    
+    console.log("Attempting to send data to /api/contact:", data);
 
-    toast({
-      title: 'Message Received! ✅',
-      description: "Thanks for reaching out! This form is currently for demo purposes.",
-      variant: 'default',
-      duration: 5000,
-    });
-    form.reset();
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast({
+          title: 'Message Sent! ✅',
+          description: result.message || "Thanks for reaching out! I'll get back to you soon.",
+          variant: 'default',
+          duration: 5000,
+        });
+        form.reset();
+      } else {
+        toast({
+          title: 'Error Sending Message 😥',
+          description: result.error || "Something went wrong. Please try again.",
+          variant: 'destructive',
+          duration: 5000,
+        });
+        console.error("API Error:", result);
+      }
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      toast({
+        title: 'Network Error 🌐',
+        description: "Could not reach the server. Please check your connection and try again.",
+        variant: 'destructive',
+        duration: 5000,
+      });
+    }
   }
 
   return (
@@ -141,11 +160,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/40 dark:bg-pink-700/45 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-70 dark:opacity-50 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/60 dark:bg-pink-700/50 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/35 dark:bg-purple-800/40 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-65 dark:opacity-45 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/50 dark:bg-purple-800/45 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-65 dark:opacity-55 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -203,11 +222,11 @@ export default function ContactSection() {
               <CardContent className="p-0">
                 {!isClient ? (
                   <div className="space-y-6">
-                    <Skeleton className="h-10" />
-                    <Skeleton className="h-10" />
-                    <Skeleton className="h-10" />
-                    <Skeleton className="h-20" />
-                    <Skeleton className="h-10 mt-2" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md" />
+                    <Skeleton className="h-20 w-full rounded-md" />
+                    <Skeleton className="h-10 w-full rounded-md mt-2" />
                   </div>
                 ) : (
                   <Form {...form}>
@@ -238,7 +257,7 @@ export default function ContactSection() {
                           </FormItem>
                         )}
                       />
-                      <FormField
+                       <FormField
                         control={form.control}
                         name="subject"
                         render={({ field }) => (
@@ -282,6 +301,3 @@ export default function ContactSection() {
     </section>
   );
 }
-    
-
-    
