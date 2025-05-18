@@ -157,15 +157,15 @@ export default function HeroSection() {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8 [transform-style:preserve-3d] bg-secondary/5"
+      className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden p-4 md:p-8 [transform-style:preserve-3d] bg-background"
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-25%] left-[-30%] w-[70rem] h-[60rem] md:w-[80rem] md:h-[70rem] bg-pink-500/50 dark:bg-pink-700/40 rounded-[60%/45%] filter blur-[250px] md:blur-[320px] opacity-80 dark:opacity-70 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[-25%] left-[-30%] w-[70rem] h-[60rem] md:w-[80rem] md:h-[70rem] bg-pink-500/60 dark:bg-pink-700/50 rounded-[60%/45%] filter blur-[250px] md:blur-[320px] opacity-80 dark:opacity-70 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[60rem] h-[70rem] md:w-[70rem] md:h-[80rem] bg-purple-500/40 dark:bg-purple-800/35 rounded-[45%/55%] filter blur-[240px] md:blur-[310px] opacity-75 dark:opacity-65 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[60rem] h-[70rem] md:w-[70rem] md:h-[80rem] bg-purple-500/50 dark:bg-purple-800/45 rounded-[45%/55%] filter blur-[240px] md:blur-[310px] opacity-75 dark:opacity-65 transition-transform duration-300 ease-out"
       ></div>
 
       <div
@@ -208,3 +208,4 @@ export default function HeroSection() {
     </section>
   );
 }
+
