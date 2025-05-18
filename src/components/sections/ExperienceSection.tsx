@@ -74,6 +74,14 @@ export default function ExperienceSection() {
 
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollUpdateRafId = useRef<number | null>(null);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
@@ -99,18 +107,9 @@ export default function ExperienceSection() {
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
-      let scrollBehavior: ScrollLogicalPosition = 'center';
-      if (experienceData.length > 1) {
-        if (index === 0) {
-          scrollBehavior = 'start';
-        } else if (index === experienceData.length - 1) {
-          scrollBehavior = 'end';
-        }
-      }
-
       cardElement.scrollIntoView({
         behavior: 'smooth',
-        inline: scrollBehavior,
+        inline: 'center', 
         block: 'nearest'
       });
       setActiveIndex(index);
@@ -118,9 +117,21 @@ export default function ExperienceSection() {
   }, [experienceData.length]); 
 
   useEffect(() => {
+    // This effect handles scrolling to the active card when activeIndex changes
+    // (e.g., due to button clicks), but NOT on initial mount for activeIndex === 0.
+    if (isMountedRef.current && activeIndex !== 0 && experienceData.length > 0 && cardRefs.current[activeIndex]) {
+      const timeoutId = setTimeout(() => scrollToCard(activeIndex), 50); // Small delay for UI to catch up
+      return () => clearTimeout(timeoutId);
+    }
+    // If activeIndex is 0 on mount, we don't scroll. HomePage handles initial page scroll.
+    // updateScrollability is handled by the ResizeObserver effect.
+  }, [activeIndex, experienceData.length, scrollToCard]);
+
+
+  useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      const handleScroll = () => {
+      const handleScrollEvent = () => {
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
         scrollTimeoutRef.current = setTimeout(() => {
           if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
@@ -128,51 +139,34 @@ export default function ExperienceSection() {
         }, 60); 
       };
 
-      container.addEventListener('scroll', handleScroll, { passive: true });
+      container.addEventListener('scroll', handleScrollEvent, { passive: true });
       return () => {
-        container.removeEventListener('scroll', handleScroll);
+        container.removeEventListener('scroll', handleScrollEvent);
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
       };
     }
   }, [updateScrollability]);
   
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-      scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
-    }, 350); 
-    return () => {
-      clearTimeout(timeoutId);
-      if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-    };
-  }, [activeIndex, updateScrollability, experienceData.length]);
-  
    useEffect(() => {
+    // Effect for ResizeObserver and initial scrollability update
     const container = scrollContainerRef.current;
     let resizeObserver: ResizeObserver | null = null;
 
     if (container) {
-      const handleResize = () => {
+      const handleResize = () => { // Simplified: only updates scrollability
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-        scrollUpdateRafId.current = requestAnimationFrame(() => {
-          updateScrollability();
-          if (experienceData.length > 0 && cardRefs.current[activeIndex]) {
-             scrollToCard(activeIndex);
-          } else if (experienceData.length === 0) {
-            setCanScrollLeft(false);
-            setCanScrollRight(false);
-          }
-        });
+        scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
       };
       
       resizeObserver = new ResizeObserver(handleResize);
       resizeObserver.observe(container);
       
+      // Initial scrollability check after mount
       const initialLayoutTimeout = setTimeout(() => {
          if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
-         scrollUpdateRafId.current = requestAnimationFrame(handleResize);
-      }, 250);
+         scrollUpdateRafId.current = requestAnimationFrame(updateScrollability);
+      }, 350); 
 
       return () => {
         if (resizeObserver && container) resizeObserver.unobserve(container);
@@ -180,7 +174,7 @@ export default function ExperienceSection() {
         clearTimeout(initialLayoutTimeout);
       };
     }
-  }, [activeIndex, scrollToCard, updateScrollability, experienceData.length]); 
+  }, [updateScrollability, experienceData.length]); // Removed activeIndex and scrollToCard as dependencies
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -191,10 +185,10 @@ export default function ExperienceSection() {
       const scrollProgress = -sectionTopInViewport;
 
       if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.35}px) translateX(${scrollProgress * 0.1}px) rotate(-${scrollProgress * 0.015}deg) scale(1.15)`;
+        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.1)`;
       }
       if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.22}px) translateX(-${scrollProgress * 0.08}px) rotate(${scrollProgress * 0.012}deg) scale(1.12)`;
+        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.1)`;
       }
       parallaxAnimationFrameIdRef.current = null; 
     };
@@ -204,9 +198,9 @@ export default function ExperienceSection() {
       parallaxAnimationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     
-    if (parallaxScrollContainer) {
-      handleParallaxScroll(); 
-      parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
+    if (parallaxScrollContainer){
+        handleParallaxScroll(); 
+        parallaxScrollContainer.addEventListener('scroll', handleParallaxScroll, { passive: true });
     }
     
     return () => {
@@ -223,11 +217,11 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-15%] right-[-40%] w-[90rem] h-[100rem] md:w-[105rem] md:h-[115rem] bg-blue-500/20 dark:bg-blue-800/25 rounded-[60%/45%] filter blur-[220px] md:blur-[300px] opacity-40 dark:opacity-30 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-10%] right-[-30%] w-[60rem] h-[70rem] md:w-[80rem] md:h-[90rem] bg-blue-600/25 dark:bg-blue-700/30 rounded-[60%/45%] filter blur-[200px] md:blur-[280px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] left-[-45%] w-[100rem] h-[85rem] md:w-[115rem] md:h-[100rem] bg-teal-400/15 dark:bg-teal-700/20 rounded-[50%/65%] filter blur-[210px] md:blur-[290px] opacity-40 dark:opacity-25 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[70rem] h-[65rem] md:w-[90rem] md:h-[80rem] bg-teal-500/20 dark:bg-teal-600/25 rounded-[50%/65%] filter blur-[190px] md:blur-[270px] opacity-45 dark:opacity-35 transition-transform duration-500 ease-out"
       ></div>
       
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -238,8 +232,8 @@ export default function ExperienceSection() {
           </p>
         </AnimatedSection>
 
-        <div className="relative w-full mt-6"> {/* Outer wrapper for buttons and scroller */}
-          {experienceData.length > 0 && (
+        <div className="relative w-full mt-6">
+           {experienceData.length > 1 && (
             <>
               <Button
                 variant="outline"
@@ -270,13 +264,35 @@ export default function ExperienceSection() {
               </Button>
             </>
           )}
+           {experienceData.length === 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={true}
+                aria-label="Scroll experience left"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-muted text-foreground/60 bg-background/50 h-10 w-10 sm:h-12 sm:w-12 opacity-70 cursor-not-allowed"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={true}
+                aria-label="Scroll experience right"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-muted text-foreground/60 bg-background/50 h-10 w-10 sm:h-12 sm:w-12 opacity-70 cursor-not-allowed"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </>
+          )}
           
-          <div className="overflow-hidden w-full"> {/* Scroller Clip Wrapper */}
+          <div className="overflow-hidden w-full"> 
             <div 
               ref={scrollContainerRef}
               className={cn(
                 "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
-                experienceData.length === 1 && "justify-center" 
+                 experienceData.length === 1 && "justify-center" 
               )}
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
             >
@@ -352,8 +368,6 @@ export default function ExperienceSection() {
     </section>
   );
 }
-    
- 
     
 
     

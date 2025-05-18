@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Github, ExternalLink } from 'lucide-react';
 import type { Project } from '@/types';
 import AnimatedSection from '@/components/ui/AnimatedSection';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
 const projectsData: Project[] = [
@@ -72,8 +72,8 @@ const projectsData: Project[] = [
 const duplicatedProjects = [...projectsData, ...projectsData];
 
 const baseAutoScrollSpeed = 1.0; 
-const hoverInducedSpeed = 2.0; // Speed when hovering left or right
-const neutralZonePercentage = 0.2; // 20% of the carousel width in the center will be a dead zone
+const hoverInducedSpeed = 2.0; 
+const neutralZonePercentage = 0.2; 
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -143,7 +143,7 @@ export default function ProjectsSection() {
 
       if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth) {
         currentScrollLeftRef.current -= singleSetWidth;
-      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0 && singleSetWidth > 0) { // Ensure singleSetWidth is positive
+      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0 && singleSetWidth > 0) { 
         currentScrollLeftRef.current += singleSetWidth;
       }
       
@@ -185,7 +185,7 @@ export default function ProjectsSection() {
   
   const handleMouseLeave = () => {
     isHoveringRef.current = false;
-    scrollSpeedRef.current = baseAutoScrollSpeed; // Reset to base speed when mouse leaves
+    scrollSpeedRef.current = baseAutoScrollSpeed; 
   };
 
   return (
@@ -196,11 +196,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-600/25 dark:bg-purple-700/30 rounded-[60%/45%] filter blur-[270px] md:blur-[340px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-15%] left-[-25%] w-[70rem] h-[90rem] md:w-[90rem] md:h-[110rem] bg-purple-500/30 dark:bg-purple-600/35 rounded-[60%/45%] filter blur-[250px] md:blur-[320px] opacity-60 dark:opacity-50 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/20 dark:bg-sky-700/25 rounded-[55%/60%] filter blur-[260px] md:blur-[330px] opacity-55 dark:opacity-45 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[80rem] h-[80rem] md:w-[100rem] md:h-[95rem] bg-sky-600/25 dark:bg-sky-700/30 rounded-[55%/60%] filter blur-[240px] md:blur-[310px] opacity-55 dark:opacity-45 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -228,7 +228,7 @@ export default function ProjectsSection() {
                   key={`${project.id}-${index}`} 
                   className={cn(
                     "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", 
-                    "transition-all duration-500 ease-in-out transform"
+                    "transition-all duration-500 ease-in-out transform" // Keep existing transitions
                   )}
                 >
                     <Card className={cn(
@@ -293,3 +293,4 @@ export default function ProjectsSection() {
   );
 }
 
+    
