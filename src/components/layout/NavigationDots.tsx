@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import Link from 'next/link';
-import { navItems } from './Header'; // Reuse navItems from Header
+import { useState, useEffect, useRef } from 'react';
+// Link import removed as it's not used directly for navigation here
+import { navItems } from './Header'; 
 import type { NavItem } from '@/types';
 import { cn } from '@/lib/utils';
 import {
@@ -14,54 +14,80 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function NavigationDots() {
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string | null>(navItems.length > 0 ? navItems[0].id : null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const mainScrollContainerRef = useRef<HTMLElement | null>(null);
+  const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
+
+  // Effect to find the scroll container element
+  useEffect(() => {
+    const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
+    if (mainElement) {
+      setScrollContainer(mainElement);
+    }
+  }, []); // Runs once on component mount to find the container
 
   useEffect(() => {
-    const mainContainer = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
-    if (mainContainer) {
-      mainScrollContainerRef.current = mainContainer;
+    if (!scrollContainer || navItems.length === 0) {
+      return; 
     }
 
     sectionRefs.current = navItems.map(item => document.getElementById(item.id));
     
     const callback: IntersectionObserverCallback = (entries) => {
+      let currentMostVisibleId: string | null = null;
+      let maxRatio = 0;
+
       entries.forEach(entry => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          setActiveSection(entry.target.id);
+        if (entry.isIntersecting) {
+          // Consider the section that has the largest intersection area
+          if (entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            currentMostVisibleId = entry.target.id;
+          }
         }
       });
+
+      // Only update if a section is significantly visible (e.g., >= 40% of it is in the "detection zone")
+      // and it's different from the current active section
+      if (currentMostVisibleId && maxRatio >= 0.4) { 
+        if (activeSection !== currentMostVisibleId) {
+          setActiveSection(currentMostVisibleId);
+        }
+      }
     };
 
     observerRef.current = new IntersectionObserver(callback, {
-      root: mainScrollContainerRef.current, // Observe within the main scrolling container
-      threshold: 0.5, // Trigger when 50% of the section is visible
-      rootMargin: "-40% 0px -40% 0px" // Adjust rootMargin to bias towards the center of the viewport
+      root: scrollContainer, // Use the found scroll container as the root
+      threshold: [0.4, 0.5, 0.6, 0.7, 0.8], // Array of thresholds for more granular updates
+      rootMargin: "-40% 0px -40% 0px" // Observe a central band of the viewport
     });
 
-    sectionRefs.current.forEach(section => {
-      if (section) {
-        observerRef.current?.observe(section);
+    const currentObserver = observerRef.current;
+
+    sectionRefs.current.forEach(sectionEl => {
+      if (sectionEl) {
+        currentObserver.observe(sectionEl);
       }
     });
 
     return () => {
-      sectionRefs.current.forEach(section => {
-        if (section) {
-          observerRef.current?.unobserve(section);
+      sectionRefs.current.forEach(sectionEl => {
+        if (sectionEl && currentObserver) {
+          currentObserver.unobserve(sectionEl);
         }
       });
-      observerRef.current?.disconnect();
+      if (currentObserver) {
+        currentObserver.disconnect();
+      }
     };
-  }, []);
+  }, [scrollContainer]); // Rerun when scrollContainer is found. navItems is static.
 
   const handleDotClick = (sectionId: string) => {
     const element = document.getElementById(sectionId);
-    if (element && mainScrollContainerRef.current) {
+    if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setActiveSection(sectionId);
+      setActiveSection(sectionId); // Immediately update for responsiveness on click
     }
   };
 
