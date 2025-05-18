@@ -53,7 +53,7 @@ const projectsData: Project[] = [
     title: 'Image & Video Rekognition with AWS',
     description: 'A project leveraging AWS Rekognition for advanced image and video analysis, demonstrating cloud-based computer vision capabilities.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'aws computer vision cloud',
+    imageHint: 'aws cloud vision',
     repoUrl: 'https://github.com/pragnesh-singh-rajput/image-and-video-rekognition-with-aws',
     tags: ['AWS', 'Rekognition', 'Cloud AI', 'Computer Vision', 'Python'],
   },
@@ -70,8 +70,8 @@ const projectsData: Project[] = [
 
 const duplicatedProjects = [...projectsData, ...projectsData];
 
-const baseScrollSpeed = 1.0; 
-const hoverSpeedFactor = 1.5; 
+const baseAutoScrollSpeed = 1.0; 
+const hoverInducedSpeed = 2.0; // Speed when hovering (magnitude)
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -81,9 +81,9 @@ export default function ProjectsSection() {
   const parallaxAnimationFrameIdRef = useRef<number | null>(null);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const animationFrameIdRef = useRef<number | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null); // For marquee scroll
   const isHoveringRef = useRef(false);
-  const scrollSpeedRef = useRef(baseScrollSpeed);
+  const scrollSpeedRef = useRef(baseAutoScrollSpeed); // Current speed, can be base or hover-induced
   const currentScrollLeftRef = useRef(0);
 
   useEffect(() => {
@@ -93,6 +93,8 @@ export default function ProjectsSection() {
 
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
+    const parallaxUpdateRef = parallaxAnimationFrameIdRef; // To avoid closure issues
+
     const performParallaxUpdate = () => {
       if (!sectionRef.current || !parallaxScrollContainer) return;
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
@@ -104,11 +106,11 @@ export default function ProjectsSection() {
       if (circle2Ref.current) {
         circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.28}px) translateX(-${scrollProgress * 0.18}px) rotate(-${scrollProgress * 0.016}deg) scale(1.3)`;
       }
-      parallaxAnimationFrameIdRef.current = null;
+      parallaxUpdateRef.current = null;
     };
     const handleParallaxScroll = () => {
-      if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
-      parallaxAnimationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+      if (parallaxUpdateRef.current) cancelAnimationFrame(parallaxUpdateRef.current);
+      parallaxUpdateRef.current = requestAnimationFrame(performParallaxUpdate);
     };
     if (parallaxScrollContainer){
         handleParallaxScroll(); 
@@ -116,7 +118,7 @@ export default function ProjectsSection() {
     }
     return () => {
       if (parallaxScrollContainer) parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
-      if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
+      if (parallaxUpdateRef.current) cancelAnimationFrame(parallaxUpdateRef.current);
     };
   }, [parallaxScrollContainer]);
 
@@ -132,13 +134,15 @@ export default function ProjectsSection() {
         return;
       }
       
-      const currentAppliedSpeed = isHoveringRef.current ? scrollSpeedRef.current : baseScrollSpeed;
+      const currentAppliedSpeed = isHoveringRef.current ? scrollSpeedRef.current : baseAutoScrollSpeed;
       currentScrollLeftRef.current += currentAppliedSpeed;
       
       const singleSetWidth = scrollElement.scrollWidth / 2;
+
       if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth) {
         currentScrollLeftRef.current -= singleSetWidth;
       } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0) {
+        // If scrolling left and hit the beginning, wrap around to the end of the first set
         currentScrollLeftRef.current += singleSetWidth;
       }
       
@@ -153,29 +157,31 @@ export default function ProjectsSection() {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [duplicatedProjects.length]);
+  }, [duplicatedProjects.length]); // Rerun if project data changes (though duplication handles static set)
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isHoveringRef.current || !scrollContainerRef.current) return;
+    if (!scrollContainerRef.current) return; // No need to set isHoveringRef here as mouse enter handles it
     const container = scrollContainerRef.current;
     const rect = container.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const midpoint = rect.width / 2;
 
     if (mouseX < midpoint) {
-      scrollSpeedRef.current = baseScrollSpeed - hoverSpeedFactor; 
+      scrollSpeedRef.current = -hoverInducedSpeed; // Scroll left
     } else {
-      scrollSpeedRef.current = baseScrollSpeed + hoverSpeedFactor; 
+      scrollSpeedRef.current = hoverInducedSpeed; // Scroll right
     }
   };
 
   const handleMouseEnter = () => {
     isHoveringRef.current = true;
+    // Initial speed set by mouseMove, but if mouse enters without moving, this might be needed.
+    // For simplicity, mouseMove will set the initial hover speed.
   };
   
   const handleMouseLeave = () => {
     isHoveringRef.current = false;
-    scrollSpeedRef.current = baseScrollSpeed; 
+    // scrollSpeedRef.current is not reset here; animateScroll will pick baseAutoScrollSpeed
   };
 
   return (
@@ -186,11 +192,11 @@ export default function ProjectsSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-600/30 dark:bg-purple-700/35 rounded-[60%/45%] filter blur-[270px] md:blur-[340px] opacity-40 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-20%] left-[-30%] w-[100rem] h-[80rem] md:w-[120rem] md:h-[90rem] bg-purple-600/20 dark:bg-purple-700/25 rounded-[60%/45%] filter blur-[270px] md:blur-[340px] opacity-50 dark:opacity-40 transition-transform duration-500 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/25 dark:bg-sky-700/30 rounded-[55%/60%] filter blur-[260px] md:blur-[330px] opacity-45 dark:opacity-50 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-25%] right-[-35%] w-[90rem] h-[90rem] md:w-[110rem] md:h-[105rem] bg-sky-500/15 dark:bg-sky-700/20 rounded-[55%/60%] filter blur-[260px] md:blur-[330px] opacity-45 dark:opacity-35 transition-transform duration-500 ease-out"
       ></div>
 
       <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
@@ -218,11 +224,12 @@ export default function ProjectsSection() {
                   key={`${project.id}-${index}`} 
                   className={cn(
                     "flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[400px] h-full py-2", 
-                    "transition-all duration-500 ease-in-out transform"
+                    "transition-all duration-500 ease-in-out transform" // Keep for potential future non-marquee use
                   )}
                 >
                     <Card className={cn(
                       "flex flex-col h-full overflow-hidden shadow-xl transition-all duration-300 ease-out bg-card/80 backdrop-blur-md border-border/40 group"
+                      // Removed active/inactive styling as it's a marquee now
                     )}>
                       {project.imageUrl && (
                         <div className="relative h-48 md:h-52 w-full overflow-hidden">
@@ -282,4 +289,3 @@ export default function ProjectsSection() {
     </section>
   );
 }
-
