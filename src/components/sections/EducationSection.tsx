@@ -6,12 +6,12 @@ import { GraduationCap, CalendarDays, MapPin, ShieldCheck } from 'lucide-react';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-const MAX_CONTENT_ROTATION = 5;
-const MAX_CIRCLE_MOUSE_OFFSET = 12;
+const MAX_CONTENT_ROTATION = 4;
+const MAX_CIRCLE_MOUSE_OFFSET = 10;
 
 export default function EducationSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const contentWrapperRef = useRef<HTMLDivElement>(null); // For the card
+  const contentWrapperRef = useRef<HTMLDivElement>(null); 
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
@@ -57,14 +57,14 @@ export default function EducationSection() {
         const scrollProgress = -sectionTopInViewport;
 
         if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.42}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * -0.09}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.02}`);
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.52}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * -0.11}`);
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.023}`);
         }
         if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.28}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * 0.1}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.012}`);
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.33}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * 0.13}`);
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.015}`);
         }
         applyTransforms();
       });
@@ -95,7 +95,6 @@ export default function EducationSection() {
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
-        // Tilt the Card
         if (contentWrapperRef.current) {
             const rotateX = normalizedMouseY * -MAX_CONTENT_ROTATION;
             const rotateY = normalizedMouseX * MAX_CONTENT_ROTATION;
@@ -150,25 +149,25 @@ export default function EducationSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[5%] left-[-30%] w-[50rem] h-[70rem] md:w-[60rem] md:h-[80rem] bg-accent/35 dark:bg-accent/30 rounded-[55%/45%] filter blur-[170px] md:blur-[220px] opacity-60 dark:opacity-50 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[5%] left-[-30%] w-[50rem] h-[70rem] md:w-[60rem] md:h-[80rem] bg-accent/20 dark:bg-accent/15 rounded-[55%/45%] filter blur-[170px] md:blur-[220px] opacity-60 dark:opacity-50 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[0%] right-[-25%] w-[60rem] h-[55rem] md:w-[70rem] md:h-[65rem] bg-primary/15 dark:bg-primary/20 rounded-[45%/55%] filter blur-[160px] md:blur-[210px] opacity-50 dark:opacity-40 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[0%] right-[-25%] w-[60rem] h-[55rem] md:w-[70rem] md:h-[65rem] bg-secondary/15 dark:bg-secondary/10 rounded-[45%/55%] filter blur-[160px] md:blur-[210px] opacity-50 dark:opacity-40 transition-transform duration-300 ease-out"
       ></div>
 
-      <div className="container mx-auto px-4 md:px-6 py-16">
+      <div 
+        ref={contentWrapperRef}
+        className="container mx-auto px-4 md:px-6 py-16 transition-transform duration-150 ease-out"
+        style={{ transformStyle: "preserve-3d" }}
+      >
         <AnimatedSection animationType="fadeInLeft" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">📚 My Education</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
             My academic journey in the field of computer science and cyber security.
           </p>
         </AnimatedSection>
-        <div 
-            ref={contentWrapperRef} 
-            className="flex justify-center transition-transform duration-150 ease-out"
-            style={{ transformStyle: "preserve-3d" }}
-        >
+        <div className="flex justify-center">
           <AnimatedSection animationType="scaleIn" delay="delay-300" className="w-full max-w-3xl">
             <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out bg-card/90 backdrop-blur-md border-primary/20 transform hover:scale-[1.03]">
               <CardHeader className="flex flex-col items-center text-center gap-4 pb-4">

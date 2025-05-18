@@ -55,7 +55,7 @@ export default function ContactSection() {
   });
 
   const sectionRef = useRef<HTMLElement>(null);
-  const contentWrapperRef = useRef<HTMLDivElement>(null); // To tilt the grid container
+  const contentWrapperRef = useRef<HTMLDivElement>(null); 
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
@@ -101,14 +101,14 @@ export default function ContactSection() {
         const scrollProgress = -sectionTopInViewport;
 
         if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.18}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.020}`);
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.55}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.20}`);
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.023}`);
         }
         if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.28}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.15}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.015}`);
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.33}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.18}`);
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.018}`);
         }
         applyTransforms();
       });
@@ -238,14 +238,18 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/50 dark:bg-pink-700/35 rounded-[55%/40%] filter blur-[220px] md:blur-[290px] opacity-70 dark:opacity-50 transition-transform duration-300 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-primary/25 dark:bg-primary/20 rounded-[55%/40%] filter blur-[220px] md:blur-[290px] opacity-70 dark:opacity-50 transition-transform duration-300 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/40 dark:bg-purple-800/30 rounded-[45%/55%] filter blur-[210px] md:blur-[280px] opacity-65 dark:opacity-45 transition-transform duration-300 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-[hsl(280_60%_60%_/_0.2)] dark:bg-[hsl(280_60%_60%_/_0.15)] rounded-[45%/55%] filter blur-[210px] md:blur-[280px] opacity-65 dark:opacity-45 transition-transform duration-300 ease-out" 
       ></div>
 
-      <div className="container mx-auto px-4 md:px-6 py-16">
+      <div 
+        ref={contentWrapperRef}
+        className="container mx-auto px-4 md:px-6 py-16 transition-transform duration-150 ease-out"
+        style={{ transformStyle: "preserve-3d" }}
+      >
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">📬 Get In Touch</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
@@ -253,9 +257,7 @@ export default function ContactSection() {
           </p>
         </AnimatedSection>
         <div 
-            ref={contentWrapperRef}
-            className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start transition-transform duration-150 ease-out"
-            style={{ transformStyle: "preserve-3d" }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start"
         >
           <AnimatedSection animationType="fadeInLeft" delay="delay-300" className="w-full space-y-10">
             <div className="bg-card/70 backdrop-blur-md p-6 rounded-lg shadow-lg border border-border/50">

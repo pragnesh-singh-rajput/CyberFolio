@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --background: 210 17% 97%; /* Light gray */
+    --background: 210 17% 97%; /* Light gray - Default light theme, unchanged */
     --foreground: 215 15% 16%; /* Dark navy blue */
     --card: 0 0% 100%; /* White */
     --card-foreground: 215 15% 16%; /* Dark navy blue */
@@ -33,30 +33,30 @@
   }
 
   .dark {
-    --background: 215 20% 10%; /* Darker, richer navy blue */
-    --foreground: 210 20% 95%; /* Softer light gray */
-    --card: 215 18% 14%; /* Slightly lighter dark navy for cards */
-    --card-foreground: 210 20% 95%; /* Softer light gray */
-    --popover: 215 18% 13%; /* Darker popover */
-    --popover-foreground: 210 20% 95%; /* Softer light gray */
-    --primary: 174 65% 50%; /* More vibrant Teal for primary actions */
-    --primary-foreground: 215 15% 10%; /* Darker text on primary buttons */
-    --secondary: 215 15% 20%; /* Darker shade for secondary elements */
-    --secondary-foreground: 210 20% 90%; /* Lighter gray for secondary text */
-    --muted: 215 15% 22%; /* Darker muted shade */
-    --muted-foreground: 210 20% 65%; /* Lighter muted text */
-    --accent: 174 70% 55%; /* Even more vibrant Teal for accents */
-    --accent-foreground: 215 15% 10%; /* Dark text on accent elements */
+    --background: 240 60% 10%; /* Deep Royal Blue/Indigo */
+    --foreground: 60 30% 95%; /* Cream/Silver */
+    --card: 230 50% 15%; /* Slightly Lighter Deep Blue / Dark Slate Blue */
+    --card-foreground: 60 30% 95%; /* Cream/Silver */
+    --popover: 230 45% 12%; /* Darker popover */
+    --popover-foreground: 60 30% 95%; /* Cream/Silver */
+    --primary: 40 70% 45%; /* Muted Gold/Bronze */
+    --primary-foreground: 240 60% 10%; /* Dark Royal Blue (for text on primary) */
+    --secondary: 240 40% 20%; /* Desaturated Mid-Dark Blue */
+    --secondary-foreground: 60 20% 85%; /* Light Grayish Cream */
+    --muted: 240 30% 25%; /* Darker Desaturated Blue */
+    --muted-foreground: 240 20% 60%; /* Mid-Grayish Blue */
+    --accent: 50 100% 60%; /* Rich Gold/Bright Yellow */
+    --accent-foreground: 240 60% 10%; /* Dark Royal Blue (for text on accent) */
     --destructive: 0 70% 50%; 
     --destructive-foreground: 0 0% 98%;
-    --border: 215 15% 25%; /* Softer border color */
-    --input: 215 15% 18%; /* Darker input background */
-    --ring: 174 70% 55%; /* Vibrant Teal for focus rings */
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --border: 240 30% 20%; /* Dark Desaturated Blue Border */
+    --input: 240 50% 12%; /* Darker Royal Blue Input */
+    --ring: 50 100% 60%; /* Rich Gold for focus rings */
+    --chart-1: 50 100% 60%; /* Rich Gold */
+    --chart-2: 270 60% 55%; /* Royal Purple */
+    --chart-3: 220 70% 65%; /* Bright Royal Blue */
+    --chart-4: 35 80% 50%; /* Bronze/Darker Gold */
+    --chart-5: 300 50% 45%; /* Deep Magenta/Purple */
   }
 }
 
@@ -91,10 +91,10 @@
     @apply bg-transparent;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    @apply bg-accent/50 rounded-full; /* Increased opacity for thumb */
+    @apply bg-accent/50 rounded-full; 
   }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    @apply bg-accent/70; /* Darker on hover */
+    @apply bg-accent/70; 
   }
 
   /* For Firefox */

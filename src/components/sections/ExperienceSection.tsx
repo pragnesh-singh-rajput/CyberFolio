@@ -58,12 +58,12 @@ const experienceData: ExperienceItem[] = [
   // },
 ];
 
-const MAX_CONTENT_ROTATION = 5; // For title area tilt
+const MAX_CONTENT_ROTATION = 4; 
 const MAX_CIRCLE_MOUSE_OFFSET = 10;
 
 export default function ExperienceSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleContentRef = useRef<HTMLDivElement>(null); // For tilting the title/description
+  const contentWrapperRef = useRef<HTMLDivElement>(null); 
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
@@ -129,7 +129,7 @@ export default function ExperienceSection() {
   }, [experienceData.length]);
   
   const scrollToCard = useCallback((index: number) => {
-    if (index < 0 || index >= experienceData.length || !scrollContainerRef.current) return;
+    if (index < 0 || index >= experienceData.length || !scrollContainerRef.current || !cardRefs.current[index]) return;
     
     const cardElement = cardRefs.current[index];
     if (cardElement) {
@@ -143,14 +143,11 @@ export default function ExperienceSection() {
   }, [experienceData.length]); 
 
   useEffect(() => {
-    if (isMountedRef.current && activeIndex !== 0 && experienceData.length > 1 && cardRefs.current[activeIndex]) {
-      // Only auto-scroll if activeIndex is not the first, to avoid initial scroll interference.
-    } else if (isMountedRef.current && experienceData.length > 0) {
-       // This ensures button states are correct on load for single or multiple items
-      const timeoutId = setTimeout(() => updateScrollability(), 360); // Slightly longer delay for robust layout calc
+     if (isMountedRef.current && experienceData.length > 0) {
+      const timeoutId = setTimeout(() => updateScrollability(), 360); 
       return () => clearTimeout(timeoutId);
     }
-  }, [activeIndex, experienceData.length, scrollToCard, updateScrollability]);
+  }, [activeIndex, experienceData.length, updateScrollability]);
 
 
   useEffect(() => {
@@ -183,9 +180,7 @@ export default function ExperienceSection() {
       if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
       scrollUpdateRafId.current = requestAnimationFrame(() => {
         updateScrollability();
-        if (experienceData.length > 0 && cardRefs.current[activeIndex]) {
-           scrollToCard(activeIndex); 
-        }
+        // No auto-scroll on resize to prevent jumpiness
       });
     };
 
@@ -201,7 +196,7 @@ export default function ExperienceSection() {
         clearTimeout(initialLayoutTimeout);
       };
     }
-  }, [updateScrollability, activeIndex, scrollToCard, experienceData.length]);
+  }, [updateScrollability, experienceData.length]);
   
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
@@ -214,14 +209,14 @@ export default function ExperienceSection() {
         const scrollProgress = -sectionTopInViewport;
 
         if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.3}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.08}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.014}`);
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.4}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.1}`);
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.018}`);
         }
         if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.18}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.07}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.011}`);
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.22}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.12}`);
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.014}`);
         }
         applyParallaxTransforms();
       });
@@ -239,11 +234,11 @@ export default function ExperienceSection() {
   }, [parallaxScrollContainer, applyParallaxTransforms]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || (!titleContentRef.current && experienceData.length > 0) || !circle1Ref.current || !circle2Ref.current) return;
+    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || (!titleContentRef.current && experienceData.length > 0) || !circle1Ref.current || !circle2Ref.current) return;
+        if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
         const mouseXInSection = event.clientX - rect.left;
         const mouseYInSection = event.clientY - rect.top;
@@ -254,10 +249,10 @@ export default function ExperienceSection() {
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
-        if (titleContentRef.current) {
+        if (contentWrapperRef.current) {
             const rotateX = normalizedMouseY * -MAX_CONTENT_ROTATION;
             const rotateY = normalizedMouseX * MAX_CONTENT_ROTATION;
-            titleContentRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
+            contentWrapperRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
         }
         
         if (circle1Ref.current) {
@@ -274,8 +269,8 @@ export default function ExperienceSection() {
 
   const handleMouseLeave = useCallback(() => {
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
-    if (titleContentRef.current) {
-      titleContentRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+    if (contentWrapperRef.current) {
+      contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
         circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
@@ -309,15 +304,15 @@ export default function ExperienceSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-blue-700/25 dark:bg-blue-900/20 rounded-[60%/45%] filter blur-[220px] md:blur-[290px] opacity-40 dark:opacity-35 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-[hsl(220_70%_50%_/_0.2)] dark:bg-[hsl(220_70%_50%_/_0.15)] rounded-[60%/45%] filter blur-[220px] md:blur-[290px] opacity-50 dark:opacity-45 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-teal-600/20 dark:bg-teal-800/15 rounded-[50%/65%] filter blur-[210px] md:blur-[280px] opacity-35 dark:opacity-30 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-primary/20 dark:bg-primary/15 rounded-[50%/65%] filter blur-[210px] md:blur-[280px] opacity-45 dark:opacity-40 transition-transform duration-300 ease-out"
       ></div>
       
       <div 
-        ref={titleContentRef}
+        ref={contentWrapperRef}
         className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full transition-transform duration-150 ease-out"
         style={{ transformStyle: "preserve-3d" }}
       >
@@ -329,41 +324,45 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className="relative w-full mt-6">
-          <div className="overflow-hidden w-full"> {/* Added this wrapper */}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => scrollToCard(activeIndex - 1)}
-              disabled={!canScrollLeft}
-              aria-label="Scroll experience left"
-              className={cn(
-                "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
-              )}
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </Button>
+           <div className="overflow-hidden w-full"> {/* Outer wrapper for button positioning */}
+             {experienceData.length > 1 && (
+               <>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => scrollToCard(activeIndex - 1)}
+                  disabled={!canScrollLeft}
+                  aria-label="Scroll experience left"
+                  className={cn(
+                    "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                    "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
+                  )}
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+              
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => scrollToCard(activeIndex + 1)}
+                  disabled={!canScrollRight}
+                  aria-label="Scroll experience right"
+                  className={cn(
+                      "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
+                      "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
+                    )}
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
+               </>
+             )}
           
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => scrollToCard(activeIndex + 1)}
-              disabled={!canScrollRight}
-              aria-label="Scroll experience right"
-              className={cn(
-                  "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
-                  "disabled:border-muted disabled:text-foreground/60 disabled:cursor-not-allowed disabled:opacity-70"
-                )}
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
-          
-            <div className="overflow-hidden w-full [transform-style:preserve-3d] [perspective:1000px]"> 
+            <div className="overflow-hidden w-full [transform-style:preserve-3d] [perspective:1200px]"> 
               <div 
                 ref={scrollContainerRef}
                 className={cn(
                   "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
-                  experienceData.length === 1 && "justify-center" 
+                   experienceData.length === 1 && "justify-center" 
                 )}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
               >

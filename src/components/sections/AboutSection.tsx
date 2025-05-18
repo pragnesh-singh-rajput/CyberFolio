@@ -4,8 +4,8 @@
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-const MAX_CONTENT_ROTATION = 5;
-const MAX_CIRCLE_MOUSE_OFFSET = 12;
+const MAX_CONTENT_ROTATION = 4;
+const MAX_CIRCLE_MOUSE_OFFSET = 10;
 
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -25,7 +25,6 @@ export default function AboutSection() {
   const applyTransforms = useCallback(() => {
     if (!sectionRef.current) return;
 
-    // Background Circles
     const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
     const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
     const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
@@ -56,20 +55,20 @@ export default function AboutSection() {
         const scrollProgress = -sectionTopInViewport;
 
         if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.4}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.1}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.022}`);
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.5}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.12}`);
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.025}`);
         }
         if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.25}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.12}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.014}`);
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.3}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.15}`);
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.018}`);
         }
         applyTransforms();
       });
     };
     
-    handleScroll(); // Initial call
+    handleScroll(); 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
@@ -148,11 +147,11 @@ export default function AboutSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[0%] right-[-25%] w-[50rem] h-[40rem] md:w-[65rem] md:h-[50rem] bg-accent/30 dark:bg-accent/25 rounded-[50%/40%] filter blur-[160px] md:blur-[210px] opacity-50 dark:opacity-40 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[0%] right-[-25%] w-[50rem] h-[40rem] md:w-[65rem] md:h-[50rem] bg-primary/20 dark:bg-primary/15 rounded-[50%/40%] filter blur-[160px] md:blur-[210px] opacity-50 dark:opacity-40 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[5%] left-[-20%] w-[35rem] h-[45rem] md:w-[45rem] md:h-[60rem] bg-foreground/10 dark:bg-foreground/10 rounded-[60%/50%] filter blur-[150px] md:blur-[200px] opacity-40 dark:opacity-30 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[5%] left-[-20%] w-[35rem] h-[45rem] md:w-[45rem] md:h-[60rem] bg-[hsl(220_70%_60%_/_0.15)] dark:bg-[hsl(220_70%_60%_/_0.1)] rounded-[60%/50%] filter blur-[150px] md:blur-[200px] opacity-40 dark:opacity-30 transition-transform duration-300 ease-out"
       ></div>
       
       <div 

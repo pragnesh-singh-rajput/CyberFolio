@@ -69,18 +69,18 @@ const projectsData: Project[] = [
   },
 ];
 
-const duplicatedProjects = [...projectsData, ...projectsData];
+const duplicatedProjects = [...projectsData, ...projectsData, ...projectsData]; // Triplicate for smoother infinite feel
 
-const baseAutoScrollSpeed = 1.0;
+const baseAutoScrollSpeed = 1.0; 
 const hoverInducedSpeed = 2.0; 
 const neutralZonePercentage = 0.2; 
 
-const MAX_CONTENT_ROTATION = 5; // For title area tilt
+const MAX_CONTENT_ROTATION = 4;
 const MAX_CIRCLE_MOUSE_OFFSET = 10;
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleContentRef = useRef<HTMLDivElement>(null); // For tilting the title/description
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
@@ -130,14 +130,14 @@ export default function ProjectsSection() {
         const scrollProgress = -sectionTopInViewport;
 
         if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.22}`);
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.022}`);
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.55}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.25}`);
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.025}`);
         }
         if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.28}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.18}`);
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.016}`);
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.32}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.20}`);
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.019}`);
         }
         applyParallaxTransforms();
       });
@@ -160,29 +160,38 @@ export default function ProjectsSection() {
     currentScrollLeftRef.current = scrollElement.scrollLeft;
 
     const animateScroll = () => {
-      if (!scrollElement) { // Check if scrollElement still exists
+      if (!scrollElement) { 
         if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current);
-        autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll); // Keep trying if not yet mounted
+        autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll); 
         return;
       }
       
       const currentAppliedSpeed = isHoveringRef.current ? scrollSpeedRef.current : baseAutoScrollSpeed;
       currentScrollLeftRef.current += currentAppliedSpeed;
       
-      const singleSetWidth = scrollElement.scrollWidth / 2;
+      const singleSetWidth = scrollElement.scrollWidth / 3; // Adjusted for triplicate data
 
-      if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth && singleSetWidth > 0) {
+      if (currentAppliedSpeed > 0 && currentScrollLeftRef.current >= singleSetWidth * 2 && singleSetWidth > 0) { // Reset when reaching end of second set
         currentScrollLeftRef.current -= singleSetWidth;
-      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= 0 && singleSetWidth > 0) {
+        scrollElement.scrollLeft = currentScrollLeftRef.current; // Immediate jump
+      } else if (currentAppliedSpeed < 0 && currentScrollLeftRef.current <= singleSetWidth && singleSetWidth > 0) { // Reset when reaching start of second set
         currentScrollLeftRef.current += singleSetWidth;
+        scrollElement.scrollLeft = currentScrollLeftRef.current; // Immediate jump
       }
       
       scrollElement.scrollLeft = currentScrollLeftRef.current;
-      if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current); // Ensure previous frame is cancelled
+      if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current); 
       autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll);
     };
+    
+    // Initialize scroll position to the start of the "middle" set of items
+    if (scrollElement.scrollWidth > 0 && currentScrollLeftRef.current === 0) {
+        currentScrollLeftRef.current = scrollElement.scrollWidth / 3;
+        scrollElement.scrollLeft = currentScrollLeftRef.current;
+    }
 
-    if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current); // Cancel any existing before starting
+
+    if (autoScrollFrameIdRef.current) cancelAnimationFrame(autoScrollFrameIdRef.current); 
     autoScrollFrameIdRef.current = requestAnimationFrame(animateScroll);
 
     return () => {
@@ -190,15 +199,14 @@ export default function ProjectsSection() {
         cancelAnimationFrame(autoScrollFrameIdRef.current);
       }
     };
-  }, [duplicatedProjects.length]); // Re-run if data changes
+  }, [duplicatedProjects.length]); 
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!sectionRef.current || !titleContentRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
     
-    // Mouse move for title tilt and circle parallax
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     parallaxFrameIdRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current || !titleContentRef.current || !circle1Ref.current || !circle2Ref.current) return;
+        if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
         const mouseXInSection = event.clientX - rect.left;
         const mouseYInSection = event.clientY - rect.top;
@@ -209,10 +217,10 @@ export default function ProjectsSection() {
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
-        if (titleContentRef.current) {
+        if (contentWrapperRef.current) {
             const rotateX = normalizedMouseY * -MAX_CONTENT_ROTATION;
             const rotateY = normalizedMouseX * MAX_CONTENT_ROTATION;
-            titleContentRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
+            contentWrapperRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
         }
         
         if (circle1Ref.current) {
@@ -226,9 +234,7 @@ export default function ProjectsSection() {
         applyParallaxTransforms();
     });
 
-    // Mouse move for carousel speed
     if (!scrollContainerRef.current) return;
-    isHoveringRef.current = true;
     const carouselRect = scrollContainerRef.current.getBoundingClientRect();
     const mouseXInCarousel = event.clientX - carouselRect.left;
     
@@ -245,10 +251,19 @@ export default function ProjectsSection() {
     }
   }, [applyParallaxTransforms]);
 
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseEnterCarousel = useCallback(() => {
+    isHoveringRef.current = true;
+  }, []);
+
+  const handleMouseLeaveCarousel = useCallback(() => {
+    isHoveringRef.current = false;
+    scrollSpeedRef.current = baseAutoScrollSpeed; 
+  }, []);
+
+  const handleMouseLeaveSection = useCallback(() => {
     if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
-    if (titleContentRef.current) {
-      titleContentRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+    if (contentWrapperRef.current) {
+      contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
         circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
@@ -259,8 +274,8 @@ export default function ProjectsSection() {
         circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyParallaxTransforms();
-
-    // Reset carousel speed
+    
+    // Also reset carousel hover state if mouse leaves entire section
     isHoveringRef.current = false;
     scrollSpeedRef.current = baseAutoScrollSpeed; 
   }, [applyParallaxTransforms]);
@@ -280,20 +295,20 @@ export default function ProjectsSection() {
       id="projects"
       ref={sectionRef}
       onMouseMove={handleMouseMove} 
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={handleMouseLeaveSection}
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
       <div
         ref={circle1Ref}
-        className="absolute -z-10 top-[-15%] left-[-25%] w-[90rem] h-[110rem] bg-purple-600/30 dark:bg-purple-800/25 rounded-[60%/45%] filter blur-[260px] md:blur-[330px] opacity-50 dark:opacity-40 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[-15%] left-[-25%] w-[90rem] h-[110rem] bg-purple-600/25 dark:bg-[hsl(270_60%_55%_/_0.2)] rounded-[60%/45%] filter blur-[260px] md:blur-[330px] opacity-60 dark:opacity-50 transition-transform duration-300 ease-out"
       ></div>
       <div
         ref={circle2Ref}
-        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[100rem] h-[95rem] bg-sky-700/25 dark:bg-sky-900/20 rounded-[55%/60%] filter blur-[250px] md:blur-[320px] opacity-45 dark:opacity-35 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[-20%] right-[-30%] w-[100rem] h-[95rem] bg-accent/15 dark:bg-accent/10 rounded-[55%/60%] filter blur-[250px] md:blur-[320px] opacity-55 dark:opacity-45 transition-transform duration-300 ease-out"
       ></div>
 
       <div 
-        ref={titleContentRef}
+        ref={contentWrapperRef}
         className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full transition-transform duration-150 ease-out"
         style={{ transformStyle: "preserve-3d" }}
       >
@@ -306,9 +321,8 @@ export default function ProjectsSection() {
         
         <div
           className="relative w-full mt-6 [transform-style:preserve-3d] [perspective:1200px]"
-          // onMouseEnter={handleMouseEnterCarousel} // Combined into section's onMouseMove
-          // onMouseLeave={handleMouseLeaveCarousel} // Combined into section's onMouseLeave
-          // onMouseMove={handleMouseMoveCarousel} // Combined into section's onMouseMove
+          onMouseEnter={handleMouseEnterCarousel}
+          onMouseLeave={handleMouseLeaveCarousel}
         >
            <div className="overflow-hidden w-full">
             <div

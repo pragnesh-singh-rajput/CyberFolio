@@ -8,8 +8,8 @@ import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
-const MAX_CONTENT_ROTATION = 6; // Slightly reduced for subtlety
-const MAX_CIRCLE_MOUSE_OFFSET = 15; // Reduced mouse offset for circles
+const MAX_CONTENT_ROTATION = 4; 
+const MAX_CIRCLE_MOUSE_OFFSET = 10; 
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -30,9 +30,6 @@ export default function HeroSection() {
   const applyTransforms = useCallback(() => {
     if (!sectionRef.current) return;
 
-    // Content Tilt (already handled by direct style in handleMouseMove)
-
-    // Background Circles
     const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
     const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
     const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
@@ -63,22 +60,21 @@ export default function HeroSection() {
         const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
         const scrollProgress = -sectionTopInViewport;
 
-        // Background Circles Scroll Parallax
         if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}`);
-          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.15}`); // Horizontal drift
-          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.025}`); // Rotation
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.55}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.18}`); 
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.03}`); 
         }
         if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.3}`);
-          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.16}`); // Opposite drift
-          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.018}`); // Opposite rotation
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.35}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.20}`); 
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.022}`); 
         }
         applyTransforms();
       });
     };
     
-    handleScroll(); // Initial call
+    handleScroll(); 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
@@ -103,20 +99,18 @@ export default function HeroSection() {
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
-        // Content Tilt
         if (contentWrapperRef.current) {
             const rotateX = normalizedMouseY * -MAX_CONTENT_ROTATION;
             const rotateY = normalizedMouseX * MAX_CONTENT_ROTATION;
             contentWrapperRef.current.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
         }
         
-        // Background Circles Mouse Parallax
         if (circle1Ref.current) {
             circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
             circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
         }
         if (circle2Ref.current) {
-            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`); // Slightly different offset
+            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`); 
             circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`);
         }
         applyTransforms();
@@ -140,7 +134,6 @@ export default function HeroSection() {
   }, [applyTransforms]);
   
   useEffect(() => {
-    // Initialize CSS custom properties for transforms
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
         circle1Ref.current?.style.setProperty(prop, '0')
     );
@@ -161,11 +154,11 @@ export default function HeroSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-25%] left-[-30%] w-[80rem] h-[70rem] md:w-[90rem] md:h-[80rem] bg-pink-500/50 dark:bg-pink-700/40 rounded-[60%/45%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[-25%] left-[-30%] w-[80rem] h-[70rem] md:w-[90rem] md:h-[80rem] bg-accent/20 dark:bg-accent/15 rounded-[60%/45%] filter blur-[200px] md:blur-[270px] opacity-70 dark:opacity-60 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[70rem] h-[80rem] md:w-[80rem] md:h-[90rem] bg-purple-500/40 dark:bg-purple-800/35 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-55 dark:opacity-45 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[70rem] h-[80rem] md:w-[80rem] md:h-[90rem] bg-[hsl(270_60%_50%_/_0.2)] dark:bg-[hsl(270_60%_50%_/_0.15)] rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-65 dark:opacity-55 transition-transform duration-300 ease-out"
       ></div>
 
       <div
@@ -178,7 +171,7 @@ export default function HeroSection() {
             <h1 className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="inline-block group-hover:animate-pulse-subtle">👋</span> Hello, I&apos;m{' '}
               <span 
-                className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-teal-400 to-emerald-500 bg-[length:200%_auto] animate-gradient-x"
+                className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-400 bg-[length:200%_auto] animate-gradient-x"
               >
                 PK Singh
               </span>
@@ -195,7 +188,7 @@ export default function HeroSection() {
              <Button 
               asChild 
               size="lg" 
-              className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-accent via-teal-500 to-emerald-600 text-accent-foreground group bg-[length:200%_auto]"
+              className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-400 text-accent-foreground group bg-[length:200%_auto] animate-gradient-x"
             >
               <Link href="#contact">
                 🚀 Get In Touch
