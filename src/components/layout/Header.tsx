@@ -91,7 +91,7 @@ export default function Header() {
       <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6">
         <Link href="#home" className="flex items-center gap-2 text-xl font-bold text-primary hover:text-accent transition-colors duration-300 ease-in-out group">
           <ShieldCheck className="h-7 w-7 text-accent group-hover:animate-pulse" />
-          <span>PK Singh</span>
+          <span>CyberFolio</span>
         </Link>
 
         <div> 
@@ -107,7 +107,7 @@ export default function Header() {
                 <SheetTitle asChild>
                   <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group" onClick={() => setIsSheetOpen(false)}>
                     <ShieldCheck className="h-6 w-6 text-accent group-hover:animate-pulse" />
-                    <span>PK Singh</span>
+                    <span>CyberFolio</span>
                   </Link>
                 </SheetTitle>
                 <nav className="flex flex-col gap-3">
