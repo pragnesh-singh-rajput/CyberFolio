@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet';
 import { Menu, ShieldCheck, Home, User, GraduationCap, Briefcase, Mail, Building2, Cpu, Star, Award } from 'lucide-react';
 import type { NavItem } from '@/types';
 
@@ -76,7 +76,7 @@ export default function Header() {
             <ShieldCheck className="h-7 w-7 text-accent" />
             <span>PK Singh</span>
           </div>
-          <div> {/* Removed md:hidden to show on all sizes when not mounted */}
+          <div> 
             <Button variant="ghost" size="icon" disabled>
               <Menu className="h-6 w-6" />
             </Button>
@@ -94,9 +94,7 @@ export default function Header() {
           <span>PK Singh</span>
         </Link>
 
-        {/* Removed the inline desktop navigation block */}
-
-        <div> {/* Removed md:hidden to make sheet trigger visible on all screen sizes */}
+        <div> 
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="hover:bg-accent/10 focus:ring-2 focus:ring-accent">
@@ -106,10 +104,12 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs bg-background/95 backdrop-blur-md p-6 border-l-accent/50">
               <div className="flex flex-col gap-6">
-                <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group" onClick={() => setIsSheetOpen(false)}>
-                  <ShieldCheck className="h-6 w-6 text-accent group-hover:animate-pulse" />
-                  <span>PK Singh</span>
-                </Link>
+                <SheetTitle asChild>
+                  <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group" onClick={() => setIsSheetOpen(false)}>
+                    <ShieldCheck className="h-6 w-6 text-accent group-hover:animate-pulse" />
+                    <span>PK Singh</span>
+                  </Link>
+                </SheetTitle>
                 <nav className="flex flex-col gap-3">
                   {navItems.map((item) => (
                     <SheetClose key={item.label} asChild>
