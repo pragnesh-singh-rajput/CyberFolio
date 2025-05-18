@@ -48,14 +48,13 @@ const Toast = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
-  // If variant is 'default', apply accent border and text for visual pop, but keep card background
   const isDefaultAndThemed = variant === "default";
   return (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(
         toastVariants({ variant }),
-        isDefaultAndThemed && "border-accent bg-background text-foreground dark:border-accent dark:bg-accent/10 dark:text-accent-foreground", // Custom styling for default to match theme accent
+        isDefaultAndThemed && "border-accent bg-background text-foreground dark:border-accent dark:bg-card dark:text-foreground", // Updated for better dark mode readability
         className
       )}
       {...props}
