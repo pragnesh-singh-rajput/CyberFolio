@@ -7,7 +7,10 @@ import HeroSection from '@/components/sections/HeroSection';
 import AboutSection from '@/components/sections/AboutSection';
 import EducationSection from '@/components/sections/EducationSection';
 import ExperienceSection from '@/components/sections/ExperienceSection';
+import TechStackSection from '@/components/sections/TechStackSection';
+import SkillsSection from '@/components/sections/SkillsSection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
+import CertificationsSection from '@/components/sections/CertificationsSection';
 import ContactSection from '@/components/sections/ContactSection';
 import NavigationDots from '@/components/layout/NavigationDots';
 
@@ -34,14 +37,17 @@ export default function HomePage() {
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground relative">
       <Header />
       <NavigationDots />
-      <main 
+      <main
         className="flex-1 overflow-y-auto scroll-pt-16 parallax-scroll-container"
       >
         <HeroSection />
         <AboutSection />
         <EducationSection />
         <ExperienceSection />
+        <TechStackSection />
+        <SkillsSection />
         <ProjectsSection />
+        <CertificationsSection />
         <ContactSection />
         <Footer />
       </main>

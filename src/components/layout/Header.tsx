@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { Menu, ShieldCheck, Home, User, GraduationCap, Briefcase, Mail, Building2 } from 'lucide-react';
+import { Menu, ShieldCheck, Home, User, GraduationCap, Briefcase, Mail, Building2, Cpu, Star, Award } from 'lucide-react';
 import type { NavItem } from '@/types';
 
 export const navItems: NavItem[] = [
@@ -13,7 +13,10 @@ export const navItems: NavItem[] = [
   { id: 'about', href: '#about', label: 'About', icon: User },
   { id: 'education', href: '#education', label: 'Education', icon: GraduationCap },
   { id: 'experience', href: '#experience', label: 'Experience', icon: Building2 },
+  { id: 'tech-stack', href: '#tech-stack', label: 'Tech Stack', icon: Cpu },
+  { id: 'skills', href: '#skills', label: 'Skills', icon: Star },
   { id: 'projects', href: '#projects', label: 'Projects', icon: Briefcase },
+  { id: 'certifications', href: '#certifications', label: 'Certs', icon: Award },
   { id: 'contact', href: '#contact', label: 'Contact', icon: Mail },
 ];
 
@@ -24,7 +27,7 @@ export default function Header() {
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   useEffect(() => {
     const handleHashLinkClick = (event: MouseEvent) => {
       const target = event.currentTarget as HTMLAnchorElement;
@@ -33,9 +36,20 @@ export default function Header() {
         event.preventDefault();
         const elementId = href.substring(1);
         const element = document.getElementById(elementId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+        const mainScrollContainer = document.querySelector('.parallax-scroll-container');
+
+        if (element && mainScrollContainer) {
+          const headerOffset = document.querySelector('header')?.offsetHeight || 0;
+          const elementPosition = element.offsetTop - headerOffset;
+          
+          mainScrollContainer.scrollTo({
+            top: elementPosition,
+            behavior: 'smooth'
+          });
+        } else if (element) { // Fallback if main scroll container not found immediately
+           element.scrollIntoView({ behavior: 'smooth' });
         }
+
         if (isSheetOpen) {
           setIsSheetOpen(false);
         }
@@ -52,6 +66,7 @@ export default function Header() {
       });
     };
   }, [isSheetOpen]);
+
 
   if (!mounted) {
     return (
@@ -78,11 +93,11 @@ export default function Header() {
           <ShieldCheck className="h-7 w-7 text-accent group-hover:animate-pulse" />
           <span>PK Singh</span>
         </Link>
-        
-        <nav className="hidden md:flex gap-1">
+
+        <nav className="hidden md:flex gap-0.5">
           {navItems.map((item) => (
-            <Button key={item.label} variant="ghost" asChild>
-              <Link href={item.href} className="text-sm font-medium text-foreground hover:text-accent hover:bg-accent/10 px-3 py-2 rounded-md transition-all duration-200 ease-in-out">
+            <Button key={item.label} variant="ghost" asChild size="sm">
+              <Link href={item.href} className="text-xs font-medium text-foreground hover:text-accent hover:bg-accent/10 px-2.5 py-2 rounded-md transition-all duration-200 ease-in-out">
                 {item.label}
               </Link>
             </Button>
@@ -99,7 +114,7 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs bg-background/95 backdrop-blur-md p-6 border-l-accent/50">
               <div className="flex flex-col gap-6">
-                <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group">
+                <Link href="#home" className="flex items-center gap-2 text-lg font-bold text-primary group" onClick={() => setIsSheetOpen(false)}>
                   <ShieldCheck className="h-6 w-6 text-accent group-hover:animate-pulse" />
                   <span>PK Singh</span>
                 </Link>

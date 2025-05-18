@@ -24,6 +24,32 @@ export interface ExperienceItem {
   duration: string;
   location?: string;
   description: string[];
-  logoUrl?: string; 
-  imageHint?: string; 
+  logoUrl?: string;
+  imageHint?: string;
+}
+
+export interface TechSkill {
+  id: string;
+  name: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  category: string; // e.g., 'Languages', 'Frameworks & Libraries', 'Databases', 'Tools & Platforms', 'Cybersecurity'
+  proficiency?: number; // Optional: 1-100 for a progress bar
+}
+
+export interface OtherSkill {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  issuingOrganization: string;
+  issueDate?: string;
+  expirationDate?: string; // Optional
+  credentialId?: string; // Optional
+  credentialUrl?: string; // Optional
+  logoUrl?: string; // Optional
+  imageHint?: string;
 }
