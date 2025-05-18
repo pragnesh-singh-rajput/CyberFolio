@@ -11,25 +11,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
 
-    // Log received data for debugging (especially useful in serverless environments)
+    // Log received data for debugging
     console.log("Received contact form data:", { name, email, subject });
 
     // Check for essential environment variables
-    if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.CONTACT_FORM_EMAIL_TO || !process.env.CONTACT_FORM_EMAIL_FROM) {
-      console.error("SMTP configuration environment variables are missing!");
-      return NextResponse.json({ success: false, error: "Server configuration error. Please contact support." }, { status: 500 });
+    const requiredEnvVars = [
+      'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS',
+      'CONTACT_FORM_EMAIL_TO', 'CONTACT_FORM_EMAIL_FROM'
+    ];
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+    if (missingVars.length > 0) {
+      console.error("SMTP configuration error: Missing environment variables:", missingVars.join(', '));
+      return NextResponse.json({
+        success: false,
+        error: "Server configuration error. Please contact support.",
+        details: `Missing environment variables: ${missingVars.join(', ')}` // For server logs/debugging
+      }, { status: 500 });
     }
     
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT), // Ensure port is a number
+      port: Number(process.env.SMTP_PORT),
       secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports (like 587 which uses STARTTLS)
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
       tls: {
-        // do not fail on invalid certs if not in production
         rejectUnauthorized: process.env.NODE_ENV === 'production', 
       }
     });
@@ -38,16 +47,16 @@ export async function POST(request: NextRequest) {
     const portfolioUrl = process.env.PORTFOLIO_URL || "https://your-portfolio-url.com";
 
     // Royal Theme Colors (Hex for email compatibility)
-    const royalBackgroundColor = "#0A0F1A"; 
-    const royalCardBackgroundColor = "#141A2E"; 
-    const royalTextColor = "#F0EAD6"; 
-    const royalMutedTextColor = "#A8A29E"; 
-    const royalAccentColor = "#FFBF00"; 
-    const royalBorderColor = "#2E3A59";
+    const royalBackgroundColor = "#0A0F1A"; // Deep Royal Blue/Indigo (adjusted from HSL for direct use)
+    const royalCardBackgroundColor = "#141A2E"; // Slightly Lighter Deep Blue / Dark Slate Blue
+    const royalTextColor = "#F0EAD6"; // Cream/Silver (adjusted for visibility)
+    const royalMutedTextColor = "#A8A29E"; // Light Grayish Cream (adjusted for visibility)
+    const royalAccentColor = "#FFBF00"; // Rich Gold/Bright Yellow (adjusted from HSL)
+    const royalBorderColor = "#2E3A59"; // Dark Desaturated Blue Border
 
     // 1. Email to Admin
     const adminMailOptions = {
-      from: `"${name}" <${process.env.CONTACT_FORM_EMAIL_FROM}>`, // Use a "no-reply" or specific sender address
+      from: `"${name}" <${process.env.CONTACT_FORM_EMAIL_FROM}>`,
       replyTo: email,
       to: process.env.CONTACT_FORM_EMAIL_TO,
       subject: `New Portfolio Contact: ${subject}`,
@@ -59,10 +68,10 @@ export async function POST(request: NextRequest) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>New Contact Form Submission</title>
             <style>
-                body { margin: 0; padding: 20px; background-color: ${royalBackgroundColor}; color: ${royalTextColor}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
+                body { margin: 0; padding: 20px; background-color: ${royalBackgroundColor}; color: ${royalTextColor}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 16px; }
                 .container { max-width: 600px; margin: 20px auto; padding: 30px; background-color: ${royalCardBackgroundColor}; border-radius: 12px; border: 1px solid ${royalBorderColor}; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
                 h2 { color: ${royalAccentColor}; margin-top: 0; font-size: 26px; border-bottom: 1px solid ${royalBorderColor}; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600; }
-                p { line-height: 1.7; margin-bottom: 18px; font-size: 16px; color: ${royalTextColor}; }
+                p { line-height: 1.7; margin-bottom: 18px; color: ${royalTextColor}; }
                 .label { color: ${royalMutedTextColor}; font-weight: 500; display: block; margin-bottom: 5px; font-size: 14px; }
                 .value { margin-bottom: 20px; color: ${royalTextColor}; font-weight: 500; }
                 .message-content { white-space: pre-wrap; padding: 20px; background-color: ${royalBackgroundColor}; border-radius: 8px; border: 1px solid ${royalBorderColor}; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 15px; line-height: 1.7; color: ${royalTextColor}; }
@@ -103,17 +112,17 @@ export async function POST(request: NextRequest) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Thank You For Your Message!</title>
             <style>
-                body { margin: 0; padding: 20px; background-color: ${royalBackgroundColor}; color: ${royalTextColor}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
+                body { margin: 0; padding: 20px; background-color: ${royalBackgroundColor}; color: ${royalTextColor}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 16px; }
                 .container { max-width: 600px; margin: 20px auto; padding: 30px; background-color: ${royalCardBackgroundColor}; border-radius: 12px; border: 1px solid ${royalBorderColor}; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
                 h2 { color: ${royalAccentColor}; margin-top: 0; font-size: 26px; margin-bottom: 25px; font-weight: 600; }
-                p { line-height: 1.7; margin-bottom: 18px; font-size: 16px; color: ${royalTextColor}; }
+                p { line-height: 1.7; margin-bottom: 18px; color: ${royalTextColor}; }
                 strong { color: ${royalAccentColor}; font-weight: 600; }
                 .signature { margin-top: 30px; line-height: 1.6; color: ${royalTextColor}; }
                 .signature p { margin-bottom: 6px; }
                 .footer { margin-top: 35px; text-align: center; font-size: 13px; color: ${royalMutedTextColor}; }
                 a { color: ${royalAccentColor}; text-decoration: none; font-weight: 500; }
                 a:hover { text-decoration: underline; }
-                .portfolio-link { color: ${royalMutedTextColor}; }
+                .portfolio-link { color: ${royalMutedTextColor}; } /* Changed from accent for better contrast */
             </style>
         </head>
         <body>
@@ -139,23 +148,21 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: "Message sent successfully! You should receive a confirmation email shortly." }, { status: 200 });
 
-  } catch (error) {
-    console.error("Error in /api/contact (Nodemailer):", error); // This will log the detailed error to Netlify Function logs
+  } catch (error: any) {
+    // Log the full error object for better debugging on the server
+    console.error("Error in /api/contact (Nodemailer):", error); 
     
     let errorMessage = "Failed to send your message. Please try again later.";
-    let errorDetails;
+    let errorDetails = error.message || "An unknown error occurred";
 
-    if (error instanceof Error) {
-      errorDetails = error.message; // Keep detailed message for server logs
-      // You might check error.code for specific Nodemailer errors here if needed
-      if ((error as any).code === 'EENVELOPE') { // Example: specific error code from Nodemailer
-        errorMessage = "There was an issue with the recipient or sender email address.";
-      } else if ((error as any).code === 'EAUTH') {
-        errorMessage = "Authentication with the email server failed. Please check credentials.";
-      }
-    }
+    // Specific Nodemailer error codes can be checked here if needed
+    // Example: if (error.code === 'EENVELOPE') { ... }
     
-    // For the client, return a generic message but log details on the server
-    return NextResponse.json({ success: false, error: errorMessage, serverErrorDetails: process.env.NODE_ENV !== 'production' ? errorDetails : undefined }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      error: errorMessage, 
+      // Include detailed error message only in non-production for client-side debugging
+      serverErrorDetails: process.env.NODE_ENV !== 'production' ? errorDetails : undefined 
+    }, { status: 500 });
   }
 }
