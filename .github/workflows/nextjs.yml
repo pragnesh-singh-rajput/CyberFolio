@@ -1,3 +1,4 @@
+
 # Sample workflow for building and deploying a Next.js site to GitHub Pages
 #
 # To get started with Next.js see: https://nextjs.org/docs/getting-started
@@ -7,7 +8,7 @@ name: Deploy Next.js site to Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["master"]
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -58,7 +59,7 @@ jobs:
         with:
           # Automatically inject basePath in your Next.js configuration file and disable
           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
-          #
+          # For App Router, it also sets output: 'export'.
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
       - name: Restore cache
