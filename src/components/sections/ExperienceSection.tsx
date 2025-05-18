@@ -58,12 +58,16 @@ const experienceData: ExperienceItem[] = [
   // },
 ];
 
+const MAX_CONTENT_ROTATION = 5; // For title area tilt
+const MAX_CIRCLE_MOUSE_OFFSET = 10;
+
 export default function ExperienceSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const titleContentRef = useRef<HTMLDivElement>(null); // For tilting the title/description
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [parallaxScrollContainer, setParallaxScrollContainer] = useState<HTMLElement | null>(null);
-  const parallaxAnimationFrameIdRef = useRef<number | null>(null);
+  const parallaxFrameIdRef = useRef<number | null>(null);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -87,6 +91,28 @@ export default function ExperienceSection() {
     const mainElement = document.querySelector('.parallax-scroll-container') as HTMLElement | null;
     setParallaxScrollContainer(mainElement);
     cardRefs.current = cardRefs.current.slice(0, experienceData.length);
+  }, []);
+  
+  const applyParallaxTransforms = useCallback(() => {
+    if (!sectionRef.current) return;
+
+    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
+    if (circle1Ref.current) {
+      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.3)`;
+    }
+
+    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
+    if (circle2Ref.current) {
+      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.3)`;
+    }
   }, []);
   
   const updateScrollability = useCallback(() => {
@@ -117,11 +143,14 @@ export default function ExperienceSection() {
   }, [experienceData.length]); 
 
   useEffect(() => {
-    if (isMountedRef.current && activeIndex !== 0 && experienceData.length > 0 && cardRefs.current[activeIndex]) {
-      const timeoutId = setTimeout(() => scrollToCard(activeIndex), 50); 
+    if (isMountedRef.current && activeIndex !== 0 && experienceData.length > 1 && cardRefs.current[activeIndex]) {
+      // Only auto-scroll if activeIndex is not the first, to avoid initial scroll interference.
+    } else if (isMountedRef.current && experienceData.length > 0) {
+       // This ensures button states are correct on load for single or multiple items
+      const timeoutId = setTimeout(() => updateScrollability(), 360); // Slightly longer delay for robust layout calc
       return () => clearTimeout(timeoutId);
     }
-  }, [activeIndex, experienceData.length, scrollToCard]);
+  }, [activeIndex, experienceData.length, scrollToCard, updateScrollability]);
 
 
   useEffect(() => {
@@ -136,10 +165,12 @@ export default function ExperienceSection() {
       };
 
       container.addEventListener('scroll', handleScrollEvent, { passive: true });
+      const initialScrollUpdate = setTimeout(updateScrollability, 350);
       return () => {
         container.removeEventListener('scroll', handleScrollEvent);
         if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
         if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
+        clearTimeout(initialScrollUpdate);
       };
     }
   }, [updateScrollability]);
@@ -152,12 +183,8 @@ export default function ExperienceSection() {
       if (scrollUpdateRafId.current) cancelAnimationFrame(scrollUpdateRafId.current);
       scrollUpdateRafId.current = requestAnimationFrame(() => {
         updateScrollability();
-         // Only scroll if there's more than one card, to prevent error on single card.
-        if (experienceData.length > 1 && cardRefs.current[activeIndex]) {
-           scrollToCard(activeIndex); // Re-center active card on resize
-        } else if (experienceData.length === 1) {
-           // For single card, ensure it's simply visible if container resizes
-           if(cardRefs.current[0]) cardRefs.current[0]?.scrollIntoView({inline: 'center', block: 'nearest'});
+        if (experienceData.length > 0 && cardRefs.current[activeIndex]) {
+           scrollToCard(activeIndex); 
         }
       });
     };
@@ -179,23 +206,25 @@ export default function ExperienceSection() {
   useEffect(() => {
     if (!parallaxScrollContainer || !sectionRef.current) return;
 
-    const performParallaxUpdate = () => {
-      if (!sectionRef.current || !parallaxScrollContainer || !parallaxAnimationFrameIdRef) return; 
-      const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
-      const scrollProgress = -sectionTopInViewport;
-
-      if (circle1Ref.current) {
-        circle1Ref.current.style.transform = `translateY(${scrollProgress * 0.3}px) translateX(${scrollProgress * 0.08}px) rotate(-${scrollProgress * 0.014}deg) scale(1.3)`;
-      }
-      if (circle2Ref.current) {
-        circle2Ref.current.style.transform = `translateY(${scrollProgress * 0.18}px) translateX(-${scrollProgress * 0.07}px) rotate(${scrollProgress * 0.011}deg) scale(1.3)`;
-      }
-      parallaxAnimationFrameIdRef.current = null; 
-    };
-
     const handleParallaxScroll = () => {
-      if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
-      parallaxAnimationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+      if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+      parallaxFrameIdRef.current = requestAnimationFrame(() => {
+        if (!sectionRef.current || !parallaxScrollContainer) return; 
+        const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
+        const scrollProgress = -sectionTopInViewport;
+
+        if (circle1Ref.current) {
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.3}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.08}`);
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.014}`);
+        }
+        if (circle2Ref.current) {
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.18}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.07}`);
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.011}`);
+        }
+        applyParallaxTransforms();
+      });
     };
     
     if (parallaxScrollContainer){
@@ -205,26 +234,93 @@ export default function ExperienceSection() {
     
     return () => {
       if (parallaxScrollContainer) parallaxScrollContainer.removeEventListener('scroll', handleParallaxScroll);
-      if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current);
+      if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [parallaxScrollContainer]);
+  }, [parallaxScrollContainer, applyParallaxTransforms]);
+
+  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    if (!sectionRef.current || (!titleContentRef.current && experienceData.length > 0) || !circle1Ref.current || !circle2Ref.current) return;
+    
+    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+    parallaxFrameIdRef.current = requestAnimationFrame(() => {
+        if (!sectionRef.current || (!titleContentRef.current && experienceData.length > 0) || !circle1Ref.current || !circle2Ref.current) return;
+        const rect = sectionRef.current.getBoundingClientRect();
+        const mouseXInSection = event.clientX - rect.left;
+        const mouseYInSection = event.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
+        const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
+
+        if (titleContentRef.current) {
+            const rotateX = normalizedMouseY * -MAX_CONTENT_ROTATION;
+            const rotateY = normalizedMouseX * MAX_CONTENT_ROTATION;
+            titleContentRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
+        }
+        
+        if (circle1Ref.current) {
+            circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+            circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
+        }
+        if (circle2Ref.current) {
+            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+            circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+        }
+        applyParallaxTransforms();
+    });
+  }, [applyParallaxTransforms]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+    if (titleContentRef.current) {
+      titleContentRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+    }
+    if (circle1Ref.current) {
+        circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
+        circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+    }
+    if (circle2Ref.current) {
+        circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
+        circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+    }
+    applyParallaxTransforms();
+  }, [applyParallaxTransforms]);
+
+  useEffect(() => {
+    ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
+        circle1Ref.current?.style.setProperty(prop, '0')
+    );
+    ['--mouse-x-2', '--mouse-y-2', '--scroll-x-2', '--scroll-y-2', '--scroll-rotate-2'].forEach(prop => 
+        circle2Ref.current?.style.setProperty(prop, '0')
+    );
+    applyParallaxTransforms();
+  }, [applyParallaxTransforms]);
+
 
   return (
     <section
       id="experience"
       ref={sectionRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5" 
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5 [transform-style:preserve-3d]" 
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-blue-700/30 rounded-[60%/45%] filter blur-[280px] opacity-40 transition-transform duration-500 ease-out"
+        className="absolute -z-10 top-[-10%] right-[-30%] w-[80rem] h-[90rem] bg-blue-700/25 dark:bg-blue-900/20 rounded-[60%/45%] filter blur-[220px] md:blur-[290px] opacity-40 dark:opacity-35 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-teal-600/25 rounded-[50%/65%] filter blur-[270px] opacity-35 transition-transform duration-500 ease-out"
+        className="absolute -z-10 bottom-[-20%] left-[-35%] w-[90rem] h-[80rem] bg-teal-600/20 dark:bg-teal-800/15 rounded-[50%/65%] filter blur-[210px] md:blur-[280px] opacity-35 dark:opacity-30 transition-transform duration-300 ease-out"
       ></div>
       
-      <div className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full">
+      <div 
+        ref={titleContentRef}
+        className="container mx-auto px-0 md:px-6 py-16 flex flex-col w-full transition-transform duration-150 ease-out"
+        style={{ transformStyle: "preserve-3d" }}
+      >
         <AnimatedSection animationType="scaleIn" delay="delay-100" className="w-full text-center mb-10 md:mb-12 px-4">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">💼 Professional Experience</h2>
           <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
@@ -233,11 +329,12 @@ export default function ExperienceSection() {
         </AnimatedSection>
 
         <div className="relative w-full mt-6">
-           <Button
+          <div className="overflow-hidden w-full"> {/* Added this wrapper */}
+            <Button
               variant="outline"
               size="icon"
               onClick={() => scrollToCard(activeIndex - 1)}
-              disabled={!canScrollLeft || experienceData.length <= 1}
+              disabled={!canScrollLeft}
               aria-label="Scroll experience left"
               className={cn(
                 "absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
@@ -251,7 +348,7 @@ export default function ExperienceSection() {
               variant="outline"
               size="icon"
               onClick={() => scrollToCard(activeIndex + 1)}
-              disabled={!canScrollRight || experienceData.length <= 1}
+              disabled={!canScrollRight}
               aria-label="Scroll experience right"
               className={cn(
                   "absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full border-accent/70 text-accent bg-background/50 hover:bg-accent/20 transition-all duration-200 ease-in-out h-10 w-10 sm:h-12 sm:w-12",
@@ -261,81 +358,82 @@ export default function ExperienceSection() {
               <ChevronRight className="h-6 w-6" />
             </Button>
           
-          <div className="overflow-hidden w-full [transform-style:preserve-3d] [perspective:1000px]"> {/* Added perspective */}
-            <div 
-              ref={scrollContainerRef}
-              className={cn(
-                "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
-                 experienceData.length === 1 && "justify-center" 
-              )}
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
-            >
-              {experienceData.map((exp, index) => (
-                <div
-                  key={exp.id}
-                  ref={(el) => { cardRefs.current[index] = el; }}
-                  className={cn(
-                    "group flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
-                  )}
-                >
-                  <AnimatedSection 
-                    animationType="scaleIn" 
-                    delay={`delay-${100}` as `delay-${number}`} 
+            <div className="overflow-hidden w-full [transform-style:preserve-3d] [perspective:1000px]"> 
+              <div 
+                ref={scrollContainerRef}
+                className={cn(
+                  "flex flex-row gap-4 md:gap-6 py-4 px-2 -mx-2 overflow-x-auto",
+                  experienceData.length === 1 && "justify-center" 
+                )}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} 
+              >
+                {experienceData.map((exp, index) => (
+                  <div
+                    key={exp.id}
+                    ref={(el) => { cardRefs.current[index] = el; }}
+                    className={cn(
+                      "group flex-none w-[calc(100%-3rem)] sm:w-80 md:w-96 lg:w-[420px] h-full py-2", 
+                    )}
                   >
-                    <Card className={cn(
-                      "flex flex-col h-full shadow-xl overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30",
-                      "transition-all duration-500 ease-out",
-                      index === activeIndex 
-                        ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
-                        : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]",
-                      "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-4 group-hover:shadow-2xl" // 3D tilt
-                    )}>
-                      <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
-                        {exp.logoUrl && (
-                          <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-1.5">
-                            <Image
-                              src={exp.logoUrl}
-                              alt={`${exp.company} logo`}
-                              fill
-                              sizes="(max-width: 768px) 4rem, 5rem"
-                              className="object-contain"
-                              data-ai-hint={exp.imageHint || "company logo"}
-                            />
-                          </div>
-                        )}
-                        <div className="flex-grow pt-1 md:pt-0">
-                          <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">{exp.title}</CardTitle>
-                          <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                            <Building2 className="h-4 w-4 text-accent" />
-                            <span className="font-medium text-foreground/90 text-sm">{exp.company}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                            <CalendarDays className="h-3 w-3 text-accent" />
-                            <span>{exp.duration}</span>
-                          </div>
-                          {exp.location && (
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                              <MapPin className="h-3 w-3 text-accent" />
-                              <span>{exp.location}</span>
+                    <AnimatedSection 
+                      animationType="scaleIn" 
+                      delay={`delay-${100}` as `delay-${number}`} 
+                    >
+                      <Card className={cn(
+                        "flex flex-col h-full shadow-xl overflow-hidden bg-card/90 backdrop-blur-md border-secondary/30",
+                        "transition-all duration-500 ease-out",
+                        index === activeIndex 
+                          ? "opacity-100 scale-100 shadow-2xl border-accent/50" 
+                          : "opacity-50 scale-85 hover:opacity-70 hover:scale-[0.88]",
+                        "group-hover:rotate-x-[8deg] group-hover:rotate-y-[-8deg] group-hover:scale-105 group-hover:translate-z-4 group-hover:shadow-2xl"
+                      )}>
+                        <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6 p-5 md:p-6">
+                          {exp.logoUrl && (
+                            <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-accent/30 shadow-md flex-shrink-0 bg-background/70 p-1.5">
+                              <Image
+                                src={exp.logoUrl}
+                                alt={`${exp.company} logo`}
+                                fill
+                                sizes="(max-width: 768px) 4rem, 5rem"
+                                className="object-contain"
+                                data-ai-hint={exp.imageHint || "company logo"}
+                              />
                             </div>
                           )}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-5 md:p-6 pt-0 space-y-2.5 flex-grow">
-                        <h4 className="text-sm font-semibold text-foreground/90 mb-1.5">Key Responsibilities & Achievements:</h4>
-                        <ul className="space-y-2 list-inside">
-                          {exp.description.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
-                              <span className="text-foreground/80 text-xs leading-relaxed">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
-                  </AnimatedSection>
-                </div>
-              ))}
+                          <div className="flex-grow pt-1 md:pt-0">
+                            <CardTitle className="text-lg md:text-xl font-semibold text-primary group-hover:text-accent transition-colors">{exp.title}</CardTitle>
+                            <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                              <Building2 className="h-4 w-4 text-accent" />
+                              <span className="font-medium text-foreground/90 text-sm">{exp.company}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              <CalendarDays className="h-3 w-3 text-accent" />
+                              <span>{exp.duration}</span>
+                            </div>
+                            {exp.location && (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                                <MapPin className="h-3 w-3 text-accent" />
+                                <span>{exp.location}</span>
+                              </div>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-5 md:p-6 pt-0 space-y-2.5 flex-grow">
+                          <h4 className="text-sm font-semibold text-foreground/90 mb-1.5">Key Responsibilities & Achievements:</h4>
+                          <ul className="space-y-2 list-inside">
+                            {exp.description.map((item, idx) => (
+                              <li key={idx} className="flex items-start">
+                                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                                <span className="text-foreground/80 text-xs leading-relaxed">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </AnimatedSection>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -343,5 +441,4 @@ export default function ExperienceSection() {
     </section>
   );
 }
-
     

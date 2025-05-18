@@ -8,8 +8,8 @@ import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
-const MAX_CONTENT_ROTATION = 7; 
-const MAX_CIRCLE_MOUSE_OFFSET = 20; 
+const MAX_CONTENT_ROTATION = 6; // Slightly reduced for subtlety
+const MAX_CIRCLE_MOUSE_OFFSET = 15; // Reduced mouse offset for circles
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -18,8 +18,7 @@ export default function HeroSection() {
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
   
-  const scrollParallaxFrameIdRef = useRef<number | null>(null);
-  const mouseParallaxFrameIdRef = useRef<number | null>(null);
+  const parallaxFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -28,69 +27,71 @@ export default function HeroSection() {
     }
   }, []);
 
-  const applyCircleTransforms = useCallback(() => {
+  const applyTransforms = useCallback(() => {
+    if (!sectionRef.current) return;
+
+    // Content Tilt (already handled by direct style in handleMouseMove)
+
+    // Background Circles
+    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
     if (circle1Ref.current) {
-        const scrollY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-y-1') || '0');
-        const scrollX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-x-1') || '0');
-        const scrollRotate1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-rotate-1') || '0');
-        const mouseX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-x-1') || '0');
-        const mouseY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-y-1') || '0');
-        circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.35)`;
+      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.35)`;
     }
+
+    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
     if (circle2Ref.current) {
-        const scrollY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-y-2') || '0');
-        const scrollX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-x-2') || '0');
-        const scrollRotate2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-rotate-2') || '0');
-        const mouseX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-x-2') || '0');
-        const mouseY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-y-2') || '0');
-        circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.3)`;
+      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.3)`;
     }
   }, []);
 
+
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
-    const parallaxUpdateRef = scrollParallaxFrameIdRef;
 
-    const performScrollParallaxUpdate = () => {
-      if (!sectionRef.current || !scrollContainer) return;
-      const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
-      const scrollProgress = -sectionTopInViewport;
-
-      if (circle1Ref.current) {
-        circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}`);
-        circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.15}`);
-        circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.025}`);
-      }
-      if (circle2Ref.current) {
-        circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.3}`);
-        circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.16}`);
-        circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.018}`);
-      }
-      applyCircleTransforms();
-      parallaxUpdateRef.current = null;
-    };
-    
     const handleScroll = () => {
-      if (parallaxUpdateRef.current) cancelAnimationFrame(parallaxUpdateRef.current);
-      parallaxUpdateRef.current = requestAnimationFrame(performScrollParallaxUpdate);
+      if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+      parallaxFrameIdRef.current = requestAnimationFrame(() => {
+        if (!sectionRef.current || !scrollContainer) return;
+        const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
+        const scrollProgress = -sectionTopInViewport;
+
+        // Background Circles Scroll Parallax
+        if (circle1Ref.current) {
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.15}`); // Horizontal drift
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.025}`); // Rotation
+        }
+        if (circle2Ref.current) {
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.3}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.16}`); // Opposite drift
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.018}`); // Opposite rotation
+        }
+        applyTransforms();
+      });
     };
     
-    if (scrollContainer) {
-      handleScroll(); 
-      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    }
+    handleScroll(); // Initial call
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    
     return () => {
       if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll);
-      if (parallaxUpdateRef.current) cancelAnimationFrame(parallaxUpdateRef.current);
+      if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [scrollContainer, applyCircleTransforms]);
+  }, [scrollContainer, applyTransforms]);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
     if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
-    if (mouseParallaxFrameIdRef.current) cancelAnimationFrame(mouseParallaxFrameIdRef.current);
-    const mouseUpdateRef = mouseParallaxFrameIdRef;
-
-    mouseUpdateRef.current = requestAnimationFrame(() => {
+    
+    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+    parallaxFrameIdRef.current = requestAnimationFrame(() => {
         if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
         const mouseXInSection = event.clientX - rect.left;
@@ -102,26 +103,28 @@ export default function HeroSection() {
         const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
         const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
 
+        // Content Tilt
         if (contentWrapperRef.current) {
             const rotateX = normalizedMouseY * -MAX_CONTENT_ROTATION;
             const rotateY = normalizedMouseX * MAX_CONTENT_ROTATION;
             contentWrapperRef.current.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
         }
         
+        // Background Circles Mouse Parallax
         if (circle1Ref.current) {
             circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
             circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
         }
         if (circle2Ref.current) {
-            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.7)}`);
-            circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.7)}`);
+            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`); // Slightly different offset
+            circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.75)}`);
         }
-        applyCircleTransforms();
+        applyTransforms();
     });
-  };
+  }, [applyTransforms]);
 
-  const handleMouseLeave = () => {
-    if (mouseParallaxFrameIdRef.current) cancelAnimationFrame(mouseParallaxFrameIdRef.current);
+  const handleMouseLeave = useCallback(() => {
+    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
@@ -133,22 +136,19 @@ export default function HeroSection() {
         circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
         circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
-    applyCircleTransforms();
-  };
+    applyTransforms(); 
+  }, [applyTransforms]);
   
   useEffect(() => {
-    if (circle1Ref.current) {
-        ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
-            circle1Ref.current!.style.setProperty(prop, '0')
-        );
-    }
-    if (circle2Ref.current) {
-         ['--mouse-x-2', '--mouse-y-2', '--scroll-x-2', '--scroll-y-2', '--scroll-rotate-2'].forEach(prop => 
-            circle2Ref.current!.style.setProperty(prop, '0')
-        );
-    }
-    applyCircleTransforms(); 
-  }, [applyCircleTransforms]);
+    // Initialize CSS custom properties for transforms
+    ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
+        circle1Ref.current?.style.setProperty(prop, '0')
+    );
+    ['--mouse-x-2', '--mouse-y-2', '--scroll-x-2', '--scroll-y-2', '--scroll-rotate-2'].forEach(prop => 
+        circle2Ref.current?.style.setProperty(prop, '0')
+    );
+    applyTransforms(); 
+  }, [applyTransforms]);
 
 
   return (
@@ -161,11 +161,11 @@ export default function HeroSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-25%] left-[-30%] w-[70rem] h-[60rem] md:w-[80rem] md:h-[70rem] bg-pink-500/60 dark:bg-pink-700/50 rounded-[60%/45%] filter blur-[250px] md:blur-[320px] opacity-80 dark:opacity-70 transition-transform duration-300 ease-out"
+        className="absolute -z-10 top-[-25%] left-[-30%] w-[80rem] h-[70rem] md:w-[90rem] md:h-[80rem] bg-pink-500/50 dark:bg-pink-700/40 rounded-[60%/45%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-50 transition-transform duration-300 ease-out"
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[60rem] h-[70rem] md:w-[70rem] md:h-[80rem] bg-purple-500/50 dark:bg-purple-800/45 rounded-[45%/55%] filter blur-[240px] md:blur-[310px] opacity-75 dark:opacity-65 transition-transform duration-300 ease-out"
+        className="absolute -z-10 bottom-[-30%] right-[-25%] w-[70rem] h-[80rem] md:w-[80rem] md:h-[90rem] bg-purple-500/40 dark:bg-purple-800/35 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-55 dark:opacity-45 transition-transform duration-300 ease-out"
       ></div>
 
       <div
@@ -208,4 +208,4 @@ export default function HeroSection() {
     </section>
   );
 }
-
+    

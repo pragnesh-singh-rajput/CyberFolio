@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Linkedin, Github, Mail, Phone, Instagram } from "lucide-react";
 import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 
 const contactFormSchema = z.object({
@@ -31,6 +31,9 @@ const contactFormSchema = z.object({
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
+
+const MAX_CONTENT_ROTATION = 4;
+const MAX_CIRCLE_MOUSE_OFFSET = 10;
 
 export default function ContactSection() {
   const { toast } = useToast();
@@ -52,10 +55,11 @@ export default function ContactSection() {
   });
 
   const sectionRef = useRef<HTMLElement>(null);
+  const contentWrapperRef = useRef<HTMLDivElement>(null); // To tilt the grid container
   const circle1Ref = useRef<HTMLDivElement>(null);
   const circle2Ref = useRef<HTMLDivElement>(null);
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(null);
-  const animationFrameIdRef = useRef<number | null>(null);
+  const parallaxFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mainElement = document.querySelector('.parallax-scroll-container');
@@ -64,46 +68,120 @@ export default function ContactSection() {
     }
   }, []);
 
+  const applyTransforms = useCallback(() => {
+    if (!sectionRef.current) return;
+
+    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
+    if (circle1Ref.current) {
+      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.15)`;
+    }
+
+    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
+    if (circle2Ref.current) {
+      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.12)`;
+    }
+  }, []);
+
   useEffect(() => {
     if (!scrollContainer || !sectionRef.current) return;
     
-    const performParallaxUpdate = () => {
-      if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) {
-         animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
-        return;
-      }
-      const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
-      const scrollProgress = -sectionTopInViewport;
+    const handleScroll = () => {
+      if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+      parallaxFrameIdRef.current = requestAnimationFrame(() => {
+        if (!sectionRef.current || !scrollContainer) return;
+        const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
+        const scrollProgress = -sectionTopInViewport;
 
-      const c1X = scrollProgress * 0.18;
-      const c1Y = scrollProgress * 0.45;
-      const c1R = -scrollProgress * 0.020;
-      circle1Ref.current.style.transform = `translate3d(${c1X}px, ${c1Y}px, 0) rotate(${c1R}deg) scale(1.15)`;
-
-      const c2X = -scrollProgress * 0.15;
-      const c2Y = scrollProgress * 0.28;
-      const c2R = scrollProgress * 0.015;
-      circle2Ref.current.style.transform = `translate3d(${c2X}px, ${c2Y}px, 0) rotate(${c2R}deg) scale(1.12)`;
-      
-      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+        if (circle1Ref.current) {
+          circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}`);
+          circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * 0.18}`);
+          circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * -0.020}`);
+        }
+        if (circle2Ref.current) {
+          circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.28}`);
+          circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * -0.15}`);
+          circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * 0.015}`);
+        }
+        applyTransforms();
+      });
     };
     
-    animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
-
-    const handleScroll = () => {
-       // The requestAnimationFrame logic is now inside performParallaxUpdate for continuous animation
-    };
-
+    handleScroll();
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    
     return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-      }
-      if (animationFrameIdRef.current && typeof cancelAnimationFrame === 'function') {
-        cancelAnimationFrame(animationFrameIdRef.current);
-      }
+      if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll);
+      if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
     };
-  }, [scrollContainer]);
+  }, [scrollContainer, applyTransforms]);
+
+  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    
+    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+    parallaxFrameIdRef.current = requestAnimationFrame(() => {
+        if (!sectionRef.current || !contentWrapperRef.current || !circle1Ref.current || !circle2Ref.current) return;
+        const rect = sectionRef.current.getBoundingClientRect();
+        const mouseXInSection = event.clientX - rect.left;
+        const mouseYInSection = event.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const normalizedMouseX = (mouseXInSection - centerX) / centerX; 
+        const normalizedMouseY = (mouseYInSection - centerY) / centerY; 
+
+        if (contentWrapperRef.current) {
+            const rotateX = normalizedMouseY * -MAX_CONTENT_ROTATION;
+            const rotateY = normalizedMouseX * MAX_CONTENT_ROTATION;
+            contentWrapperRef.current.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
+        }
+        
+        if (circle1Ref.current) {
+            circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+            circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
+        }
+        if (circle2Ref.current) {
+            circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+            circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.8)}`);
+        }
+        applyTransforms();
+    });
+  }, [applyTransforms]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (parallaxFrameIdRef.current) cancelAnimationFrame(parallaxFrameIdRef.current);
+    if (contentWrapperRef.current) {
+      contentWrapperRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)';
+    }
+    if (circle1Ref.current) {
+        circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
+        circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
+    }
+    if (circle2Ref.current) {
+        circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
+        circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
+    }
+    applyTransforms();
+  }, [applyTransforms]);
+
+  useEffect(() => {
+    ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop => 
+        circle1Ref.current?.style.setProperty(prop, '0')
+    );
+    ['--mouse-x-2', '--mouse-y-2', '--scroll-x-2', '--scroll-y-2', '--scroll-rotate-2'].forEach(prop => 
+        circle2Ref.current?.style.setProperty(prop, '0')
+    );
+    applyTransforms();
+  }, [applyTransforms]);
 
   async function onSubmit(data: ContactFormValues) {
     form.setValue('name', data.name.trim());
@@ -111,8 +189,6 @@ export default function ContactSection() {
     form.setValue('subject', data.subject.trim());
     form.setValue('message', data.message.trim());
     
-    console.log("Attempting to send data to /api/contact:", data);
-
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -156,15 +232,17 @@ export default function ContactSection() {
     <section
       id="contact"
       ref={sectionRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5 [transform-style:preserve-3d]"
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/60 dark:bg-pink-700/50 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-70 dark:opacity-60 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/50 dark:bg-pink-700/35 rounded-[55%/40%] filter blur-[220px] md:blur-[290px] opacity-70 dark:opacity-50 transition-transform duration-300 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/50 dark:bg-purple-800/45 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-65 dark:opacity-55 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/40 dark:bg-purple-800/30 rounded-[45%/55%] filter blur-[210px] md:blur-[280px] opacity-65 dark:opacity-45 transition-transform duration-300 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -174,7 +252,11 @@ export default function ContactSection() {
             Have a question or want to collaborate? Feel free to reach out.
           </p>
         </AnimatedSection>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+        <div 
+            ref={contentWrapperRef}
+            className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start transition-transform duration-150 ease-out"
+            style={{ transformStyle: "preserve-3d" }}
+        >
           <AnimatedSection animationType="fadeInLeft" delay="delay-300" className="w-full space-y-10">
             <div className="bg-card/70 backdrop-blur-md p-6 rounded-lg shadow-lg border border-border/50">
               <h3 className="text-xl font-semibold text-primary mb-6">Contact Information</h3>
@@ -301,3 +383,4 @@ export default function ContactSection() {
     </section>
   );
 }
+    
