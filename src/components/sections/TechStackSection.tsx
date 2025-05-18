@@ -22,7 +22,7 @@ const techSkillsData: TechSkill[] = [
   { id: 'ts7', name: 'Next.js', category: 'Frameworks & Libraries', icon: Brain, proficiency: 78 },
   { id: 'ts8', name: 'Node.js', category: 'Frameworks & Libraries', icon: Brain, proficiency: 70 },
   { id: 'ts9', name: 'Flask/Django', category: 'Frameworks & Libraries', icon: Brain, proficiency: 75 },
-  { id: 'ts10', name: 'Tailwind CSS', category: 'Frameworks & Libraries', icon: Construction, proficiency: 85 },
+  { id: 'ts10', name: 'Tailwind CSS', category: 'Frameworks & Libraries', icon: Brain, proficiency: 85 },
 
   // Databases
   { id: 'ts11', name: 'SQL (MySQL, PostgreSQL)', category: 'Databases', icon: Database, proficiency: 80 },
@@ -93,14 +93,14 @@ export default function TechStackSection() {
         const scrollProgress = -sectionTopInViewport;
 
         if (circle1Ref.current) {
-            circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}px`);
-            circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * -0.12}px`);
-            circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.022}deg`);
+            circle1Ref.current.style.setProperty('--scroll-y-1', `${scrollProgress * 0.45}`);
+            circle1Ref.current.style.setProperty('--scroll-x-1', `${scrollProgress * -0.12}`);
+            circle1Ref.current.style.setProperty('--scroll-rotate-1', `${scrollProgress * 0.022}`);
         }
         if (circle2Ref.current) {
-            circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.28}px`);
-            circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * 0.15}px`);
-            circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.018}deg`);
+            circle2Ref.current.style.setProperty('--scroll-y-2', `${scrollProgress * 0.28}`);
+            circle2Ref.current.style.setProperty('--scroll-x-2', `${scrollProgress * 0.15}`);
+            circle2Ref.current.style.setProperty('--scroll-rotate-2', `${scrollProgress * -0.018}`);
         }
         applyTransforms();
       });
@@ -136,12 +136,12 @@ export default function TechStackSection() {
       }
       
       if (circle1Ref.current) {
-          circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}px`);
-          circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}px`);
+          circle1Ref.current.style.setProperty('--mouse-x-1', `${normalizedMouseX * MAX_CIRCLE_MOUSE_OFFSET}`);
+          circle1Ref.current.style.setProperty('--mouse-y-1', `${normalizedMouseY * MAX_CIRCLE_MOUSE_OFFSET}`);
       }
       if (circle2Ref.current) {
-          circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.7)}px`);
-          circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.7)}px`);
+          circle2Ref.current.style.setProperty('--mouse-x-2', `${normalizedMouseX * (MAX_CIRCLE_MOUSE_OFFSET * 0.7)}`);
+          circle2Ref.current.style.setProperty('--mouse-y-2', `${normalizedMouseY * (MAX_CIRCLE_MOUSE_OFFSET * 0.7)}`);
       }
       applyTransforms();
     });
@@ -153,22 +153,22 @@ export default function TechStackSection() {
       contentWrapperRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     }
     if (circle1Ref.current) {
-      circle1Ref.current.style.setProperty('--mouse-x-1', `0px`);
-      circle1Ref.current.style.setProperty('--mouse-y-1', `0px`);
+      circle1Ref.current.style.setProperty('--mouse-x-1', `0`);
+      circle1Ref.current.style.setProperty('--mouse-y-1', `0`);
     }
     if (circle2Ref.current) {
-      circle2Ref.current.style.setProperty('--mouse-x-2', `0px`);
-      circle2Ref.current.style.setProperty('--mouse-y-2', `0px`);
+      circle2Ref.current.style.setProperty('--mouse-x-2', `0`);
+      circle2Ref.current.style.setProperty('--mouse-y-2', `0`);
     }
     applyTransforms();
   }, [applyTransforms]);
 
   useEffect(() => {
     ['--mouse-x-1', '--mouse-y-1', '--scroll-x-1', '--scroll-y-1', '--scroll-rotate-1'].forEach(prop =>
-        circle1Ref.current?.style.setProperty(prop, '0px')
+        circle1Ref.current?.style.setProperty(prop, '0')
     );
     ['--mouse-x-2', '--mouse-y-2', '--scroll-x-2', '--scroll-y-2', '--scroll-rotate-2'].forEach(prop =>
-        circle2Ref.current?.style.setProperty(prop, '0px')
+        circle2Ref.current?.style.setProperty(prop, '0')
     );
     applyTransforms();
   }, [applyTransforms]);
@@ -185,11 +185,11 @@ export default function TechStackSection() {
     >
       <div
         ref={circle1Ref}
-        className="absolute -z-10 top-[10%] left-[-25%] w-[70rem] h-[60rem] md:w-[85rem] md:h-[75rem] bg-accent/10 dark:bg-accent/5 rounded-[60%/40%] filter blur-[230px] md:blur-[300px] opacity-70 dark:opacity-60"
+        className="absolute -z-10 top-[10%] left-[-25%] w-[80rem] h-[70rem] md:w-[85rem] md:h-[75rem] bg-accent/10 dark:bg-accent/5 rounded-[60%/40%] filter blur-[230px] md:blur-[300px] opacity-70 dark:opacity-60"
       ></div>
       <div
         ref={circle2Ref}
-        className="absolute -z-10 bottom-[5%] right-[-30%] w-[65rem] h-[70rem] md:w-[80rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[40%/55%] filter blur-[220px] md:blur-[290px] opacity-65 dark:opacity-55"
+        className="absolute -z-10 bottom-[5%] right-[-30%] w-[75rem] h-[80rem] md:w-[80rem] md:h-[85rem] bg-primary/10 dark:bg-primary/5 rounded-[40%/55%] filter blur-[220px] md:blur-[290px] opacity-65 dark:opacity-55"
       ></div>
 
       <div
@@ -219,17 +219,19 @@ export default function TechStackSection() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {techSkillsData.filter(skill => skill.category === category).map(skill => (
+                  {techSkillsData.filter(skill => skill.category === category).map(skill => {
+                    const IconComponent = skill.icon || Code; // Default to Code icon if specific one is missing
+                    return (
                     <div key={skill.id} className="text-sm">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-foreground/90 font-medium">{skill.name}</span>
-                        {skill.icon && <skill.icon className="h-5 w-5 text-muted-foreground" />}
+                        <IconComponent className="h-5 w-5 text-muted-foreground" />
                       </div>
                       {skill.proficiency && (
                         <Progress value={skill.proficiency} className="h-2 bg-primary/30" indicatorClassName="bg-gradient-to-r from-primary to-accent" />
                       )}
                     </div>
-                  ))}
+                  )})}
                 </CardContent>
               </Card>
             </AnimatedSection>
