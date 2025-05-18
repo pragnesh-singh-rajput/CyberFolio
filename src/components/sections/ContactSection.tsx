@@ -22,7 +22,6 @@ import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useEffect, useRef, useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from '@/lib/supabaseClient';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }).max(50, {message: "Name cannot exceed 50 characters."}),
@@ -71,7 +70,9 @@ export default function ContactSection() {
 
     const performParallaxUpdate = () => {
       if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) {
-        animFrameId = requestAnimationFrame(performParallaxUpdate);
+        if (typeof requestAnimationFrame === 'function') {
+            animFrameId = requestAnimationFrame(performParallaxUpdate);
+        }
         return;
       }
       const { top: sectionTopInViewport } = sectionRef.current.getBoundingClientRect();
@@ -87,14 +88,18 @@ export default function ContactSection() {
       const c2R = scrollProgress * 0.015;
       circle2Ref.current.style.transform = `translate3d(${c2X}px, ${c2Y}px, 0) rotate(${c2R}deg) scale(1.12)`;
       
-      animFrameId = requestAnimationFrame(performParallaxUpdate);
+      if (typeof requestAnimationFrame === 'function') {
+        animFrameId = requestAnimationFrame(performParallaxUpdate);
+      }
     };
     
     const initialUpdate = () => {
-      if (animationFrameIdRef.current) {
+      if (animationFrameIdRef.current && typeof cancelAnimationFrame === 'function') {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
-      animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+      if (typeof requestAnimationFrame === 'function') {
+        animationFrameIdRef.current = requestAnimationFrame(performParallaxUpdate);
+      }
     };
     
     initialUpdate();
@@ -105,57 +110,27 @@ export default function ContactSection() {
       if (scrollContainer) {
         scrollContainer.removeEventListener('scroll', initialUpdate);
       }
-      if (animationFrameIdRef.current) {
+      if (animationFrameIdRef.current && typeof cancelAnimationFrame === 'function') {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
-       if (animFrameId) {
+       if (animFrameId && typeof cancelAnimationFrame === 'function') {
         cancelAnimationFrame(animFrameId);
       }
     };
   }, [scrollContainer]);
 
   async function onSubmit(data: ContactFormValues) {
-    const { name, email, subject, message } = data;
-    try {
-      const { data: functionData, error: functionError } = await supabase.functions.invoke('contact', {
-        body: { name, email, subject, message },
-      });
+    console.log("Contact form submitted:", data);
+    // Simulate backend call
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (functionError) {
-        console.error('Supabase function error:', JSON.stringify(functionError, null, 2));
-        toast({
-          title: 'Uh oh! Something went wrong.',
-          description: functionError.message || 'There was a problem sending your message. Please try again.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (functionData && functionData.error) {
-         console.error('Function returned an error:', JSON.stringify(functionData.error, null, 2));
-         toast({
-          title: 'Error Sending Message',
-          description: functionData.error || 'Failed to process your request. Please check the details.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      
-      toast({
-        title: 'Message Sent! 🎉',
-        description: "Thanks for reaching out, PK Singh will get back to you soon.",
-        variant: 'default',
-        duration: 5000,
-      });
-      form.reset();
-    } catch (error) {
-      console.error('Client-side error submitting form:', error);
-      toast({
-        title: 'Uh oh! Something went wrong.',
-        description: 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
-      });
-    }
+    toast({
+      title: 'Message Received! ✅',
+      description: "Thanks for reaching out! This form is currently for demo purposes.",
+      variant: 'default',
+      duration: 5000,
+    });
+    form.reset();
   }
 
   return (
@@ -166,11 +141,11 @@ export default function ContactSection() {
     >
       <div 
         ref={circle1Ref} 
-        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/30 dark:bg-pink-700/35 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-60 dark:opacity-40 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 top-[-5%] right-[-20%] w-[70rem] h-[80rem] md:w-[90rem] md:h-[100rem] bg-pink-500/40 dark:bg-pink-700/45 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-70 dark:opacity-50 transition-transform duration-500 ease-out" 
       ></div>
       <div 
         ref={circle2Ref} 
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/25 dark:bg-purple-800/30 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-55 dark:opacity-35 transition-transform duration-500 ease-out" 
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[80rem] h-[75rem] md:w-[100rem] md:h-[90rem] bg-purple-500/35 dark:bg-purple-800/40 rounded-[45%/55%] filter blur-[190px] md:blur-[260px] opacity-65 dark:opacity-45 transition-transform duration-500 ease-out" 
       ></div>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
@@ -209,7 +184,7 @@ export default function ContactSection() {
                   </Link>
                 </Button>
                 <Button variant="outline" size="icon" asChild className="rounded-full hover:bg-gray-700/10 hover:border-gray-400 hover:text-gray-300 transition-all duration-300 ease-in-out transform hover:scale-110">
-                  <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
+                   <Link href="https://x.com/PragneshSingh5" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
                     </svg>
@@ -307,4 +282,6 @@ export default function ContactSection() {
     </section>
   );
 }
+    
+
     
