@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import type { OtherSkill } from '@/types';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Lightbulb, Network, ShieldAlert, Users, BrainCog, ShieldCheck } from 'lucide-react'; // Example icons
+import { Lightbulb, Network, ShieldAlert, Users, BrainCog, ShieldCheck, Shield } from 'lucide-react'; // Example icons
 
 const skillsData: OtherSkill[] = [
   { id: 'os1', name: 'Network Security', description: 'Implementing and managing security measures for computer networks.' },
@@ -54,21 +54,25 @@ export default function SkillsSection() {
   }, []);
 
   const applyTransforms = useCallback(() => {
-    if (!sectionRef.current || !circle1Ref.current || !circle2Ref.current) return;
+    if (!sectionRef.current) return;
 
-    const scrollY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-y-1') || '0');
-    const scrollX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-x-1') || '0');
-    const scrollRotate1 = parseFloat(circle1Ref.current.style.getPropertyValue('--scroll-rotate-1') || '0');
-    const mouseX1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-x-1') || '0');
-    const mouseY1 = parseFloat(circle1Ref.current.style.getPropertyValue('--mouse-y-1') || '0');
-    circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.25)`;
+    const scrollY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-y-1') || '0');
+    const scrollX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-x-1') || '0');
+    const scrollRotate1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--scroll-rotate-1') || '0');
+    const mouseX1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-x-1') || '0');
+    const mouseY1 = parseFloat(circle1Ref.current?.style.getPropertyValue('--mouse-y-1') || '0');
+    if (circle1Ref.current) {
+      circle1Ref.current.style.transform = `translate(${scrollX1 + mouseX1}px, ${scrollY1 + mouseY1}px) rotate(${scrollRotate1}deg) scale(1.25)`;
+    }
 
-    const scrollY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-y-2') || '0');
-    const scrollX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-x-2') || '0');
-    const scrollRotate2 = parseFloat(circle2Ref.current.style.getPropertyValue('--scroll-rotate-2') || '0');
-    const mouseX2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-x-2') || '0');
-    const mouseY2 = parseFloat(circle2Ref.current.style.getPropertyValue('--mouse-y-2') || '0');
-    circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.2)`;
+    const scrollY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-y-2') || '0');
+    const scrollX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-x-2') || '0');
+    const scrollRotate2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--scroll-rotate-2') || '0');
+    const mouseX2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-x-2') || '0');
+    const mouseY2 = parseFloat(circle2Ref.current?.style.getPropertyValue('--mouse-y-2') || '0');
+    if (circle2Ref.current) {
+      circle2Ref.current.style.transform = `translate(${scrollX2 + mouseX2}px, ${scrollY2 + mouseY2}px) rotate(${scrollRotate2}deg) scale(1.2)`;
+    }
   }, []);
 
   useEffect(() => {
@@ -161,15 +165,15 @@ export default function SkillsSection() {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-secondary/5 [transform-style:preserve-3d]"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-4 md:p-8 bg-background [transform-style:preserve-3d]"
     >
       <div
         ref={circle1Ref}
-        className="absolute -z-10 top-[5%] right-[-20%] w-[55rem] h-[70rem] md:w-[70rem] md:h-[85rem] bg-primary/20 dark:bg-primary/15 rounded-[45%/55%] filter blur-[220px] md:blur-[290px] opacity-40 dark:opacity-30"
+        className="absolute -z-10 top-[5%] right-[-20%] w-[55rem] h-[70rem] md:w-[70rem] md:h-[85rem] bg-primary/15 dark:bg-primary/10 rounded-[45%/55%] filter blur-[220px] md:blur-[290px] opacity-40 dark:opacity-30"
       ></div>
       <div
         ref={circle2Ref}
-        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[65rem] h-[60rem] md:w-[80rem] md:h-[75rem] bg-accent/15 dark:bg-accent/10 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-50 dark:opacity-40"
+        className="absolute -z-10 bottom-[-10%] left-[-25%] w-[65rem] h-[60rem] md:w-[80rem] md:h-[75rem] bg-accent/10 dark:bg-accent/5 rounded-[55%/40%] filter blur-[200px] md:blur-[270px] opacity-50 dark:opacity-40"
       ></div>
 
       <div
