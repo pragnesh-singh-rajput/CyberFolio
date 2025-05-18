@@ -25,12 +25,13 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const websiteName = "PK Singh's Portfolio"; // Or your site name
-    const accentColor = "#2DD4BF"; // Teal accent
-    const backgroundColor = "#111827"; // Dark background
+    const websiteName = "PK Singh's Portfolio"; 
+    const accentColor = "#2DD4BF"; // Teal accent from your theme
+    const backgroundColor = "#111827"; // Dark background from your theme
     const cardBackgroundColor = "#1F2937"; // Slightly lighter card background
-    const textColor = "#E5E7EB"; // Light text
-    const mutedTextColor = "#9CA3AF"; // Muted text
+    const textColor = "#E5E7EB"; // Light text (light gray)
+    const mutedTextColor = "#9CA3AF"; // Muted text (lighter gray)
+    const portfolioUrl = "https://your-portfolio-url.com"; // Replace with your actual portfolio URL
 
     // 1. Email to Admin (styled)
     const adminMailOptions = {
@@ -49,59 +50,60 @@ export async function POST(request: NextRequest) {
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
                     margin: 0;
-                    padding: 0;
+                    padding: 20px;
                     background-color: ${backgroundColor};
                     color: ${textColor};
                 }
                 .container {
                     max-width: 600px;
-                    margin: 20px auto;
+                    margin: 0 auto;
                     padding: 25px;
                     background-color: ${cardBackgroundColor};
                     border-radius: 12px;
-                    border: 1px solid #374151;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    border: 1px solid #374151; /* Slightly darker border */
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
                 }
                 h2 {
                     color: ${accentColor};
                     margin-top: 0;
-                    font-size: 22px;
-                    border-bottom: 1px solid #4A5568;
-                    padding-bottom: 10px;
+                    font-size: 24px;
+                    border-bottom: 1px solid #4A5568; /* Slightly lighter border */
+                    padding-bottom: 12px;
+                    margin-bottom: 20px;
                 }
                 p {
                     line-height: 1.7;
-                    margin-bottom: 12px;
-                    font-size: 15px;
-                }
-                strong {
-                    color: ${mutedTextColor};
-                    font-weight: 500;
+                    margin-bottom: 15px;
+                    font-size: 16px;
+                    color: ${textColor};
                 }
                 .label {
                     color: ${mutedTextColor};
                     font-weight: 600;
                     display: block;
-                    margin-bottom: 3px;
+                    margin-bottom: 4px;
+                    font-size: 14px;
                 }
                 .value {
-                    margin-bottom: 15px;
+                    margin-bottom: 18px;
+                    color: ${textColor};
                 }
                 .message-content {
                     white-space: pre-wrap; /* Preserves line breaks and spacing */
-                    padding: 15px;
-                    background-color: ${backgroundColor};
+                    padding: 18px;
+                    background-color: ${backgroundColor}; /* Even darker for contrast */
                     border-radius: 8px;
                     border: 1px solid #374151;
-                    font-family: 'Courier New', Courier, monospace;
-                    font-size: 14px;
-                    line-height: 1.6;
+                    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+                    font-size: 15px;
+                    line-height: 1.65;
+                    color: ${textColor}; 
                 }
                 .footer {
-                    margin-top: 25px;
+                    margin-top: 30px;
                     text-align: center;
-                    font-size: 0.85em;
-                    color: #6B7280;
+                    font-size: 13px;
+                    color: ${mutedTextColor}; /* Ensuring footer text is light */
                 }
                 a {
                     color: ${accentColor};
@@ -147,42 +149,58 @@ export async function POST(request: NextRequest) {
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
                     margin: 0;
-                    padding: 0;
+                    padding: 20px;
                     background-color: ${backgroundColor};
                     color: ${textColor};
                 }
                 .container {
                     max-width: 600px;
-                    margin: 20px auto;
+                    margin: 0 auto;
                     padding: 25px;
                     background-color: ${cardBackgroundColor};
                     border-radius: 12px;
                     border: 1px solid #374151;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
                 }
                 h2 {
                     color: ${accentColor};
                     margin-top: 0;
-                    font-size: 22px;
+                    font-size: 24px;
+                    margin-bottom: 20px;
                 }
                 p {
                     line-height: 1.7;
-                    margin-bottom: 12px;
-                    font-size: 15px;
+                    margin-bottom: 15px;
+                    font-size: 16px;
+                    color: ${textColor};
                 }
                 strong {
                     color: ${accentColor}; /* Make subject stand out more */
                     font-weight: 600;
                 }
-                .footer {
-                    margin-top: 25px;
-                    text-align: center;
-                    font-size: 0.85em;
-                    color: #6B7280;
-                }
                 .signature {
-                    margin-top: 20px;
-                    line-height: 1.5;
+                    margin-top: 25px;
+                    line-height: 1.6;
+                    color: ${textColor};
+                }
+                .signature p {
+                    margin-bottom: 5px;
+                }
+                .footer {
+                    margin-top: 30px;
+                    text-align: center;
+                    font-size: 13px;
+                    color: ${mutedTextColor}; /* Ensuring footer text is light */
+                }
+                 a {
+                    color: ${accentColor};
+                    text-decoration: none;
+                }
+                a:hover {
+                    text-decoration: underline;
+                }
+                .portfolio-link {
+                   color: ${mutedTextColor}; /* For less prominent links */
                 }
             </style>
         </head>
@@ -194,7 +212,7 @@ export async function POST(request: NextRequest) {
                 <div class="signature">
                     <p>Best regards,</p>
                     <p>PK Singh</p>
-                    <p><a href="https://your-portfolio-url.com" style="color: ${mutedTextColor}; text-decoration: none;">${websiteName}</a></p> 
+                    <p><a href="${portfolioUrl}" class="portfolio-link">${websiteName}</a></p> 
                 </div>
             </div>
             <div class="footer">
