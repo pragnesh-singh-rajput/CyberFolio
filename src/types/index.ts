@@ -52,4 +52,6 @@ export interface Certification {
   credentialUrl?: string; // Optional
   logoUrl?: string; // Optional
   imageHint?: string;
+  description?: string; // Added description field
 }
+
