@@ -8,13 +8,13 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/s
 import { Menu, ShieldCheck, Home, User, GraduationCap, Briefcase, Mail, Building2 } from 'lucide-react';
 import type { NavItem } from '@/types';
 
-const navItems: NavItem[] = [
-  { href: '#home', label: 'Home', icon: Home },
-  { href: '#about', label: 'About', icon: User },
-  { href: '#education', label: 'Education', icon: GraduationCap },
-  { href: '#experience', label: 'Experience', icon: Building2 },
-  { href: '#projects', label: 'Projects', icon: Briefcase },
-  { href: '#contact', label: 'Contact', icon: Mail },
+export const navItems: NavItem[] = [
+  { id: 'home', href: '#home', label: 'Home', icon: Home },
+  { id: 'about', href: '#about', label: 'About', icon: User },
+  { id: 'education', href: '#education', label: 'Education', icon: GraduationCap },
+  { id: 'experience', href: '#experience', label: 'Experience', icon: Building2 },
+  { id: 'projects', href: '#projects', label: 'Projects', icon: Briefcase },
+  { id: 'contact', href: '#contact', label: 'Contact', icon: Mail },
 ];
 
 export default function Header() {
@@ -31,7 +31,8 @@ export default function Header() {
       const href = target.getAttribute('href');
       if (href && href.startsWith('#')) {
         event.preventDefault();
-        const element = document.getElementById(href.substring(1));
+        const elementId = href.substring(1);
+        const element = document.getElementById(elementId);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }

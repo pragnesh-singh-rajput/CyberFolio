@@ -9,6 +9,7 @@ import EducationSection from '@/components/sections/EducationSection';
 import ExperienceSection from '@/components/sections/ExperienceSection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
 import ContactSection from '@/components/sections/ContactSection';
+import NavigationDots from '@/components/layout/NavigationDots';
 
 export default function HomePage() {
   useEffect(() => {
@@ -23,15 +24,16 @@ export default function HomePage() {
       if (mainScrollContainer) {
         mainScrollContainer.scrollTop = 0;
       } else {
-        // Fallback if the specific container isn't found immediately (less likely)
+        // Fallback if the specific container isn't found immediately
         window.scrollTo(0, 0);
       }
     }
   }, []); // Empty dependency array ensures this runs only once on mount
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
+    <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground relative">
       <Header />
+      <NavigationDots />
       <main 
         className="flex-1 overflow-y-auto scroll-pt-16 parallax-scroll-container"
       >
@@ -46,4 +48,3 @@ export default function HomePage() {
     </div>
   );
 }
-

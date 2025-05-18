@@ -11,6 +11,7 @@ export interface Project {
 }
 
 export interface NavItem {
+  id: string; // Added id for easier mapping and observation
   href: string;
   label: string;
   icon?: React.ComponentType<{ className?: string }>;
@@ -23,6 +24,6 @@ export interface ExperienceItem {
   duration: string;
   location?: string;
   description: string[];
-  logoUrl?: string; // Optional: for company logo
-  imageHint?: string; // Optional: for placeholder logo
+  logoUrl?: string; 
+  imageHint?: string; 
 }
